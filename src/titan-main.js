@@ -1,8 +1,10 @@
 import * as THREE from 'three';
 import './titan-arena.css';
-import { createTitan, createCadet, box, material, ellipsoid } from './world.js';
+import { createTitan, createCadet, box, material } from './world.js';
 import { createArenaState, arenaCommand, stepArena } from './titan-combat.js';
 import { clamp, formatTime } from './mechanics.js';
+import { combatPose, applyCombatPose } from './titan-animation.js';
+import { ArenaAudio } from './arena-audio.js';
 
 const $ = id => document.getElementById(id), canvas = $('arena-canvas');
 let renderer;
@@ -41,11 +43,7 @@ for (let i = 0; i < 34; i++) {
 for (let i = 0; i < 9; i++) { const step = box(scene, sand, -64 + i * .3, i * .55, -12, 10 - i * .65, .6, 20); step.rotation.y = -.3; }
 const bannerMat = material('#335a48', { side: THREE.DoubleSide });
 for (const x of [-17, 17]) { const flag = new THREE.Mesh(new THREE.PlaneGeometry(5, 10), bannerMat); flag.position.set(x, 22, -69); scene.add(flag); box(scene, trim, x, 28, -69, 6, .3, .3); }
-const human = createCadet(scene), hero = createTitan(scene, 0, 24, 15, 0), enemy = createTitan(scene, 0, -10, 16, 2);
-// Original placeholder variant: distinct eyes/hair make the controlled body readable.
-const greenEye = material('#b3e2b3', { emissive: '#68b16b', emissiveIntensity: .8 });
-for (const side of [-1, 1]) ellipsoid(hero.root, greenEye, side * .4, 11.22, 1.005, .09, .09, .025);
-for (let i = 0; i < 7; i++) { const strand = box(hero.root, dark, Math.sin(i * 1.1) * .85, 11.7 - i % 3 * .2, -.6, .3, 1.4, .3); strand.rotation.z = Math.sin(i) * .35; }
+const human = createCadet(scene), hero = createTitan(scene, 0, 24, 15, 0, { variant: 'attack' }), enemy = createTitan(scene, 0, -10, 16, 2);
 hero.root.visible = false;
 const ring = new THREE.Mesh(new THREE.RingGeometry(.8, 1, 64), new THREE.MeshBasicMaterial({ color: '#edcc8e', side: THREE.DoubleSide, transparent: true, opacity: 0, depthWrite: false })); ring.rotation.x = -Math.PI / 2; ring.position.y = .12; scene.add(ring);
 const lightningPoints = [];
@@ -62,19 +60,24 @@ function burst(x, z, y = 8, count = 12, color = '#ddd6bc') {
 let state = createArenaState(), mode = 'intro', yaw = 0, pitch = .12, locked = true, dragging = false, readyCamera = false;
 let noticeTime = 0, ringTime = 0, flashTime = 0, enemyHit = 0, heroHit = 0, steamTimer = 0, lastStrike = 0;
 const keys = new Set(), reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const audio = new ArenaAudio();
+let shakeEnabled = !reducedMotion, impactTime = 0, impactPosition = new THREE.Vector3(), hitStop = 0;
+const lastFootsteps = [-1, -1];
+$('arena-shake').checked = shakeEnabled;
 function notice(message, seconds = 3) { $('arena-notice').textContent = message; $('arena-notice').classList.add('visible'); noticeTime = seconds; }
 function clearInput() { keys.clear(); dragging = false; state.guarding = false; state.regenerating = false; }
 function pointer() { try { canvas.requestPointerLock?.()?.catch(() => notice('Arraste a cena para controlar a câmera.')); } catch { notice('Arraste a cena para controlar a câmera.'); } }
-function begin() { mode = 'playing'; $('arena-intro').hidden = true; $('arena-hud').hidden = false; $('arena-pause').hidden = true; $('arena-result').hidden = true; document.body.classList.add('arena-playing'); clearInput(); pointer(); notice(state.form === 'human' ? 'T · Prepare a transformação. O rival aguardará a mudança de forma.' : 'Observe os braços do adversário e ataque durante a recuperação.', 5); }
+function begin() { mode = 'playing'; $('arena-intro').hidden = true; $('arena-hud').hidden = false; $('arena-pause').hidden = true; $('arena-result').hidden = true; document.body.classList.add('arena-playing'); clearInput(); void audio.start(); pointer(); notice(state.form === 'human' ? 'T · Prepare a transformação. O rival aguardará a mudança de forma.' : 'Observe os braços do adversário e ataque durante a recuperação.', 5); }
 function reset() {
+  audio.silence(); hitStop = impactTime = 0; lastFootsteps.fill(-1);
   state = createArenaState(); yaw = 0; pitch = .12; locked = true; readyCamera = false; ringTime = flashTime = enemyHit = heroHit = steamTimer = lastStrike = 0;
   for (const p of particles) { scene.remove(p.mesh); p.mesh.material.dispose(); } particles.length = 0;
   enemy.root.rotation.set(0, 0, 0); hero.root.rotation.set(0, Math.PI, 0); enemy.root.visible = true;
   begin();
 }
-function pause() { if (mode !== 'playing') return; mode = 'paused'; clearInput(); $('arena-pause').hidden = false; if (document.pointerLockElement) document.exitPointerLock(); }
+function pause() { if (mode !== 'playing') return; mode = 'paused'; audio.pause(); clearInput(); $('arena-pause').hidden = false; if (document.pointerLockElement) document.exitPointerLock(); }
 function finish(won, exhausted = false) {
-  mode = 'finished'; clearInput(); if (document.pointerLockElement) document.exitPointerLock(); $('arena-result').hidden = false;
+  mode = 'finished'; audio.silence(); audio.play('defeat'); clearInput(); if (document.pointerLockElement) document.exitPointerLock(); $('arena-result').hidden = false;
   $('arena-result-title').textContent = won ? 'Você dominou a força.' : exhausted ? 'Seu corpo chegou ao limite.' : 'Reagrupe. Tente outra vez.';
   $('arena-result-description').textContent = won ? 'Adversário derrotado. O ensaio validou uma transformação completa e o combate entre duas escalas gigantes.' : exhausted ? 'As reservas acabaram. Ataques, defesa e regeneração precisam dividir o mesmo tempo de transformação.' : 'Use a defesa para reduzir dano, esquive dos golpes e procure a abertura para um agarrão.';
   $('arena-result-stats').textContent = `${formatTime(state.time)} · ${state.stats.hits} acertos · ${state.stats.blocked} defesas · ${state.transforms} transformação(ões)`;
@@ -87,7 +90,9 @@ function command(action) {
   if (mode !== 'playing') return;
   const result = arenaCommand(state, action, movement());
   if (!result.accepted) { notice(result.reason, 2); return; }
-  if (action === 'transform') { ringTime = 1.5; flashTime = .22; lightning.position.set(state.player.x, 0, state.player.z); burst(state.player.x, state.player.z, 1, 24); notice('Objetivo definido. Transformação em curso.', 2.4); }
+  if (['light', 'heavy', 'grab'].includes(action)) lastStrike = 1 - lastStrike;
+  if (action === 'dodge') audio.play('dodge');
+  if (action === 'transform') { audio.play('transform'); ringTime = 1.5; flashTime = .22; lightning.position.set(state.player.x, 0, state.player.z); burst(state.player.x, state.player.z, 1, 24); notice('Objetivo definido. Transformação em curso.', 2.4); }
   if (action === 'exit') notice('Saindo da nuca. Recupere o fôlego antes de transformar novamente.');
 }
 function events(list) {
@@ -96,29 +101,20 @@ function events(list) {
     if (event.kind === 'hit') {
       const target = event.target === 'enemy' ? state.enemy : state.player;
       burst(target.x, target.z, 10, 9, event.target === 'enemy' ? '#dfc092' : '#bd896f');
-      if (event.target === 'enemy') { enemyHit = .35; lastStrike = 1 - lastStrike; } else heroHit = .3;
+      if (event.target === 'enemy') enemyHit = .35; else heroHit = .3;
+      audio.play(event.move === 'heavy' || event.move === 'grab' ? 'heavy' : 'punch');
+      hitStop = event.move === 'heavy' || event.move === 'grab' ? .075 : .045;
+      impactTime = .65; impactPosition.set(target.x, 11, target.z);
+      $('arena-impact').textContent = `${event.damage} · ${event.target === 'enemy' ? 'ACERTO' : 'DANO'}`;
+      $('arena-impact').classList.toggle('received', event.target === 'player');
     }
-    if (event.kind === 'blocked') notice('Defesa firme · dano reduzido. Prepare o contragolpe.', 1.5);
+    if (event.kind === 'blocked') { audio.play('block'); notice('Defesa firme · dano reduzido. Prepare o contragolpe.', 1.5); }
     if (event.kind === 'guard-break') notice('Defesa quebrada. Sua resistência acabou.', 2);
     if (event.kind === 'miss') notice('Golpe fora de alcance. Aproxime-se sem perder a defesa.', 1.5);
     if (event.kind === 'exhausted') notice('Reservas esgotadas. A forma titã está se desfazendo.', 3);
     if (event.kind === 'won') finish(true);
     if (event.kind === 'lost') finish(false);
   }
-}
-function pose(model, walking, time, guard, action, hit, foe = false) {
-  model.legs.forEach((leg, i) => { leg.rotation.x = walking ? Math.sin(time * 4 + i * Math.PI) * .26 : 0; });
-  model.arms.forEach((arm, i) => {
-    let rx = walking ? Math.sin(time * 4 + i * Math.PI) * .1 : -.12, rz = i ? -.08 : .08;
-    if (guard) { rx = -1.65; rz = i ? .4 : -.4; }
-    if (action) {
-      const windup = foe ? action === 'windup' : state.action && !state.action.struck;
-      const grab = !foe && state.action?.kind === 'grab';
-      if (foe || grab || i === lastStrike) { rx = windup ? -.65 : -1.7; rz = windup ? (i ? -.45 : .45) : 0; }
-    }
-    arm.rotation.x = THREE.MathUtils.lerp(arm.rotation.x, rx, .25); arm.rotation.z = THREE.MathUtils.lerp(arm.rotation.z, rz, .25);
-  });
-  model.root.rotation.z = !reducedMotion && hit > 0 ? Math.sin(hit * 25) * .06 : 0;
 }
 function renderBodies(dt) {
   const titanVisible = ['titan', 'transforming', 'exiting', 'won', 'lost'].includes(state.form);
@@ -132,9 +128,24 @@ function renderBodies(dt) {
   enemy.root.position.set(state.enemy.x, 0, state.enemy.z); enemy.root.rotation.y = state.enemy.yaw;
   if (state.form === 'won') enemy.root.rotation.x = THREE.MathUtils.damp(enemy.root.rotation.x, -1.4, 2, dt);
   else if (state.form === 'lost') hero.root.rotation.x = THREE.MathUtils.damp(hero.root.rotation.x, -1.2, 2, dt);
-  pose(hero, mode === 'playing' && Math.hypot(...movement()) > 0, state.time, state.guarding, state.action, heroHit);
-  pose(enemy, mode === 'playing' && state.form === 'titan' && state.enemy.action === 'idle', state.time, false, state.enemy.action !== 'idle' ? state.enemy.action : null, enemyHit, true);
-  if (state.form === 'exiting' || state.regenerating) { steamTimer -= dt; if (steamTimer <= 0) { burst(state.player.x, state.player.z, 6, 3); steamTimer = .2; } }
+  const heroWalking = mode === 'playing' && Math.hypot(...movement()) > 0 && !state.dodge;
+  const enemyWalking = mode === 'playing' && state.form === 'titan' && state.enemy.action === 'idle' && Math.hypot(state.player.x - state.enemy.x, state.player.z - state.enemy.z) > 8;
+  const foeAction = state.form === 'titan' && state.enemy.action !== 'idle'
+    ? { kind: 'heavy', elapsed: state.enemy.action === 'windup' ? (1 - state.enemy.clock / .95) * .7 : .7 + (1 - state.enemy.clock / 1.65) * .8 }
+    : null;
+  applyCombatPose(hero, combatPose({ walking: heroWalking, time: state.time, guard: state.guarding, action: state.action, strikeSide: lastStrike, hit: heroHit }));
+  applyCombatPose(enemy, combatPose({ walking: enemyWalking, time: state.time, action: foeAction, hit: enemyHit }));
+  if (mode === 'playing' && state.form === 'titan') {
+    [heroWalking, enemyWalking].forEach((walking, i) => {
+      const beat = Math.floor(state.time * 4 / Math.PI);
+      if (walking && lastFootsteps[i] !== beat) {
+        const actor = i === 0 ? state.player : state.enemy;
+        audio.play('step', Math.hypot(actor.x - state.player.x, actor.z - state.player.z));
+        burst(actor.x, actor.z, .2, 3, '#b8ad8c'); lastFootsteps[i] = beat;
+      }
+    });
+  }
+  if (state.form === 'exiting' || state.regenerating) { steamTimer -= dt; if (steamTimer <= 0) { burst(state.player.x, state.player.z, 6, 3); audio.play('steam'); steamTimer = .45; } }
 }
 function updateCamera(dt) {
   if (mode === 'intro') { camera.position.set(34, 28, 48); camera.lookAt(0, 7, 4); return; }
@@ -147,6 +158,11 @@ function updateCamera(dt) {
   if (cameraRadius > 67) { desired.x *= 67 / cameraRadius; desired.z *= 67 / cameraRadius; }
   desired.y = Math.max(2, desired.y);
   if (!readyCamera) { camera.position.copy(desired); readyCamera = true; } else camera.position.lerp(desired, 1 - Math.exp(-6 * dt));
+  if (shakeEnabled && mode === 'playing') {
+    const strength = Math.max(heroHit * .6, enemyHit * .22);
+    camera.position.x += Math.sin(state.time * 73) * strength;
+    camera.position.y += Math.cos(state.time * 61) * strength * .5;
+  }
   camera.lookAt(target.clone().addScaledVector(direction, 8)); camera.updateMatrixWorld();
 }
 function hud() {
@@ -162,6 +178,8 @@ function hud() {
 }
 
 $('arena-start').addEventListener('click', begin); $('arena-resume').addEventListener('click', begin); $('arena-restart').addEventListener('click', reset); $('arena-retry').addEventListener('click', reset); $('arena-pause-button').addEventListener('click', pause);
+$('arena-sound').addEventListener('change', e => audio.setEnabled(e.target.checked));
+$('arena-shake').addEventListener('change', e => { shakeEnabled = e.target.checked; });
 $('arena-quality').addEventListener('change', event => { renderer.setPixelRatio(event.target.value === 'low' ? .8 : Math.min(devicePixelRatio, 1.5)); renderer.shadowMap.enabled = event.target.value !== 'low'; scene.traverse(o => { if (o.material) o.material.needsUpdate = true; }); });
 addEventListener('keydown', event => {
   if (event.code === 'Escape') { pause(); return; }
@@ -185,8 +203,9 @@ function animate(now) {
   requestAnimationFrame(animate); const dt = Math.min(.05, (now - previous) / 1000); previous = now;
   if (mode === 'playing') {
     const count = Math.max(1, Math.ceil(dt * 60));
-    for (let i = 0; i < count && mode === 'playing'; i++) events(stepArena(state, dt / count, { move: movement(), guard: keys.has('Guard'), regenerate: keys.has('KeyR'), lock: locked, yaw: Math.PI - yaw }));
+    for (let i = 0; i < count && mode === 'playing' && hitStop <= 0; i++) events(stepArena(state, dt / count, { move: movement(), guard: keys.has('Guard'), regenerate: keys.has('KeyR'), lock: locked, yaw: Math.PI - yaw }));
     if (state.form === 'human' && state.transforms > 0 && (state.energy < 25 || (state.transforms >= 2 && state.fatigue <= 0))) finish(false, true);
+    hitStop = Math.max(0, hitStop - dt); impactTime = Math.max(0, impactTime - dt);
     noticeTime -= dt; if (noticeTime <= 0) $('arena-notice').classList.remove('visible');
     enemyHit = Math.max(0, enemyHit - dt); heroHit = Math.max(0, heroHit - dt); ringTime = Math.max(0, ringTime - dt); flashTime = Math.max(0, flashTime - dt);
     uiClock -= dt; if (uiClock <= 0) { hud(); uiClock = .08; }
@@ -198,7 +217,11 @@ function animate(now) {
   ring.position.set(state.player.x, .12, state.player.z); ring.scale.setScalar(1 + (1.5 - ringTime) * 17); ring.material.opacity = ringTime > 0 ? ringTime / 3 : 0;
   lightning.material.opacity = state.form === 'transforming' ? Math.max(0, state.formClock - 1.5) : 0;
   $('arena-flash').style.opacity = reducedMotion ? '0' : String(Math.min(.45, flashTime * 2));
+  const impactScreen = impactPosition.clone().project(camera);
+  $('arena-impact').hidden = impactTime <= 0 || Math.abs(impactScreen.x) > 1 || Math.abs(impactScreen.y) > 1 || impactScreen.z < -1 || impactScreen.z > 1;
+  $('arena-impact').style.left = `${(impactScreen.x + 1) * 50}%`; $('arena-impact').style.top = `${(1 - impactScreen.y) * 50}%`;
+  $('arena-impact').style.opacity = String(Math.min(1, impactTime * 3));
   renderer.render(scene, camera);
 }
 requestAnimationFrame(animate);
-window.__TITAN_ARENA__ = Object.freeze({ snapshot: () => ({ mode, ...structuredClone(state), lock: locked, drawCalls: renderer.info.render.calls }) });
+window.__TITAN_ARENA__ = Object.freeze({ snapshot: () => ({ mode, ...structuredClone(state), lock: locked, audio: audio.snapshot(), shakeEnabled, hitStop, heroRig: { elbows: hero.elbows.map(e => e.rotation.x), torso: hero.body.rotation.toArray().slice(0, 3) }, drawCalls: renderer.info.render.calls }) });

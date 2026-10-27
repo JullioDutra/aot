@@ -153,31 +153,4 @@ export function createCadet(scene) {
   return { root, legs, arms, cape };
 }
 
-export function createTitan(scene, x, z, height, index) {
-  const root = new THREE.Group(); root.position.set(x, 0, z); scene.add(root);
-  const skin = material(['#bda18b', '#b7a590', '#b49a8a'][index]), muscle = material('#9b6f61'), hair = material('#39352f'), eye = material('#e9e4c7'), dark = material('#382b25');
-  ellipsoid(root, skin, 0, 7, 0, 2.05, 2.6, 1.1);
-  ellipsoid(root, skin, 0, 4.95, .05, 1.2, 1.4, .85);
-  ellipsoid(root, skin, 0, 9.7, 0, .65, .75, .65);
-  ellipsoid(root, skin, 0, 11, .06, 1.04, 1.35, .95);
-  ellipsoid(root, hair, 0, 11.8, -.15, 1.07, .72, .95);
-  for (const side of [-1, 1]) {
-    ellipsoid(root, muscle, side * .83, 7.9, .93, .83, .65, .24);
-    ellipsoid(root, eye, side * .4, 11.23, .89, .25, .14, .09);
-    ellipsoid(root, dark, side * .4, 11.22, .97, .08, .1, .035);
-    box(root, hair, side * .4, 11.49, .9, .55, .11, .1);
-  }
-  ellipsoid(root, skin, 0, 10.92, 1, .16, .3, .26);
-  box(root, dark, 0, 10.48, .88, .94, .24, .12); box(root, eye, 0, 10.53, .96, .83, .07, .04);
-  for (let i = 0; i < 3; i++) for (const side of [-1, 1]) ellipsoid(root, muscle, side * .35, 7.05 - i * .55, .94, .31, .23, .12);
-  const legs = [], arms = [];
-  for (const side of [-1, 1]) {
-    const leg = new THREE.Group(); leg.position.set(side * .82, 4.8, 0); root.add(leg);
-    ellipsoid(leg, skin, 0, -1.3, 0, .72, 1.7, .72); ellipsoid(leg, skin, 0, -3.25, 0, .48, 1.2, .49); ellipsoid(leg, skin, 0, -4.35, .4, .57, .4, .95); legs.push(leg);
-    const arm = new THREE.Group(); arm.position.set(side * 1.85, 8.5, 0); root.add(arm);
-    ellipsoid(arm, skin, side * .28, -1.1, 0, .62, 1.5, .6); ellipsoid(arm, skin, side * .35, -3, .04, .43, 1.2, .43); ellipsoid(arm, skin, side * .35, -4.2, .12, .5, .6, .3); arms.push(arm);
-  }
-  const nape = new THREE.Object3D(); nape.position.set(0, 9.75, -.75); root.add(nape);
-  const scale = height / 12.4; root.scale.setScalar(scale);
-  return { root, nape, legs, arms, height, scale, index, alive: true, deathTime: 0, yaw: Math.PI, spawn: new THREE.Vector3(x, 0, z), attackTimer: 0, phase: 'walk' };
-}
+export { createTitan } from './titan-model.js';

@@ -54,6 +54,14 @@ Resistência limita ataques, defesa e esquiva. Reservas caem com o tempo e mais 
 
 A arena possui vitória, derrota, saída por esgotamento e reinício. Os golpes só acertam no alcance e na direção válidos. Os modelos ainda usam animações procedurais simples; o agarrão é representado por uma aproximação de braços e deslocamento do rival, sem animação de luta final.
 
+## Apresentação do combate — fase 4
+
+Os titãs de Trost e da arena usam um modelo procedural com tronco contínuo, feições, mãos, cabelo e articulações de cotovelos e joelhos. Na arena, as poses de defesa, preparação, extensão e recuperação dos golpes acompanham a simulação; a extensão máxima coincide com o instante de acerto. Isso ainda não substitui modelos esculpidos, captura de movimento ou animações finais do anime.
+
+A arena sintetiza sons de passos, impactos, bloqueio, transformação, esquiva e vapor com Web Audio, sem downloads. O botão **SOM** ativa/desativa esse áudio; pausar interrompe as vozes em andamento. **TREMOR** controla a reação da câmera aos golpes e começa desativado quando o navegador solicita movimento reduzido. O clarão da transformação também respeita essa preferência. Uma breve pausa de impacto e indicadores numéricos ajudam a reconhecer acertos e dano recebido.
+
+A atualização é uma etapa intermediária de apresentação, não a conclusão da demonstração de produção prevista no roteiro. Não altera os custos, danos ou regras do ensaio anterior.
+
 ## Validação
 
 ```sh
@@ -73,6 +81,9 @@ O teste de navegador usa Chromium em `/usr/bin/chromium`; defina `CHROMIUM_PATH`
 - `src/targeting.js`: seleção independente das ancoragens e assistência.
 - `src/titan-combat.js`: simulação determinística de transformação e combate.
 - `src/titan-main.js`: arena, efeitos, controles e visualização da simulação.
+- `src/titan-model.js`: geometria procedural e hierarquia de articulações.
+- `src/titan-animation.js`: poses amostradas pelo tempo da simulação.
+- `src/arena-audio.js`: síntese de efeitos sonoros, limite de vozes, mute e pausa.
 - `docs/ROADMAP.md`: escopo, limites e próximos marcos.
 
 ## Limites atuais
@@ -85,4 +96,4 @@ Uma produção pública/comercial com a propriedade intelectual de Attack on Tit
 
 ## Entregas por fase
 
-Cada fase concluída recebe uma branch, validação, commit, push e PR no GitHub. As fases 1–2 estão no [PR #1](https://github.com/JullioDutra/aot/pull/1), já integrado pelo fluxo externo a esta implementação. A fase 3 é desenvolvida em `feat/phase-03-titan-arena`. Abertura de PR não implica autorização para merge automático; consulte AGENTS.md.
+Cada fase concluída recebe uma branch, validação, commit, push e PR no GitHub. As fases 1–2 estão no [PR #1](https://github.com/JullioDutra/aot/pull/1), já integrado pelo fluxo externo a esta implementação. A fase 3 está no [PR #2](https://github.com/JullioDutra/aot/pull/2). A fase 4 usa `feat/phase-04-combat-presentation` e, enquanto o PR anterior estiver aberto, terá essa branch como base de revisão. Abertura de PR não implica autorização para merge automático; consulte AGENTS.md.
