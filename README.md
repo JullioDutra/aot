@@ -16,7 +16,7 @@ Abra o servidor na porta 5173 usando o encaminhamento de portas do seu ambiente 
 
 ## Operação
 
-Comece no telhado e siga quatro etapas: resgate os civis com G, recupere o abastecimento usando R na caixa azul, elimine os três titãs e confirme a retirada com G no sinal verde diante do portão. O marcador e a seta de direção acompanham o objetivo atual. Ataque por trás, a menos de 7 metros da nuca e na altura correta. O posto azul restaura gás, lâminas e vitalidade. Os titãs antecipam seus ataques com o movimento dos braços; saia do alcance antes do golpe.
+Comece no telhado e siga quatro etapas: reúna os civis com G e acompanhe-os ao abrigo, recupere o abastecimento usando R na caixa azul, elimine os três titãs e confirme a retirada com G no sinal verde diante do portão. O marcador e a seta de direção acompanham o objetivo atual. Ataque por trás, a menos de 7 metros da nuca e na altura correta. O posto azul restaura gás, lâminas e vitalidade. Os titãs antecipam seus ataques com o movimento dos braços; saia do alcance antes do golpe.
 
 | Controle | Ação |
 | --- | --- |
@@ -27,7 +27,7 @@ Comece no telhado e siga quatro etapas: resgate os civis com G, recupere o abast
 | Espaço | Salto no chão; impulso de gás com cabo preso |
 | Clique esquerdo | Ataque com lâminas |
 | R | Reabastecer a menos de 10 m do posto |
-| G | Resgatar civis / confirmar retirada no ponto final |
+| G | Iniciar escolta dos civis / confirmar retirada no ponto final |
 | Escape | Pausa e instruções |
 
 As configurações oferecem qualidade gráfica, sensibilidade, áudio, assistência de ancoragem e variação do campo de visão com velocidade. Q e E mostram destinos separados; cabos se soltam quando a trajetória encontra um obstáculo. O indicador de nuca exige alcance, direção e caminho livre para o golpe. A perda de foco pausa o jogo e limpa os comandos. A operação pode ser reiniciada após vitória ou derrota.
@@ -36,11 +36,19 @@ As configurações oferecem qualidade gráfica, sensibilidade, áudio, assistên
 
 As quatro etapas são obrigatórias. Abates antecipados contam, mas não substituem o resgate ou o abastecimento; eliminar o último titã não encerra a operação. Só a interação no ponto de retirada confirma a vitória.
 
-O jogo registra um checkpoint no início da operação, após resgate/abastecimento e a cada abate. O menu inicial, a pausa e a tela de derrota oferecem retomada. Objetivos, abates e tempo registrado no checkpoint são preservados; posição e equipamento são recuperados em um ponto seguro, com dois segundos de proteção. Não se trata de salvamento a cada quadro: deslocamento e tempo depois do último checkpoint podem ser perdidos.
+O jogo registra um checkpoint no início da operação, ao reunir os civis, nos pontos intermediários da escolta, após resgate/abastecimento e a cada abate. O menu inicial, a pausa e a tela de derrota oferecem retomada. Objetivos, abates e tempo registrado no checkpoint são preservados; posição e equipamento são recuperados em um ponto seguro, com dois segundos de proteção. Não se trata de salvamento a cada quadro: deslocamento e tempo depois do último checkpoint podem ser perdidos.
 
-O progresso é salvo **neste navegador**, na chave `trost.operation.v1` do localStorage; não há sincronização entre dispositivos ou com o GitHub. Dados incompatíveis ou corrompidos são ignorados. Se o navegador impedir a gravação, checkpoints continuam funcionando apenas durante a sessão e a interface informa essa limitação. Uma nova operação substitui o checkpoint; a conclusão não oferece retomada de uma missão já terminada.
+O progresso é salvo **neste navegador**, na chave `trost.operation.v1` do localStorage (formato interno agora na versão 2, com migração da versão 1); não há sincronização entre dispositivos ou com o GitHub. Dados incompatíveis ou corrompidos são ignorados. Se o navegador impedir a gravação, checkpoints continuam funcionando apenas durante a sessão e a interface informa essa limitação. Uma nova operação substitui o checkpoint; a conclusão não oferece retomada de uma missão já terminada.
 
-A missão continua sendo um ensaio original inspirado no cenário de Trost, não uma reconstrução de cenas do anime. Os civis são encaminhados por interação; ainda não há escolta física ou cenas de diálogo.
+A missão continua sendo um ensaio original inspirado no cenário de Trost, não uma reconstrução de cenas do anime. Os civis caminham em grupo até um abrigo. Ainda não há cenas de diálogo ou animações de produção.
+
+## Escolta de civis — fase 6
+
+G reúne os três civis na praça. A etapa só termina quando o grupo chega ao abrigo, ao sul da praça, próximo ao posto de abastecimento. Eles seguem uma rota definida e permanecem visíveis no abrigo depois do resgate. O indicador mostra o progresso, enquanto o marcador acompanha o grupo.
+
+O grupo aguarda se o jogador ficar a mais de 38 m (incluindo altura) e para se um titã vivo ficar a menos de 12 m na horizontal. Aproxime-se ou elimine a ameaça para retomar o percurso; abates feitos durante a escolta continuam contando na missão. Neste protótipo os civis não recebem dano nem morrem: a ameaça bloqueia a passagem, sem simular ainda ferimentos ou perdas. A rota foi desenhada para as ruas atuais e não usa navegação livre por toda a cidade.
+
+Checkpoints intermediários preservam a posição na rota e retomam o jogador perto do grupo. A pausa também congela a escolta. Saves da fase 5 com o resgate já concluído são migrados automaticamente e colocam os civis no abrigo, sem exigir repetir a etapa. Posições e progresso inválidos são rejeitados.
 
 ## Arena de transformação — fase 3
 
@@ -90,6 +98,8 @@ O teste de navegador usa Chromium em `/usr/bin/chromium`; defina `CHROMIUM_PATH`
 - `src/collision.js`: contato com telhados inclinados e obstrução de segmentos.
 - `src/targeting.js`: seleção independente das ancoragens e assistência.
 - `src/trost-mission.js`: objetivos encadeados, validação de eventos e checkpoints versionados.
+- `src/civilian-escort.js`: rota, progresso, espera, ameaça e chegada do grupo.
+- `src/civilian-model.js`: personagens civis procedurais e animação de caminhada.
 - `src/titan-combat.js`: simulação determinística de transformação e combate.
 - `src/titan-main.js`: arena, efeitos, controles e visualização da simulação.
 - `src/titan-model.js`: geometria procedural e hierarquia de articulações.
@@ -107,4 +117,4 @@ Uma produção pública/comercial com a propriedade intelectual de Attack on Tit
 
 ## Entregas por fase
 
-Cada fase concluída recebe uma branch, validação, commit, push e PR no GitHub. As fases 1–2 estão no [PR #1](https://github.com/JullioDutra/aot/pull/1), já integrado pelo fluxo externo a esta implementação. A fase 3 está no [PR #2](https://github.com/JullioDutra/aot/pull/2). A fase 4 está no [PR #3](https://github.com/JullioDutra/aot/pull/3). A fase 5 usa `feat/phase-05-trost-operation` e respeita a base integrada mais recente ou a branch predecessora quando o PR anterior ainda estiver aberto. Abertura de PR não implica autorização para merge automático; consulte AGENTS.md.
+Cada fase concluída recebe uma branch, validação, commit, push e PR no GitHub. As fases 1–2 estão no [PR #1](https://github.com/JullioDutra/aot/pull/1), já integrado pelo fluxo externo a esta implementação. A fase 3 está no [PR #2](https://github.com/JullioDutra/aot/pull/2). A fase 4 está no [PR #3](https://github.com/JullioDutra/aot/pull/3). A fase 5 foi integrada pelo [PR #4](https://github.com/JullioDutra/aot/pull/4). A fase 6 usa `feat/phase-06-civilian-escort`. A base de revisão acompanha a versão integrada mais recente ou a branch predecessora quando necessário. Abertura de PR não implica autorização para merge automático; consulte AGENTS.md.

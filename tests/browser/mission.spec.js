@@ -25,8 +25,16 @@ test('rescues civilians, recovers supplies and resumes the persisted operation',
   await page.waitForFunction(() => window.__TROST__.snapshot().elapsed > .2);
   await page.keyboard.press('g'); expect((await page.evaluate(() => window.__TROST__.snapshot())).stage).toBe('rescue');
   await walkTo(page, [-12, 29]); await page.keyboard.press('g');
+  await page.waitForFunction(() => window.__TROST__.snapshot().stage === 'escort');
+  await page.keyboard.press('Escape');
+  const escortPaused = await page.evaluate(() => window.__TROST__.snapshot().civilianPosition);
+  await page.waitForTimeout(200);
+  expect(await page.evaluate(() => window.__TROST__.snapshot().civilianPosition)).toEqual(escortPaused);
+  await page.click('#resume-button');
+  await walkTo(page, [10, 48]);
   await page.waitForFunction(() => window.__TROST__.snapshot().stage === 'supply');
   await expect(page.locator('#objective')).toContainText('abastecimento');
+  expect((await page.evaluate(() => window.__TROST__.snapshot())).civilianPosition).toEqual([10, 0, 48]);
   await walkTo(page, [13, 42]); await page.keyboard.press('r');
   await page.waitForFunction(() => window.__TROST__.snapshot().stage === 'combat');
   const saved = await page.evaluate(() => window.__TROST__.snapshot());
