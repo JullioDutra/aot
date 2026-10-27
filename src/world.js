@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { LOCATIONS } from './trost-mission.js';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 
 const boxGeo = new THREE.BoxGeometry(1, 1, 1);
@@ -102,14 +103,20 @@ export function createWorld(scene) {
   for (const x of [-145, 145]) box(scene, trimMat, x, 48.5, -15, 10, 1, 300);
   box(scene, trimMat, 0, 48.5, -160, 300, 1, 11);
   // Supply point and civilian pocket, deliberately reachable without cables.
-  const supply = new THREE.Vector3(13, 0, 42);
+  const supply = new THREE.Vector3(...LOCATIONS.supply);
   const supplyGroup = new THREE.Group(); supplyGroup.position.copy(supply); scene.add(supplyGroup);
   const teal = material('#4d9f9d', { emissive: '#226666', emissiveIntensity: .3 });
   box(supplyGroup, timber, 0, .9, 0, 3, 1.8, 2.2); box(supplyGroup, teal, 0, 1.9, 0, 3.2, .3, 2.3);
   box(supplyGroup, material('#e6e4c3'), 0, 1.15, 1.12, 1.3, .25, .07); box(supplyGroup, material('#e6e4c3'), 0, 1.15, 1.12, .25, 1.2, .08);
   const marker = new THREE.Mesh(new THREE.OctahedronGeometry(.7), teal); marker.position.set(13, 5, 42); scene.add(marker);
-  const rescue = new THREE.Vector3(-12, 0, 29); const civilians = new THREE.Group(); civilians.position.copy(rescue); scene.add(civilians);
+  const rescue = new THREE.Vector3(...LOCATIONS.rescue); const civilians = new THREE.Group(); civilians.position.copy(rescue); scene.add(civilians);
   for (let i = 0; i < 3; i++) { const p = new THREE.Group(); p.position.set(i * 1.1 - 1, 0, i % 2); civilians.add(p); box(p, plaster[i], 0, .9, 0, .55, 1.2, .4); ellipsoid(p, material('#c9aa89'), 0, 1.65, 0, .22, .27, .23); }
+  const extraction = new THREE.Vector3(...LOCATIONS.extraction);
+  const extractionBeacon = new THREE.Group(); extractionBeacon.position.copy(extraction); scene.add(extractionBeacon);
+  const beaconMaterial = material('#7dcc9c', { emissive: '#378557', emissiveIntensity: .7, transparent: true, opacity: .65 });
+  const beaconRing = new THREE.Mesh(new THREE.TorusGeometry(6, .12, 8, 48), beaconMaterial); beaconRing.rotation.x = -Math.PI / 2; beaconRing.position.y = .14; extractionBeacon.add(beaconRing);
+  const signal = new THREE.Mesh(new THREE.CylinderGeometry(.15, .65, 12, 12), beaconMaterial); signal.position.y = 6; extractionBeacon.add(signal);
+  extractionBeacon.visible = false;
   // Debris clusters keep the main navigation lanes open.
   const rubble = new THREE.InstancedMesh(boxGeo, trimMat, 80);
   for (let i = 0; i < 80; i++) { const side = i % 2 ? 1 : -1; frame.position.set(side * (17 + Math.sin(i * 4) * 2), .25, -120 + (i * 31) % 230); frame.rotation.set(i, i * 2, i / 4); frame.scale.set(.4 + (i % 3) * .3, .3, .7); frame.updateMatrix(); rubble.setMatrixAt(i, frame.matrix); } rubble.castShadow = true; scene.add(rubble);
@@ -132,7 +139,7 @@ export function createWorld(scene) {
     const merged = new THREE.Mesh(mergeGeometries(geometries), mat); merged.castShadow = true; merged.receiveShadow = true; scene.add(merged);
     for (const geometry of geometries) geometry.dispose();
   }
-  return { colliders, anchors, supply, rescue, civilians, marker, flags };
+  return { colliders, anchors, supply, rescue, civilians, marker, flags, extraction, extractionBeacon };
 }
 
 export function createCadet(scene) {
