@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#121c20" />
+    <title>Trost · Asas da Liberdade</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath fill='%23c5d6ce' d='M8 8l22 14v34L8 36zm48 0L34 22v34l22-20z'/%3E%3C/svg%3E" />
+  </head>
+  <body>
+    <canvas id="game" aria-label="Distrito tridimensional de Trost"></canvas>
+    <div class="vignette" aria-hidden="true"></div>
+    <header class="topbar">
+      <a class="brand" href="./" aria-label="Trost, início"><span class="crest">⟪</span><span>ASAS DA LIBERDADE<small>UM PROTÓTIPO DE ATTACK ON TITAN</small></span></a>
+      <div class="build-label"><i></i> PROTÓTIPO 01 <span>/</span> TROST</div>
+      <button id="settings-button" class="icon-button" aria-label="Configurações">⚙</button>
+    </header>
+
+    <main id="landing">
+      <div class="chapter-tag"><span>01</span> A BATALHA POR TROST</div>
+      <h1>ALÉM DO<br/><em>MEDO.</em></h1>
+      <p class="intro">A muralha caiu. A nossa vontade, não.<br/>Domine os céus. Proteja quem ainda está aqui.</p>
+      <button id="start-button" class="primary-button"><span>INICIAR OPERAÇÃO</span><span>↗</span></button>
+      <div class="landing-details"><span>◈ CAMPANHA · TREINO DE CAMPO</span><span>TECLADO + MOUSE</span></div>
+      <div class="chapter-line"><b>850</b><span>DISTRITO DE TROST<br/>MURALHA ROSE · SETOR SUL</span></div>
+    </main>
+
+    <aside class="operation-card" id="operation-card">
+      <span class="eyebrow">ORDENS DE CAMPO / 001</span>
+      <h2>Recupere o distrito.</h2>
+      <p>Três titãs impedem a retirada. Use os telhados para alcançar a nuca.</p>
+      <div class="operation-meta"><span>DIFICULDADE</span><b>RECRUTA</b></div>
+      <div class="operation-meta"><span>CONDIÇÃO</span><b>FIM DE TARDE</b></div>
+      <div class="card-bottom"><span>◌</span> CENÁRIO 3D EM TEMPO REAL</div>
+    </aside>
+
+    <footer id="landing-footer"><span>DEDICADO A QUEM OUSA IR ALÉM.</span><span>ESTUDO INDEPENDENTE · NÃO OFICIAL</span></footer>
+
+    <section id="hud" hidden aria-label="Informações da operação">
+      <div class="mission"><span class="eyebrow">OPERAÇÃO / RETOMADA</span><h2>As ruas de Trost</h2><div id="objective">Elimine os titãs <b>0 / 3</b></div><div id="rescue-status">Opcional · resgate os civis na praça</div></div>
+      <div class="compass"><span>O</span><i></i><b>N</b><i></i><span>L</span></div>
+      <div class="reticle" id="reticle"><i></i><i></i><i></i><i></i></div>
+      <div id="anchor-left" class="anchor-marker left" hidden></div><div id="anchor-right" class="anchor-marker right" hidden></div><div id="nape-marker" class="nape-marker" hidden><span>NUCA</span></div>
+      <div id="target-hint" class="target-hint"></div>
+      <div id="toast" class="toast" role="status"></div>
+      <div class="resources"><div class="pilot"><span>104</span><div>CADETE<small>EQUIPAMENTO TRIDIMENSIONAL</small></div></div><label>GÁS <span id="gas-value">100%</span></label><div class="meter"><i id="gas-bar"></i></div><label>LÂMINAS <span id="blade-value">100%</span></label><div class="meter blade"><i id="blade-bar"></i></div><label>VITALIDADE <span id="health-value">100%</span></label><div class="meter health"><i id="health-bar"></i></div></div>
+      <div class="velocity"><b id="speed">0</b><span>KM/H</span><small id="altitude">0 M · ALTITUDE</small></div>
+      <div class="controls"><span><kbd>W A S D</kbd> mover</span><span><kbd>Q / E</kbd> segurar cabos</span><span><kbd>ESPAÇO</kbd> gás / salto</span><span><kbd>CLIQUE</kbd> atacar</span><span><kbd>R</kbd> abastecer</span><span><kbd>G</kbd> resgatar</span><span><kbd>ESC</kbd> pausa</span></div>
+      <div id="damage-flash"></div>
+    </section>
+
+    <section id="pause" class="modal-backdrop" hidden><div class="modal"><span class="eyebrow">OPERAÇÃO SUSPENSA</span><h2>Respire. Reagrupe.</h2><p>Segure Q ou E: cada marcador mostra a ancoragem daquele cabo. Cabos se soltam ao encontrar um obstáculo. Use espaço para ganhar impulso. Aproxime-se por trás, mire na nuca e ataque quando o indicador aparecer, a menos de 7 metros.</p><p class="muted">R abastece perto da caixa azul na praça. G resgata os civis próximos. O mouse controla a câmera; se a captura não estiver disponível, arraste a cena.</p><button id="resume-button" class="primary-button">CONTINUAR <span>↗</span></button><button id="restart-button" class="text-button">Reiniciar operação</button></div></section>
+    <section id="result" class="modal-backdrop" hidden><div class="modal"><span class="eyebrow" id="result-label"></span><h2 id="result-title"></h2><p id="result-description"></p><div class="result-stats" id="result-stats"></div><button id="retry-button" class="primary-button">NOVA OPERAÇÃO <span>↗</span></button></div></section>
+    <section id="settings" class="modal-backdrop" hidden><div class="modal"><span class="eyebrow">CONFIGURAÇÕES</span><h2>Seu equipamento.</h2><label class="setting">Qualidade<select id="quality"><option value="high">Alta</option><option value="medium">Equilibrada</option><option value="low">Desempenho</option></select></label><label class="setting">Sensibilidade<input id="sensitivity" type="range" min="0.5" max="2" step="0.1" value="1"/></label><label class="setting">Assistência de ancoragem<input id="anchor-assist" type="checkbox" checked/></label><label class="setting">Campo de visão com velocidade<input id="fov-effect" type="checkbox" checked/></label><label class="setting">Áudio procedural<input id="audio-enabled" type="checkbox" checked/></label><p class="muted">Áudio sintetizado localmente. Sem músicas ou recursos extraídos do anime. Esta versão requer teclado, mouse e WebGL 2.</p><button id="close-settings" class="primary-button">VOLTAR <span>↗</span></button></div></section>
+    <div id="fatal" class="modal-backdrop" hidden><div class="modal"><h2>O renderizador não iniciou.</h2><p id="fatal-message">Use um navegador com WebGL 2 e aceleração gráfica disponível.</p></div></div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
