@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="pt-BR">
+<head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta name="theme-color" content="#172522"/><title>O Despertar · Arena de Titãs</title><link rel="icon" href="data:,"/></head>
+<body class="arena-page">
+  <canvas id="arena-canvas" aria-label="Arena tridimensional de transformação em titã"></canvas>
+  <div class="arena-vignette"></div>
+  <header class="arena-top"><a href="./" class="arena-brand">⟪ <span>ASAS DA LIBERDADE<small>ENSAIO 03 / TRANSFORMAÇÃO</small></span></a><div class="arena-top-right"><label>GRÁFICOS <select id="arena-quality"><option value="high">Alta</option><option value="low">Desempenho</option></select></label><button id="arena-pause-button" aria-label="Pausar">Ⅱ</button></div></header>
+  <main id="arena-intro" class="arena-intro"><span class="arena-eyebrow">LABORATÓRIO DE COMBATE · FORA DA CAMPANHA</span><h1>A FORÇA<br/>QUE <em>DESPERTA.</em></h1><p>Um corpo de quinze metros.<br/>Uma vontade que precisa dominá-lo.</p><button id="arena-start" class="arena-primary">ENTRAR NA ARENA <span>↗</span></button><div class="arena-intro-details">TRANSFORMAÇÃO · COMBATE · REGENERAÇÃO</div><p class="arena-disclaimer">Ensaio mecânico com arte procedural. Não representa uma cena canônica nem os modelos finais dos personagens.</p></main>
+  <div id="arena-hud" hidden>
+    <section class="arena-mission"><span class="arena-eyebrow">OBJETIVO DO ENSAIO</span><h2>Domine a transformação.</h2><p id="arena-objective">Pressione T para se transformar.</p><span id="arena-form" class="form-tag">HUMANO</span></section>
+    <section class="enemy-status" id="enemy-status"><div><span>TITÃ ADVERSÁRIO</span><b id="enemy-hp">160 / 160</b></div><div class="arena-meter enemy"><i id="enemy-bar"></i></div><small id="enemy-intent">Aguardando transformação</small></section>
+    <div id="arena-notice" class="arena-notice" role="status"></div>
+    <div class="arena-resources"><div class="arena-resource"><label>VITALIDADE <b id="arena-health">100%</b></label><div class="arena-meter"><i id="arena-health-bar"></i></div></div><div class="arena-resource"><label>RESISTÊNCIA <b id="arena-stamina">100%</b></label><div class="arena-meter stamina"><i id="arena-stamina-bar"></i></div></div><div class="arena-resource"><label>RESERVAS DA TRANSFORMAÇÃO <b id="arena-energy">100%</b></label><div class="arena-meter energy"><i id="arena-energy-bar"></i></div></div><small id="arena-transform-count">0 / 2 transformações</small></div>
+    <div class="arena-state"><b id="arena-action">PREPARE-SE</b><span id="arena-distance">34 m · ALVO FIXADO</span></div>
+    <div class="arena-controls"><span><kbd>WASD</kbd> mover</span><span><kbd>T</kbd> transformar</span><span><kbd>CLIQUE</kbd> soco</span><span><kbd>Q</kbd> golpe forte</span><span><kbd>BOTÃO DIR.</kbd> defender</span><span><kbd>ESPAÇO</kbd> esquivar</span><span><kbd>F</kbd> agarrar</span><span><kbd>R</kbd> regenerar</span><span><kbd>E</kbd> sair</span><span><kbd>TAB</kbd> fixar alvo</span></div>
+  </div>
+  <section id="arena-pause" class="arena-overlay" hidden><div class="arena-panel"><span class="arena-eyebrow">ENSAIO PAUSADO</span><h2>Força exige controle.</h2><p>T inicia a transformação. Aproxime-se do rival, ataque com o clique esquerdo ou Q e use o botão direito para defender. F permite um agarrão durante a recuperação do adversário.</p><p>Espaço esquiva na direção do movimento. Segure R para regenerar depois de dois segundos sem receber dano. Isso consome reservas. E abandona a forma titã, com fadiga antes de uma nova transformação.</p><button id="arena-resume" class="arena-primary">CONTINUAR <span>↗</span></button><button id="arena-restart" class="arena-secondary">Reiniciar ensaio</button><a href="./">Voltar a Trost</a></div></section>
+  <section id="arena-result" class="arena-overlay" hidden><div class="arena-panel"><span class="arena-eyebrow">RESULTADO DO ENSAIO</span><h2 id="arena-result-title"></h2><p id="arena-result-description"></p><p id="arena-result-stats"></p><button id="arena-retry" class="arena-primary">NOVO ENSAIO <span>↗</span></button><a href="./">Voltar a Trost</a></div></section>
+  <div id="arena-flash" aria-hidden="true"></div>
+  <div id="arena-error" class="arena-overlay" hidden><div class="arena-panel"><h2>Renderização indisponível.</h2><p>Use um navegador com WebGL 2 e aceleração gráfica. Recarregue a página após habilitá-la.</p><a href="./">Voltar a Trost</a></div></div>
+  <script type="module" src="/src/titan-main.js"></script>
+</body></html>
