@@ -32,6 +32,28 @@ Comece no telhado e elimine os três titãs. Ataque por trás, a menos de 7 metr
 
 As configurações oferecem qualidade gráfica, sensibilidade, áudio, assistência de ancoragem e variação do campo de visão com velocidade. Q e E mostram destinos separados; cabos se soltam quando a trajetória encontra um obstáculo. O indicador de nuca exige alcance, direção e caminho livre para o golpe. A perda de foco pausa o jogo e limpa os comandos. A operação pode ser reiniciada após vitória ou derrota.
 
+## Arena de transformação — fase 3
+
+No menu de Trost, escolha **Ensaio 03 · Transformação em titã**. A arena também está em `arena.html`, tanto no servidor de desenvolvimento quanto no build de produção. É um ensaio separado da campanha, com modelos procedurais; ainda não é uma representação final de Eren.
+
+| Controle na arena | Ação |
+| --- | --- |
+| T | Iniciar a transformação com uma breve preparação |
+| WASD / mouse | Movimento / câmera |
+| Clique esquerdo | Soco rápido |
+| Q | Golpe forte, com maior preparação e custo |
+| Segurar botão direito | Defender ataques frontais |
+| Espaço | Esquivar na direção do movimento, ou para trás |
+| F | Agarrar durante a recuperação do adversário, a até 8,5 m |
+| Segurar R | Regenerar após 2 segundos sem dano, consumindo reservas |
+| E | Sair da forma titã |
+| Tab | Alternar alvo fixado / mira livre |
+| Escape | Pausar, consultar controles ou reiniciar |
+
+Resistência limita ataques, defesa e esquiva. Reservas caem com o tempo e mais rapidamente durante a regeneração. A defesa reduz dano, mas pode quebrar sem resistência. A transformação leva 2,2 segundos; sair leva 1,6 segundo e causa 5 segundos de fadiga. Há no máximo duas transformações por ensaio. Esses números são decisões de equilíbrio do protótipo, **não afirmações sobre limites canônicos dos poderes**. O rival espera durante a preparação e a forma humana; é uma concessão deste laboratório. Não há endurecimento.
+
+A arena possui vitória, derrota, saída por esgotamento e reinício. Os golpes só acertam no alcance e na direção válidos. Os modelos ainda usam animações procedurais simples; o agarrão é representado por uma aproximação de braços e deslocamento do rival, sem animação de luta final.
+
 ## Validação
 
 ```sh
@@ -49,12 +71,18 @@ O teste de navegador usa Chromium em `/usr/bin/chromium`; defina `CHROMIUM_PATH`
 - `src/mechanics.js`: regras independentes de renderização, cobertas por testes.
 - `src/collision.js`: contato com telhados inclinados e obstrução de segmentos.
 - `src/targeting.js`: seleção independente das ancoragens e assistência.
+- `src/titan-combat.js`: simulação determinística de transformação e combate.
+- `src/titan-main.js`: arena, efeitos, controles e visualização da simulação.
 - `docs/ROADMAP.md`: escopo, limites e próximos marcos.
 
 ## Limites atuais
 
-Esta é uma missão de treino não canônica em um distrito inspirado em Trost. O mapa ainda não é uma reconstrução conferida com episódios. O personagem é um cadete genérico. Não há transformação jogável, cinematografia da história, dublagem, desmembramento, titãs devorando pessoas, cavalos, suporte a controle ou salvamento persistente. A violência implementada se limita a impactos e partículas estilizadas.
+Esta é uma missão de treino não canônica em um distrito inspirado em Trost. O mapa ainda não é uma reconstrução conferida com episódios. O personagem é um cadete genérico. A transformação jogável existe somente no ensaio separado, não na missão de Trost. Não há cinematografia da história, dublagem, desmembramento, titãs devorando pessoas, cavalos, suporte a controle ou salvamento persistente. A violência implementada se limita a impactos e partículas estilizadas.
 
 As colisões dos telhados seguem os dois planos de inclinação, mas o corpo do jogador ainda usa um volume simplificado. A IA dos titãs fica na avenida central. Cabos se soltam nas obstruções; ainda não contornam quinas nem se enrolam nas estruturas. O protótipo não implementa ainda simulação completa do ODM. A arte procedural deve ser substituída por modelos e animações de produção depois que movimentação e combate forem aprovados.
 
 Uma produção pública/comercial com a propriedade intelectual de Attack on Titan precisa tratar a autorização dos titulares. A pesquisa web e a conferência de referências continuam pendentes de acesso à rede.
+
+## Entregas por fase
+
+Cada fase concluída recebe uma branch, validação, commit, push e PR no GitHub. As fases 1–2 estão no [PR #1](https://github.com/JullioDutra/aot/pull/1), já integrado pelo fluxo externo a esta implementação. A fase 3 é desenvolvida em `feat/phase-03-titan-arena`. Abertura de PR não implica autorização para merge automático; consulte AGENTS.md.

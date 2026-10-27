@@ -1,0 +1,204 @@
+import * as THREE from 'three';
+import './titan-arena.css';
+import { createTitan, createCadet, box, material, ellipsoid } from './world.js';
+import { createArenaState, arenaCommand, stepArena } from './titan-combat.js';
+import { clamp, formatTime } from './mechanics.js';
+
+const $ = id => document.getElementById(id), canvas = $('arena-canvas');
+let renderer;
+try { renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' }); }
+catch (error) { $('arena-error').hidden = false; throw error; }
+renderer.setPixelRatio(Math.min(devicePixelRatio, 1.5)); renderer.setSize(innerWidth, innerHeight);
+renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.1;
+const scene = new THREE.Scene(); scene.background = new THREE.Color('#b4c7c4'); scene.fog = new THREE.Fog('#b4c7c4', 120, 380);
+const camera = new THREE.PerspectiveCamera(56, innerWidth / innerHeight, .1, 600);
+scene.add(new THREE.HemisphereLight('#e4f0ed', '#645a43', 2.4));
+const sun = new THREE.DirectionalLight('#ffe3b0', 3); sun.position.set(-45, 85, 32); sun.castShadow = true;
+sun.shadow.mapSize.set(1024, 1024); Object.assign(sun.shadow.camera, { left: -75, right: 75, top: 75, bottom: -75, near: 1, far: 200 }); sun.shadow.normalBias = .3; scene.add(sun);
+const stone = material('#8b9480'), trim = material('#65796b'), sand = material('#aaa487'), dark = material('#344b42');
+const groundCanvas = document.createElement('canvas'); groundCanvas.width = groundCanvas.height = 256;
+const ctx = groundCanvas.getContext('2d'); ctx.fillStyle = '#b2aa8f'; ctx.fillRect(0, 0, 256, 256);
+let seed = 49; const random = () => { seed = (seed * 16807) % 2147483647; return seed / 2147483647; };
+for (let i = 0; i < 3500; i++) { ctx.fillStyle = random() < .5 ? '#a29d86' : '#c1b79a'; ctx.fillRect(random() * 256, random() * 256, 2, 2); }
+for (let i = 0; i < 14; i++) { ctx.beginPath(); let x = random() * 256, y = random() * 256; ctx.moveTo(x, y); for (let j = 0; j < 5; j++) { x += random() * 18 - 9; y += random() * 14; ctx.lineTo(x, y); } ctx.strokeStyle = '#888c7955'; ctx.stroke(); }
+const texture = new THREE.CanvasTexture(groundCanvas); texture.colorSpace = THREE.SRGBColorSpace; texture.wrapS = texture.wrapT = THREE.RepeatWrapping; texture.repeat.set(18, 18);
+const ground = new THREE.Mesh(new THREE.CircleGeometry(160, 96), material('#d2ccb0', { map: texture })); ground.rotation.x = -Math.PI / 2; ground.receiveShadow = true; scene.add(ground);
+const boundary = new THREE.Mesh(new THREE.RingGeometry(51.7, 52.2, 96), material('#c7b081', { side: THREE.DoubleSide })); boundary.rotation.x = -Math.PI / 2; boundary.position.y = .045; scene.add(boundary);
+for (let i = 0; i < 24; i++) {
+  const angle = i / 24 * Math.PI * 2, x = Math.sin(angle) * 74, z = Math.cos(angle) * 74;
+  const h = 24 + (i % 3) * 3; const segment = box(scene, stone, x, h / 2, z, 20, h, 5); segment.rotation.y = angle;
+  const cap = box(scene, trim, x, h + .5, z, 21, 1, 6); cap.rotation.y = angle;
+  for (let k = 0; k < 4; k++) { const block = box(scene, trim, x + Math.cos(angle) * (k * 5 - 7.5), h + 2, z - Math.sin(angle) * (k * 5 - 7.5), 2.8, 2, 5.5); block.rotation.y = angle; }
+  const buttress = box(scene, trim, Math.sin(angle) * 70, h / 2, Math.cos(angle) * 70, 1.5, h, 3); buttress.rotation.y = angle;
+}
+// All dressing stays outside the playable circle, so it never hides invisible collisions.
+for (let i = 0; i < 34; i++) {
+  const angle = i * 2.39996, r = 57 + random() * 9;
+  const debris = box(scene, i % 3 ? stone : dark, Math.sin(angle) * r, .8, Math.cos(angle) * r, 2 + random() * 3, 1 + random() * 2, 2 + random() * 2);
+  debris.rotation.set(random() * .2, angle, random() * .3);
+}
+for (let i = 0; i < 9; i++) { const step = box(scene, sand, -64 + i * .3, i * .55, -12, 10 - i * .65, .6, 20); step.rotation.y = -.3; }
+const bannerMat = material('#335a48', { side: THREE.DoubleSide });
+for (const x of [-17, 17]) { const flag = new THREE.Mesh(new THREE.PlaneGeometry(5, 10), bannerMat); flag.position.set(x, 22, -69); scene.add(flag); box(scene, trim, x, 28, -69, 6, .3, .3); }
+const human = createCadet(scene), hero = createTitan(scene, 0, 24, 15, 0), enemy = createTitan(scene, 0, -10, 16, 2);
+// Original placeholder variant: distinct eyes/hair make the controlled body readable.
+const greenEye = material('#b3e2b3', { emissive: '#68b16b', emissiveIntensity: .8 });
+for (const side of [-1, 1]) ellipsoid(hero.root, greenEye, side * .4, 11.22, 1.005, .09, .09, .025);
+for (let i = 0; i < 7; i++) { const strand = box(hero.root, dark, Math.sin(i * 1.1) * .85, 11.7 - i % 3 * .2, -.6, .3, 1.4, .3); strand.rotation.z = Math.sin(i) * .35; }
+hero.root.visible = false;
+const ring = new THREE.Mesh(new THREE.RingGeometry(.8, 1, 64), new THREE.MeshBasicMaterial({ color: '#edcc8e', side: THREE.DoubleSide, transparent: true, opacity: 0, depthWrite: false })); ring.rotation.x = -Math.PI / 2; ring.position.y = .12; scene.add(ring);
+const lightningPoints = [];
+for (let i = 0; i < 12; i++) lightningPoints.push(new THREE.Vector3(i % 2 ? 1.7 : -.8, 28 - i * 2.4, i % 3 * .5));
+const lightning = new THREE.Line(new THREE.BufferGeometry().setFromPoints(lightningPoints), new THREE.LineBasicMaterial({ color: '#fff0b5', transparent: true, opacity: 0 })); scene.add(lightning);
+const particles = [], particleGeometry = new THREE.IcosahedronGeometry(1, 0);
+function burst(x, z, y = 8, count = 12, color = '#ddd6bc') {
+  for (let i = 0; i < count && particles.length < 90; i++) {
+    const mesh = new THREE.Mesh(particleGeometry, new THREE.MeshBasicMaterial({ color, transparent: true, opacity: .45, depthWrite: false }));
+    mesh.position.set(x, y, z); mesh.scale.setScalar(.5 + random() * .8); scene.add(mesh);
+    particles.push({ mesh, life: 1.2, velocity: new THREE.Vector3((random() - .5) * 10, 2 + random() * 7, (random() - .5) * 10) });
+  }
+}
+let state = createArenaState(), mode = 'intro', yaw = 0, pitch = .12, locked = true, dragging = false, readyCamera = false;
+let noticeTime = 0, ringTime = 0, flashTime = 0, enemyHit = 0, heroHit = 0, steamTimer = 0, lastStrike = 0;
+const keys = new Set(), reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+function notice(message, seconds = 3) { $('arena-notice').textContent = message; $('arena-notice').classList.add('visible'); noticeTime = seconds; }
+function clearInput() { keys.clear(); dragging = false; state.guarding = false; state.regenerating = false; }
+function pointer() { try { canvas.requestPointerLock?.()?.catch(() => notice('Arraste a cena para controlar a câmera.')); } catch { notice('Arraste a cena para controlar a câmera.'); } }
+function begin() { mode = 'playing'; $('arena-intro').hidden = true; $('arena-hud').hidden = false; $('arena-pause').hidden = true; $('arena-result').hidden = true; document.body.classList.add('arena-playing'); clearInput(); pointer(); notice(state.form === 'human' ? 'T · Prepare a transformação. O rival aguardará a mudança de forma.' : 'Observe os braços do adversário e ataque durante a recuperação.', 5); }
+function reset() {
+  state = createArenaState(); yaw = 0; pitch = .12; locked = true; readyCamera = false; ringTime = flashTime = enemyHit = heroHit = steamTimer = lastStrike = 0;
+  for (const p of particles) { scene.remove(p.mesh); p.mesh.material.dispose(); } particles.length = 0;
+  enemy.root.rotation.set(0, 0, 0); hero.root.rotation.set(0, Math.PI, 0); enemy.root.visible = true;
+  begin();
+}
+function pause() { if (mode !== 'playing') return; mode = 'paused'; clearInput(); $('arena-pause').hidden = false; if (document.pointerLockElement) document.exitPointerLock(); }
+function finish(won, exhausted = false) {
+  mode = 'finished'; clearInput(); if (document.pointerLockElement) document.exitPointerLock(); $('arena-result').hidden = false;
+  $('arena-result-title').textContent = won ? 'Você dominou a força.' : exhausted ? 'Seu corpo chegou ao limite.' : 'Reagrupe. Tente outra vez.';
+  $('arena-result-description').textContent = won ? 'Adversário derrotado. O ensaio validou uma transformação completa e o combate entre duas escalas gigantes.' : exhausted ? 'As reservas acabaram. Ataques, defesa e regeneração precisam dividir o mesmo tempo de transformação.' : 'Use a defesa para reduzir dano, esquive dos golpes e procure a abertura para um agarrão.';
+  $('arena-result-stats').textContent = `${formatTime(state.time)} · ${state.stats.hits} acertos · ${state.stats.blocked} defesas · ${state.transforms} transformação(ões)`;
+}
+function movement() {
+  const x = Number(keys.has('KeyD')) - Number(keys.has('KeyA')), z = Number(keys.has('KeyW')) - Number(keys.has('KeyS'));
+  return [Math.cos(yaw) * x + Math.sin(yaw) * z, Math.sin(yaw) * x - Math.cos(yaw) * z];
+}
+function command(action) {
+  if (mode !== 'playing') return;
+  const result = arenaCommand(state, action, movement());
+  if (!result.accepted) { notice(result.reason, 2); return; }
+  if (action === 'transform') { ringTime = 1.5; flashTime = .22; lightning.position.set(state.player.x, 0, state.player.z); burst(state.player.x, state.player.z, 1, 24); notice('Objetivo definido. Transformação em curso.', 2.4); }
+  if (action === 'exit') notice('Saindo da nuca. Recupere o fôlego antes de transformar novamente.');
+}
+function events(list) {
+  for (const event of list) {
+    if (event.kind === 'transformed') { burst(state.player.x, state.player.z, 10, 20); notice('Forma titã · clique para soco, Q para golpe forte, botão direito para defesa.', 5); }
+    if (event.kind === 'hit') {
+      const target = event.target === 'enemy' ? state.enemy : state.player;
+      burst(target.x, target.z, 10, 9, event.target === 'enemy' ? '#dfc092' : '#bd896f');
+      if (event.target === 'enemy') { enemyHit = .35; lastStrike = 1 - lastStrike; } else heroHit = .3;
+    }
+    if (event.kind === 'blocked') notice('Defesa firme · dano reduzido. Prepare o contragolpe.', 1.5);
+    if (event.kind === 'guard-break') notice('Defesa quebrada. Sua resistência acabou.', 2);
+    if (event.kind === 'miss') notice('Golpe fora de alcance. Aproxime-se sem perder a defesa.', 1.5);
+    if (event.kind === 'exhausted') notice('Reservas esgotadas. A forma titã está se desfazendo.', 3);
+    if (event.kind === 'won') finish(true);
+    if (event.kind === 'lost') finish(false);
+  }
+}
+function pose(model, walking, time, guard, action, hit, foe = false) {
+  model.legs.forEach((leg, i) => { leg.rotation.x = walking ? Math.sin(time * 4 + i * Math.PI) * .26 : 0; });
+  model.arms.forEach((arm, i) => {
+    let rx = walking ? Math.sin(time * 4 + i * Math.PI) * .1 : -.12, rz = i ? -.08 : .08;
+    if (guard) { rx = -1.65; rz = i ? .4 : -.4; }
+    if (action) {
+      const windup = foe ? action === 'windup' : state.action && !state.action.struck;
+      const grab = !foe && state.action?.kind === 'grab';
+      if (foe || grab || i === lastStrike) { rx = windup ? -.65 : -1.7; rz = windup ? (i ? -.45 : .45) : 0; }
+    }
+    arm.rotation.x = THREE.MathUtils.lerp(arm.rotation.x, rx, .25); arm.rotation.z = THREE.MathUtils.lerp(arm.rotation.z, rz, .25);
+  });
+  model.root.rotation.z = !reducedMotion && hit > 0 ? Math.sin(hit * 25) * .06 : 0;
+}
+function renderBodies(dt) {
+  const titanVisible = ['titan', 'transforming', 'exiting', 'won', 'lost'].includes(state.form);
+  human.root.visible = !titanVisible || state.form === 'transforming'; hero.root.visible = titanVisible;
+  hero.root.position.set(state.player.x, 0, state.player.z); hero.root.rotation.y = state.player.yaw;
+  human.root.position.set(state.player.x, 0, state.player.z); human.root.rotation.y = state.player.yaw;
+  const growth = state.form === 'transforming' ? clamp(1 - state.formClock / 2.2, .03, 1) : state.form === 'exiting' ? Math.max(.02, state.formClock / 1.6) : 1;
+  hero.root.scale.setScalar(hero.scale * growth);
+  if (state.form === 'transforming') { human.arms[0].rotation.x = -2.3; human.arms[1].rotation.x = -1; }
+  else { human.arms.forEach(a => { a.rotation.x = -.2; }); }
+  enemy.root.position.set(state.enemy.x, 0, state.enemy.z); enemy.root.rotation.y = state.enemy.yaw;
+  if (state.form === 'won') enemy.root.rotation.x = THREE.MathUtils.damp(enemy.root.rotation.x, -1.4, 2, dt);
+  else if (state.form === 'lost') hero.root.rotation.x = THREE.MathUtils.damp(hero.root.rotation.x, -1.2, 2, dt);
+  pose(hero, mode === 'playing' && Math.hypot(...movement()) > 0, state.time, state.guarding, state.action, heroHit);
+  pose(enemy, mode === 'playing' && state.form === 'titan' && state.enemy.action === 'idle', state.time, false, state.enemy.action !== 'idle' ? state.enemy.action : null, enemyHit, true);
+  if (state.form === 'exiting' || state.regenerating) { steamTimer -= dt; if (steamTimer <= 0) { burst(state.player.x, state.player.z, 6, 3); steamTimer = .2; } }
+}
+function updateCamera(dt) {
+  if (mode === 'intro') { camera.position.set(34, 28, 48); camera.lookAt(0, 7, 4); return; }
+  const grown = ['titan', 'won', 'lost'].includes(state.form) ? 1 : state.form === 'transforming' ? 1 - state.formClock / 2.2 : state.form === 'exiting' ? state.formClock / 1.6 : 0;
+  const target = new THREE.Vector3(state.player.x, 1.6 + 9 * grown, state.player.z);
+  const direction = new THREE.Vector3(Math.sin(yaw) * Math.cos(pitch), -Math.sin(pitch), -Math.cos(yaw) * Math.cos(pitch));
+  const desired = target.clone().addScaledVector(direction, -(7 + grown * 22)); desired.y += 2 + grown * 3;
+  desired.add(new THREE.Vector3(Math.cos(yaw), 0, Math.sin(yaw)).multiplyScalar(grown * 6));
+  const cameraRadius = Math.hypot(desired.x, desired.z);
+  if (cameraRadius > 67) { desired.x *= 67 / cameraRadius; desired.z *= 67 / cameraRadius; }
+  desired.y = Math.max(2, desired.y);
+  if (!readyCamera) { camera.position.copy(desired); readyCamera = true; } else camera.position.lerp(desired, 1 - Math.exp(-6 * dt));
+  camera.lookAt(target.clone().addScaledVector(direction, 8)); camera.updateMatrixWorld();
+}
+function hud() {
+  for (const key of ['health', 'stamina', 'energy']) { $(`arena-${key}`).textContent = `${Math.ceil(state[key])}%`; $(`arena-${key}-bar`).style.width = `${state[key]}%`; }
+  $('enemy-hp').textContent = `${Math.ceil(state.enemy.health)} / 160`; $('enemy-bar').style.width = `${state.enemy.health / 1.6}%`;
+  const labels = { human: 'HUMANO', transforming: 'TRANSFORMANDO', titan: 'TITÃ · 15 METROS', exiting: 'RETORNO À FORMA HUMANA', won: 'CONCLUÍDO', lost: 'DERROTADO' };
+  $('arena-form').textContent = labels[state.form]; $('arena-transform-count').textContent = `${state.transforms} / 2 transformações${state.fatigue > 0 ? ` · fadiga ${Math.ceil(state.fatigue)} s` : ''}`;
+  $('arena-objective').textContent = state.form === 'human' ? 'T · Assuma a forma titã para enfrentar o rival.' : 'Derrote o adversário antes de esgotar suas reservas.';
+  const intent = state.form !== 'titan' ? 'Aguardando transformação' : state.enemy.action === 'windup' ? 'ATAQUE IMINENTE · DEFENDA OU ESQUIVE' : state.enemy.action === 'recovery' ? 'VULNERÁVEL · F PARA AGARRAR DE PERTO' : 'O adversário está se aproximando';
+  $('enemy-intent').textContent = intent; $('enemy-status').classList.toggle('danger', state.enemy.action === 'windup'); $('enemy-status').classList.toggle('open', state.enemy.action === 'recovery');
+  $('arena-action').textContent = state.guarding ? 'DEFENDENDO' : state.regenerating ? 'REGENERANDO' : state.dodge ? 'ESQUIVA' : state.action ? ({ light: 'SOCO', heavy: 'GOLPE FORTE', grab: 'AGARRÃO', stun: 'ATORDOADO' }[state.action.kind]) : labels[state.form];
+  $('arena-distance').textContent = `${Math.round(Math.hypot(state.player.x - state.enemy.x, state.player.z - state.enemy.z))} m · ${locked ? 'ALVO FIXADO' : 'MIRA LIVRE'}`;
+}
+
+$('arena-start').addEventListener('click', begin); $('arena-resume').addEventListener('click', begin); $('arena-restart').addEventListener('click', reset); $('arena-retry').addEventListener('click', reset); $('arena-pause-button').addEventListener('click', pause);
+$('arena-quality').addEventListener('change', event => { renderer.setPixelRatio(event.target.value === 'low' ? .8 : Math.min(devicePixelRatio, 1.5)); renderer.shadowMap.enabled = event.target.value !== 'low'; scene.traverse(o => { if (o.material) o.material.needsUpdate = true; }); });
+addEventListener('keydown', event => {
+  if (event.code === 'Escape') { pause(); return; }
+  if (mode !== 'playing') return;
+  if (['Space', 'Tab', 'KeyW', 'KeyA', 'KeyS', 'KeyD', 'KeyT', 'KeyQ', 'KeyF', 'KeyE', 'KeyR'].includes(event.code)) event.preventDefault();
+  keys.add(event.code); if (event.repeat) return;
+  if (event.code === 'KeyT') command('transform'); if (event.code === 'KeyQ') command('heavy'); if (event.code === 'KeyF') command('grab'); if (event.code === 'KeyE') command('exit'); if (event.code === 'Space') command('dodge');
+  if (event.code === 'Tab') { locked = !locked; notice(locked ? 'Alvo fixado: os golpes acompanham o adversário.' : 'Mira livre: direcione os golpes com a câmera.', 2); }
+});
+addEventListener('keyup', event => keys.delete(event.code));
+canvas.addEventListener('mousedown', event => { if (mode !== 'playing') return; dragging = true; if (event.button === 0) command('light'); if (event.button === 2) keys.add('Guard'); });
+addEventListener('mouseup', event => { dragging = false; if (event.button === 2) { keys.delete('Guard'); state.guarding = false; } });
+addEventListener('mousemove', event => { if (mode !== 'playing' || (!dragging && document.pointerLockElement !== canvas)) return; yaw += event.movementX * .002; pitch = clamp(pitch + event.movementY * .002, -.35, .65); });
+canvas.addEventListener('contextmenu', event => event.preventDefault());
+document.addEventListener('pointerlockchange', () => { if (!document.pointerLockElement && mode === 'playing') pause(); });
+addEventListener('blur', pause); document.addEventListener('visibilitychange', () => { if (document.hidden) pause(); });
+addEventListener('resize', () => { camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix(); renderer.setSize(innerWidth, innerHeight); });
+canvas.addEventListener('webglcontextlost', event => { event.preventDefault(); pause(); $('arena-error').hidden = false; });
+let previous = performance.now(), uiClock = 0;
+function animate(now) {
+  requestAnimationFrame(animate); const dt = Math.min(.05, (now - previous) / 1000); previous = now;
+  if (mode === 'playing') {
+    const count = Math.max(1, Math.ceil(dt * 60));
+    for (let i = 0; i < count && mode === 'playing'; i++) events(stepArena(state, dt / count, { move: movement(), guard: keys.has('Guard'), regenerate: keys.has('KeyR'), lock: locked, yaw: Math.PI - yaw }));
+    if (state.form === 'human' && state.transforms > 0 && (state.energy < 25 || (state.transforms >= 2 && state.fatigue <= 0))) finish(false, true);
+    noticeTime -= dt; if (noticeTime <= 0) $('arena-notice').classList.remove('visible');
+    enemyHit = Math.max(0, enemyHit - dt); heroHit = Math.max(0, heroHit - dt); ringTime = Math.max(0, ringTime - dt); flashTime = Math.max(0, flashTime - dt);
+    uiClock -= dt; if (uiClock <= 0) { hud(); uiClock = .08; }
+  }
+  if (mode !== 'paused') {
+    renderBodies(dt); updateCamera(dt);
+    for (let i = particles.length - 1; i >= 0; i--) { const p = particles[i]; p.life -= dt; p.mesh.position.addScaledVector(p.velocity, dt); p.mesh.scale.multiplyScalar(1 + dt * .6); p.mesh.material.opacity = Math.max(0, p.life / 1.2) * .45; if (p.life <= 0) { scene.remove(p.mesh); p.mesh.material.dispose(); particles.splice(i, 1); } }
+  }
+  ring.position.set(state.player.x, .12, state.player.z); ring.scale.setScalar(1 + (1.5 - ringTime) * 17); ring.material.opacity = ringTime > 0 ? ringTime / 3 : 0;
+  lightning.material.opacity = state.form === 'transforming' ? Math.max(0, state.formClock - 1.5) : 0;
+  $('arena-flash').style.opacity = reducedMotion ? '0' : String(Math.min(.45, flashTime * 2));
+  renderer.render(scene, camera);
+}
+requestAnimationFrame(animate);
+window.__TITAN_ARENA__ = Object.freeze({ snapshot: () => ({ mode, ...structuredClone(state), lock: locked, drawCalls: renderer.info.render.calls }) });

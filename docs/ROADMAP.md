@@ -26,7 +26,9 @@ Critério para avançar: teste humano de conforto e diversão. Ainda são necess
 
 ## Marco 3 — arena de transformação
 
-Criar uma arena separada com Eren titã, regras de intenção/lesão na encenação, limite de esforço, golpes com preparação, bloqueio, agarrões e regeneração. Só integrar a operação da pedra depois que as duas escalas funcionarem. Endurecimento não estará disponível em Trost.
+Implementado: arena separada acessível pelo menu de Trost, com transformação/saída, mudança de escala, reserva de energia, resistência, soco, golpe forte, bloqueio frontal/quebra de defesa, esquiva, agarrão durante a recuperação do rival, regeneração com custo e estados de vitória/derrota/esgotamento. Há pausa, reinício e limite de duas transformações por ensaio.
+
+Ainda pendente: modelo final de Eren, animações de combate e lesão preparatória mais fiéis, desenho de som e testes humanos de equilíbrio. Os modelos e a preparação atual são procedurais; não se deve considerar o resultado uma cena canônica. Os números de duração, alcance e custo são parâmetros de jogo, não referências do anime. Só integrar a operação da pedra depois de avaliar as duas escalas. Endurecimento continua ausente.
 
 ## Marco 4 — demonstração de produção
 
