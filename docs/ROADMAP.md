@@ -36,6 +36,14 @@ Implementado: modelo procedural articulado compartilhado entre Trost e arena; tr
 
 Esta entrega melhora a leitura e a apresentação do protótipo. Não equivale ao marco de produção abaixo: ainda são necessários personagens/modelos de produção, animações finais, fontes visuais verificadas e avaliação humana.
 
+## Entrega intermediária 5 — operação guiada de Trost
+
+Implementado: sequência de resgate, recuperação do abastecimento, eliminação dos três titãs e confirmação de retirada no portão. Indicador de etapa, destino no cenário e seta de direção. Abates antecipados contam, mas não ignoram as demais etapas. Vitória exige a interação final.
+
+Checkpoints versionados guardam objetivos, abates e tempo registrado, com retorno a posições seguras e equipamento recuperado. Retomada no menu, pausa e derrota; persistência local no navegador, com fallback para a sessão quando armazenamento não estiver disponível. Não há sincronização em nuvem. Civis são encaminhados por interação, sem escolta física.
+
+A operação é original e ainda não adapta uma sequência canônica. Cinemáticas, personagens finais, direção de voz e uma operação de 15–20 minutos com arte de produção continuam pendentes.
+
 ## Marco 4 — demonstração de produção
 
 Uma operação de 15–20 minutos com arte e animação próprias de produção, referências verificadas, missão legível, resgate, abastecimento, destruição controlada e conclusão narrativa. Não será construída a campanha completa antes da aprovação desse marco.

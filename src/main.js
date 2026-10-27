@@ -4,6 +4,7 @@ import { createWorld, createCadet, createTitan } from './world.js';
 import { clamp, cableAcceleration, canStrikeNape, insideSupplyRadius, formatTime } from './mechanics.js';
 import { resolveMotion, segmentObstructed } from './collision.js';
 import { selectAnchor } from './targeting.js';
+import { LOCATIONS, createMission, missionStage, missionObjective, advanceMission, createCheckpoint, checkpointSpawn, loadCheckpoint, saveCheckpoint } from './trost-mission.js';
 
 const $ = id => document.getElementById(id);
 const canvas = $('game');
@@ -35,9 +36,33 @@ void main(){vec3 direction=normalize(vPosition);float t=pow(max(direction.y,0.0)
 const sunDisk = new THREE.Mesh(new THREE.SphereGeometry(12, 20, 12), new THREE.MeshBasicMaterial({ color: '#fff2c9', fog: false })); sunDisk.position.set(-230, 180, -470); scene.add(sunDisk);
 const world = createWorld(scene), cadet = createCadet(scene);
 const titans = [createTitan(scene, 1, -6, 15, 0), createTitan(scene, -3, -62, 18, 1), createTitan(scene, 10, -112, 13, 2)];
+const waypoint = new THREE.Mesh(new THREE.OctahedronGeometry(.85), new THREE.MeshBasicMaterial({ color: '#edc987', transparent: true, opacity: .85 })); scene.add(waypoint); waypoint.visible = false;
+function updateMissionGuide(objective) {
+  let destination = objective.position ? new THREE.Vector3(...objective.position) : null;
+  if (missionStage(mission) === 'combat') {
+    const next = titans.find(t => t.alive);
+    if (next) { next.root.updateWorldMatrix(true, true); destination = next.nape.getWorldPosition(new THREE.Vector3()); }
+  }
+  waypoint.visible = !!destination && mode === 'playing';
+  $('waypoint-label').hidden = !destination; $('mission-nav').hidden = !destination;
+  if (!destination) return;
+  const target = destination.clone(); if (objective.position) target.y += 4;
+  waypoint.position.copy(target);
+  const delta = destination.clone().sub(player.position), meters = Math.round(delta.length());
+  const angle = Math.atan2(delta.x, -delta.z) - yaw;
+  $('mission-nav-arrow').style.transform = `rotate(${angle}rad)`;
+  $('mission-nav-text').textContent = `${meters} m · ${objective.title}`;
+  const screen = target.project(camera);
+  $('waypoint-label').hidden = screen.z < -1 || screen.z > 1 || Math.abs(screen.x) > .9 || Math.abs(screen.y) > .8;
+  $('waypoint-label').style.left = `${(screen.x + 1) * 50}%`; $('waypoint-label').style.top = `${(1 - screen.y) * 50}%`;
+  $('waypoint-label').textContent = `${objective.key} · ${meters} m`;
+}
 const raycaster = new THREE.Raycaster(); const napePosition = new THREE.Vector3();
 const player = { position: new THREE.Vector3(-25, 17, 65), velocity: new THREE.Vector3(), health: 100, gas: 100, blades: 100, grounded: true, invincible: 0 };
 cadet.root.position.copy(player.position);
+let mission = createMission(), checkpointStorage;
+try { checkpointStorage = window.localStorage; } catch { /* Session-only checkpoints remain available. */ }
+let checkpoint = loadCheckpoint(checkpointStorage), checkpointPersistent = !!checkpoint;
 let mode = 'menu', yaw = -.5, pitch = 0, elapsed = 0, kills = 0, rescued = false, attackCooldown = 0, slashTime = 0, toastTime = 0, damageTime = 0;
 let sensitivity = 1, dragging = false, jumpQueued = false, soundEnabled = true, audioContext, hookToneTime = 0;
 let cameraInitialized = false;
@@ -72,13 +97,15 @@ function start() {
   $('landing').hidden = true; $('operation-card').hidden = true; $('landing-footer').hidden = true; $('pause').hidden = true; $('result').hidden = true; $('hud').hidden = false;
   document.body.classList.add('playing'); mode = 'playing'; clearInput();
   if (!audioContext) { try { audioContext = new AudioContext(); } catch { /* Audio is optional. */ } }
-  audioContext?.resume().catch(() => {}); lockMouse(); toast('Segure Q/E mirando em um telhado. Espaço dá impulso. Escape abre as instruções.', 7);
+  audioContext?.resume().catch(() => {}); lockMouse(); toast(`${missionObjective(mission).title}. ${missionObjective(mission).detail}`, 6);
 }
-function reset() {
+function reset(save = true) {
+  mission = createMission();
   player.position.set(-25, 17, 65); player.velocity.set(0, 0, 0); Object.assign(player, { health: 100, gas: 100, blades: 100, grounded: true, invincible: 0 });
   elapsed = kills = attackCooldown = slashTime = damageTime = 0; rescued = false; yaw = -.5; pitch = 0; cameraInitialized = false; world.civilians.visible = true;
   for (const t of titans) { t.alive = true; t.deathTime = 0; t.root.visible = true; t.root.position.copy(t.spawn); t.root.rotation.set(0, Math.PI, 0); t.yaw = Math.PI; t.attackTimer = 0; t.phase = 'walk'; }
   for (const effect of effects) { scene.remove(effect.mesh); effect.mesh.material.dispose(); } effects.length = 0;
+  if (save) recordCheckpoint();
   start();
 }
 function pause() { if (mode !== 'playing') return; mode = 'paused'; clearInput(); $('pause').hidden = false; if (document.pointerLockElement) document.exitPointerLock(); }
@@ -86,9 +113,10 @@ function finish(victory) {
   mode = victory ? 'won' : 'dead'; clearInput(); if (document.pointerLockElement) document.exitPointerLock();
   $('result-label').textContent = victory ? 'OPERAÇÃO CONCLUÍDA' : 'OPERAÇÃO INTERROMPIDA';
   $('result-title').textContent = victory ? 'O distrito respira.' : 'Ainda podemos lutar.';
-  $('result-description').textContent = victory ? 'A rota de retirada está livre. Este é o primeiro teste de movimento e combate; a campanha e as transformações virão em etapas posteriores.' : 'Você foi derrubado. Ganhe altura, evite a frente dos titãs e ataque a nuca. Reinicie para tentar outra rota.';
+  $('result-description').textContent = victory ? 'Civis encaminhados, abastecimento recuperado e retirada confirmada. Este ensaio é uma missão original inspirada em Trost, fora da continuidade canônica.' : 'Você foi derrubado. Retome o checkpoint com os objetivos e abates já registrados, ou inicie uma nova operação.';
   $('result-stats').textContent = `${kills} / 3 titãs · ${formatTime(elapsed)} · Civis ${rescued ? 'resgatados' : 'não resgatados'}`;
   $('result').hidden = false;
+  refreshCheckpointButtons();
 }
 function forward() { return new THREE.Vector3(Math.sin(yaw) * Math.cos(pitch), Math.sin(pitch), -Math.cos(yaw) * Math.cos(pitch)); }
 function hookOrigin(side) {
@@ -131,8 +159,7 @@ function attack() {
     if (!t.alive) continue;
     if (strikeAvailable(t)) {
       t.alive = false; t.deathTime = 0; kills++; struck = true; particles(napePosition, 'spark', 12, 12); particles(napePosition, 'blood', 14, 7); sound(85, .3, 'triangle', .15);
-      toast(kills === 3 ? 'Último alvo abatido. A rota está livre.' : `Nuca atingida · ${kills} de 3 titãs abatidos.`, 3);
-      if (kills === 3) finish(true);
+      missionEvent({ type: 'defeat', id: t.index });
       break;
     }
   }
@@ -144,16 +171,47 @@ function damage(amount, direction) {
   player.health = Math.max(0, player.health - amount); player.invincible = 1.8; damageTime = .6; player.velocity.addScaledVector(direction, 15); player.velocity.y = 9; clearHooks(); sound(55, .3, 'sawtooth', .06);
   if (player.health <= 0) finish(false); else toast('Saia do alcance dos braços. Ganhe altura!', 2);
 }
+function refreshCheckpointButtons() {
+  const available = !!checkpoint && !checkpoint.mission.extracted;
+  document.body.classList.toggle('has-checkpoint', available);
+  $('continue-button').hidden = !available;
+  $('checkpoint-button').hidden = !available;
+  $('result-checkpoint').hidden = !available || mode === 'won';
+  $('save-status').textContent = checkpoint ? `${checkpointPersistent ? 'Checkpoint salvo neste navegador' : 'Checkpoint disponível somente nesta sessão'} · etapa ${missionObjective(checkpoint.mission).order}/4` : 'Checkpoints automáticos ao concluir objetivos';
+}
+function recordCheckpoint() {
+  checkpoint = createCheckpoint(mission, elapsed);
+  checkpointPersistent = saveCheckpoint(checkpointStorage, checkpoint);
+  refreshCheckpointButtons();
+}
+function restoreCheckpoint() {
+  if (!checkpoint || checkpoint.mission.extracted) return;
+  const saved = structuredClone(checkpoint);
+  reset(false);
+  mission = saved.mission; elapsed = saved.elapsed;
+  rescued = mission.rescued; kills = mission.defeated.length;
+  player.position.fromArray(checkpointSpawn(mission)); player.velocity.set(0, 0, 0); player.grounded = true; player.invincible = 2;
+  yaw = 0; pitch = 0; cameraInitialized = false;
+  for (const t of titans) { t.alive = !mission.defeated.includes(t.index); t.root.visible = t.alive; }
+  world.civilians.visible = !rescued;
+  toast(`Checkpoint retomado · ${missionObjective(mission).title}`, 5);
+  updateHUD();
+}
+function missionEvent(event) {
+  const result = advanceMission(mission, { position: player.position.toArray(), ...event });
+  mission = result.state; rescued = mission.rescued; kills = mission.defeated.length;
+  if (result.changed) { recordCheckpoint(); sound(780, .2); }
+  if (result.message) toast(`${result.message}${result.changed && !mission.extracted ? (checkpointPersistent ? ' · Checkpoint salvo neste navegador.' : ' · Checkpoint apenas nesta sessão.') : ''}`, 5);
+  if (mission.extracted) finish(true);
+  updateHUD();
+}
 function interact(type) {
   if (mode !== 'playing') return;
   if (type === 'supply') {
-    if (insideSupplyRadius(player.position.toArray(), world.supply.toArray())) { player.gas = player.blades = player.health = 100; toast('Equipamento reabastecido · gás, lâminas e vitalidade restaurados.'); sound(600, .2); }
-    else toast('Aproxime-se da caixa azul na praça, ao sul do primeiro titã.');
-  } else {
-    if (rescued) { toast('Os civis já estão a caminho da evacuação.'); return; }
-    if (player.position.distanceTo(world.rescue) < 9) { rescued = true; world.civilians.visible = false; toast('Três civis encaminhados à evacuação.'); sound(780, .25); }
-    else toast('Os civis estão na praça, perto das bandeiras. Aproxime-se e pressione G.');
-  }
+    if (insideSupplyRadius(player.position.toArray(), world.supply.toArray())) { player.gas = player.blades = player.health = 100; sound(600, .2); }
+    missionEvent({ type: 'supply' });
+  } else if (missionStage(mission) === 'extraction') missionEvent({ type: 'extract' });
+  else { missionEvent({ type: 'rescue' }); world.civilians.visible = !mission.rescued; }
 }
 
 function integratePlayer(dt) {
@@ -235,7 +293,10 @@ function updateCamera(dt, menu = false) {
 function updateHUD() {
   for (const name of ['gas', 'blades', 'health']) { const key = name === 'blades' ? 'blade' : name; $(`${key}-value`).textContent = `${Math.ceil(player[name])}%`; $(`${key}-bar`).style.width = `${player[name]}%`; }
   $('speed').textContent = Math.round(player.velocity.length() * 3.6); $('altitude').textContent = `${Math.round(player.position.y)} M · ALTITUDE`;
-  $('objective').innerHTML = `Elimine os titãs <b>${kills} / 3</b>`; $('rescue-status').textContent = rescued ? '✓ Civis resgatados' : 'Opcional · resgate os civis na praça';
+  const objective = missionObjective(mission);
+  $('objective').textContent = objective.title; $('rescue-status').textContent = objective.detail;
+  $('mission-phase').textContent = `ETAPA ${objective.order} / 4 · ${missionStage(mission) === 'complete' ? 'CONCLUÍDA' : 'ROTA DE RETIRADA'}`;
+  updateMissionGuide(objective);
   const hits = hooks.map((h, i) => h.active ? { point: h.point, distance: h.point.distanceTo(hookOrigin(h.side)) } : aimHit(i));
   $('reticle').classList.toggle('valid', hits.some(Boolean));
   let hint = hits.some(Boolean) ? 'Q / E · ANCORAGENS INDEPENDENTES' : 'SEM ANCORAGEM';
@@ -259,10 +320,13 @@ function updateHUD() {
   }
   if (insideSupplyRadius(player.position.toArray(), world.supply.toArray())) hint = 'R · REABASTECER EQUIPAMENTO';
   if (!rescued && player.position.distanceTo(world.rescue) < 9) hint = 'G · RESGATAR CIVIS';
+  if (missionStage(mission) === 'extraction' && player.position.distanceTo(world.extraction) < 9) hint = 'G · CONFIRMAR RETIRADA';
   $('target-hint').textContent = hint;
 }
 
-$('start-button').addEventListener('click', start); $('resume-button').addEventListener('click', start); $('restart-button').addEventListener('click', reset); $('retry-button').addEventListener('click', reset);
+$('start-button').addEventListener('click', () => reset()); $('resume-button').addEventListener('click', start); $('restart-button').addEventListener('click', () => reset()); $('retry-button').addEventListener('click', () => reset());
+for (const id of ['continue-button', 'checkpoint-button', 'result-checkpoint']) $(id).addEventListener('click', restoreCheckpoint);
+refreshCheckpointButtons();
 $('settings-button').addEventListener('click', () => { if (mode === 'playing') pause(); $('settings').hidden = false; });
 $('close-settings').addEventListener('click', () => { $('settings').hidden = true; });
 $('sensitivity').addEventListener('input', e => { sensitivity = Number(e.target.value); });
@@ -294,6 +358,7 @@ canvas.addEventListener('webglcontextlost', event => { event.preventDefault(); p
 let previousTime = performance.now(), uiTimer = 0;
 function animate(now) {
   requestAnimationFrame(animate); const dt = Math.min((now - previousTime) / 1000, .05); previousTime = now; const time = now / 1000;
+  waypoint.rotation.y = time * .7; world.extractionBeacon.visible = missionStage(mission) === 'extraction';
   world.marker.position.y = 5 + Math.sin(time * 2) * .3; world.marker.rotation.y = time;
   for (const flag of world.flags) { const p = flag.geometry.attributes.position; for (let i = 0; i < p.count; i++) p.setZ(i, Math.sin(p.getX(i) * 2 + time * 3) * .13 * (p.getX(i) + 1)); p.needsUpdate = true; }
   if (mode === 'menu') { updateCamera(dt, true); updateTitans(dt, time, false); }
@@ -324,4 +389,4 @@ function animate(now) {
 requestAnimationFrame(animate);
 
 // Read-only diagnostics are available for smoke tests; no teleport or combat cheats ship.
-window.__TROST__ = Object.freeze({ snapshot: () => ({ mode, elapsed, kills, rescued, grounded: player.grounded, yaw, pitch, assistedAnchors, fovEffect, health: player.health, gas: player.gas, blades: player.blades, position: player.position.toArray(), velocity: player.velocity.toArray(), hooks: hooks.map(h => ({ active: h.active, point: h.point.toArray(), releasedBy: h.releasedBy })), titans: titans.map(t => ({ alive: t.alive, position: t.root.position.toArray() })), drawCalls: renderer.info.render.calls, triangles: renderer.info.render.triangles }) });
+window.__TROST__ = Object.freeze({ snapshot: () => ({ mode, elapsed, kills, rescued, mission: structuredClone(mission), stage: missionStage(mission), checkpoint: checkpoint ? structuredClone(checkpoint) : null, checkpointPersistent, grounded: player.grounded, yaw, pitch, assistedAnchors, fovEffect, health: player.health, gas: player.gas, blades: player.blades, position: player.position.toArray(), velocity: player.velocity.toArray(), hooks: hooks.map(h => ({ active: h.active, point: h.point.toArray(), releasedBy: h.releasedBy })), titans: titans.map(t => ({ alive: t.alive, position: t.root.position.toArray() })), drawCalls: renderer.info.render.calls, triangles: renderer.info.render.triangles }) });
