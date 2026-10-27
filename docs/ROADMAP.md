@@ -28,7 +28,13 @@ Critério para avançar: teste humano de conforto e diversão. Ainda são necess
 
 Implementado: arena separada acessível pelo menu de Trost, com transformação/saída, mudança de escala, reserva de energia, resistência, soco, golpe forte, bloqueio frontal/quebra de defesa, esquiva, agarrão durante a recuperação do rival, regeneração com custo e estados de vitória/derrota/esgotamento. Há pausa, reinício e limite de duas transformações por ensaio.
 
-Ainda pendente: modelo final de Eren, animações de combate e lesão preparatória mais fiéis, desenho de som e testes humanos de equilíbrio. Os modelos e a preparação atual são procedurais; não se deve considerar o resultado uma cena canônica. Os números de duração, alcance e custo são parâmetros de jogo, não referências do anime. Só integrar a operação da pedra depois de avaliar as duas escalas. Endurecimento continua ausente.
+Ainda pendente: modelo final de Eren, animações de combate e lesão preparatória mais fiéis, desenho de som de produção e testes humanos de equilíbrio. Os modelos e a preparação atual são procedurais; não se deve considerar o resultado uma cena canônica. Os números de duração, alcance e custo são parâmetros de jogo, não referências do anime. Só integrar a operação da pedra depois de avaliar as duas escalas. Endurecimento continua ausente.
+
+## Entrega intermediária 4 — apresentação do combate
+
+Implementado: modelo procedural articulado compartilhado entre Trost e arena; tronco contínuo, feições, mãos e cabelo; animações amostradas pelo tempo dos golpes; poses de guarda e reação; indicadores de dano e breve pausa de impacto. Sons sintetizados de passos, golpes, defesa, transformação, esquiva e vapor, com mute e interrupção na pausa. Tremor de câmera opcional e respeito à preferência de movimento reduzido.
+
+Esta entrega melhora a leitura e a apresentação do protótipo. Não equivale ao marco de produção abaixo: ainda são necessários personagens/modelos de produção, animações finais, fontes visuais verificadas e avaliação humana.
 
 ## Marco 4 — demonstração de produção
 
