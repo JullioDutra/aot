@@ -3,6 +3,8 @@ import './style.css';
 import { createWorld, createCadet, createTitan } from './world.js';
 import { clamp, cableAcceleration, canStrikeNape, insideSupplyRadius, formatTime } from './mechanics.js';
 import { resolveMotion, segmentObstructed } from './collision.js';
+import { stepEscort, escortPosition, escortProgress, ESCORT_ROUTE } from './civilian-escort.js';
+import { animateCivilians } from './civilian-model.js';
 import { selectAnchor } from './targeting.js';
 import { LOCATIONS, createMission, missionStage, missionObjective, advanceMission, createCheckpoint, checkpointSpawn, loadCheckpoint, saveCheckpoint } from './trost-mission.js';
 
@@ -61,6 +63,7 @@ const raycaster = new THREE.Raycaster(); const napePosition = new THREE.Vector3(
 const player = { position: new THREE.Vector3(-25, 17, 65), velocity: new THREE.Vector3(), health: 100, gas: 100, blades: 100, grounded: true, invincible: 0 };
 cadet.root.position.copy(player.position);
 let mission = createMission(), checkpointStorage;
+let escortStatus = 'idle', escortHeading = 0;
 try { checkpointStorage = window.localStorage; } catch { /* Session-only checkpoints remain available. */ }
 let checkpoint = loadCheckpoint(checkpointStorage), checkpointPersistent = !!checkpoint;
 let mode = 'menu', yaw = -.5, pitch = 0, elapsed = 0, kills = 0, rescued = false, attackCooldown = 0, slashTime = 0, toastTime = 0, damageTime = 0;
@@ -100,7 +103,7 @@ function start() {
   audioContext?.resume().catch(() => {}); lockMouse(); toast(`${missionObjective(mission).title}. ${missionObjective(mission).detail}`, 6);
 }
 function reset(save = true) {
-  mission = createMission();
+  mission = createMission(); escortStatus = 'idle'; escortHeading = 0; world.civilians.position.copy(world.rescue);
   player.position.set(-25, 17, 65); player.velocity.set(0, 0, 0); Object.assign(player, { health: 100, gas: 100, blades: 100, grounded: true, invincible: 0 });
   elapsed = kills = attackCooldown = slashTime = damageTime = 0; rescued = false; yaw = -.5; pitch = 0; cameraInitialized = false; world.civilians.visible = true;
   for (const t of titans) { t.alive = true; t.deathTime = 0; t.root.visible = true; t.root.position.copy(t.spawn); t.root.rotation.set(0, Math.PI, 0); t.yaw = Math.PI; t.attackTimer = 0; t.phase = 'walk'; }
@@ -193,7 +196,7 @@ function restoreCheckpoint() {
   player.position.fromArray(checkpointSpawn(mission)); player.velocity.set(0, 0, 0); player.grounded = true; player.invincible = 2;
   yaw = 0; pitch = 0; cameraInitialized = false;
   for (const t of titans) { t.alive = !mission.defeated.includes(t.index); t.root.visible = t.alive; }
-  world.civilians.visible = !rescued;
+  world.civilians.visible = true; world.civilians.position.fromArray(escortPosition(mission.escort));
   toast(`Checkpoint retomado · ${missionObjective(mission).title}`, 5);
   updateHUD();
 }
@@ -211,7 +214,26 @@ function interact(type) {
     if (insideSupplyRadius(player.position.toArray(), world.supply.toArray())) { player.gas = player.blades = player.health = 100; sound(600, .2); }
     missionEvent({ type: 'supply' });
   } else if (missionStage(mission) === 'extraction') missionEvent({ type: 'extract' });
-  else { missionEvent({ type: 'rescue' }); world.civilians.visible = !mission.rescued; }
+  else missionEvent({ type: 'rescue' });
+}
+
+function updateCivilians(dt) {
+  if (mission.escort && !mission.rescued) {
+    const previous = escortPosition(mission.escort);
+    const step = stepEscort(mission.escort, dt, player.position.toArray(), titans.filter(t => t.alive).map(t => t.root.position.toArray()));
+    mission.escort = step.escort;
+    if (step.reason !== escortStatus && step.reason === 'danger') toast('Titã perto do grupo. Afaste a ameaça para liberar a passagem.', 4);
+    if (step.reason !== escortStatus && step.reason === 'waiting') toast('Os civis aguardam. Aproxime-se do grupo para continuar.', 4);
+    escortStatus = step.reason;
+    if (step.reason === 'moving') escortHeading = Math.atan2(step.position[0] - previous[0], step.position[2] - previous[2]);
+    world.civilians.position.fromArray(step.position);
+    if (step.reason === 'safe') missionEvent({ type: 'escort-arrived' });
+    else if (step.reachedWaypoint) recordCheckpoint();
+  } else {
+    escortStatus = mission.rescued ? 'safe' : 'idle';
+    world.civilians.position.fromArray(mission.rescued ? ESCORT_ROUTE.at(-1) : world.rescue.toArray());
+  }
+  animateCivilians(world.civilianActors, escortStatus === 'moving', elapsed, escortHeading, escortStatus === 'danger');
 }
 
 function integratePlayer(dt) {
@@ -297,6 +319,9 @@ function updateHUD() {
   $('objective').textContent = objective.title; $('rescue-status').textContent = objective.detail;
   $('mission-phase').textContent = `ETAPA ${objective.order} / 4 · ${missionStage(mission) === 'complete' ? 'CONCLUÍDA' : 'ROTA DE RETIRADA'}`;
   updateMissionGuide(objective);
+  $('escort-status').hidden = !mission.escort && !mission.rescued;
+  const escortLabels = { idle: 'Grupo aguardando', moving: 'Civis em movimento', waiting: 'Aguardando sua aproximação', danger: 'Passagem bloqueada por titã', safe: '3 / 3 civis no abrigo' };
+  $('escort-status').textContent = `${escortLabels[escortStatus]}${mission.rescued ? '' : ` · ${Math.round(escortProgress(mission.escort) * 100)}% da rota`}`;
   const hits = hooks.map((h, i) => h.active ? { point: h.point, distance: h.point.distanceTo(hookOrigin(h.side)) } : aimHit(i));
   $('reticle').classList.toggle('valid', hits.some(Boolean));
   let hint = hits.some(Boolean) ? 'Q / E · ANCORAGENS INDEPENDENTES' : 'SEM ANCORAGEM';
@@ -319,7 +344,7 @@ function updateHUD() {
     hint = 'NUCA EXPOSTA · CLIQUE PARA ATACAR'; break;
   }
   if (insideSupplyRadius(player.position.toArray(), world.supply.toArray())) hint = 'R · REABASTECER EQUIPAMENTO';
-  if (!rescued && player.position.distanceTo(world.rescue) < 9) hint = 'G · RESGATAR CIVIS';
+  if (!rescued && !mission.escort && player.position.distanceTo(world.rescue) < 9) hint = 'G · RESGATAR CIVIS';
   if (missionStage(mission) === 'extraction' && player.position.distanceTo(world.extraction) < 9) hint = 'G · CONFIRMAR RETIRADA';
   $('target-hint').textContent = hint;
 }
@@ -365,7 +390,9 @@ function animate(now) {
   if (mode === 'playing') {
     elapsed += dt; attackCooldown = Math.max(0, attackCooldown - dt); slashTime = Math.max(0, slashTime - dt); player.invincible = Math.max(0, player.invincible - dt); damageTime = Math.max(0, damageTime - dt);
     const steps = Math.max(1, Math.ceil(dt / (1 / 120))); for (let i = 0; i < steps; i++) integratePlayer(dt / steps);
-    updateTitans(dt, time, true); updateCamera(dt);
+    updateTitans(dt, time, true);
+    if (mode === 'playing') updateCivilians(dt);
+    updateCamera(dt);
     cadet.root.position.copy(player.position); cadet.root.rotation.y = Math.PI - yaw;
     const moving = Math.hypot(player.velocity.x, player.velocity.z), attached = hooks.some(h => h.active);
     cadet.legs.forEach((leg, i) => { leg.rotation.x = player.grounded ? Math.sin(time * 13 + i * Math.PI) * Math.min(.6, moving * .08) : -.4 + i * .6; });
@@ -389,4 +416,4 @@ function animate(now) {
 requestAnimationFrame(animate);
 
 // Read-only diagnostics are available for smoke tests; no teleport or combat cheats ship.
-window.__TROST__ = Object.freeze({ snapshot: () => ({ mode, elapsed, kills, rescued, mission: structuredClone(mission), stage: missionStage(mission), checkpoint: checkpoint ? structuredClone(checkpoint) : null, checkpointPersistent, grounded: player.grounded, yaw, pitch, assistedAnchors, fovEffect, health: player.health, gas: player.gas, blades: player.blades, position: player.position.toArray(), velocity: player.velocity.toArray(), hooks: hooks.map(h => ({ active: h.active, point: h.point.toArray(), releasedBy: h.releasedBy })), titans: titans.map(t => ({ alive: t.alive, position: t.root.position.toArray() })), drawCalls: renderer.info.render.calls, triangles: renderer.info.render.triangles }) });
+window.__TROST__ = Object.freeze({ snapshot: () => ({ mode, elapsed, kills, rescued, mission: structuredClone(mission), stage: missionStage(mission), checkpoint: checkpoint ? structuredClone(checkpoint) : null, checkpointPersistent, escortStatus, civilianPosition: world.civilians.position.toArray(), grounded: player.grounded, yaw, pitch, assistedAnchors, fovEffect, health: player.health, gas: player.gas, blades: player.blades, position: player.position.toArray(), velocity: player.velocity.toArray(), hooks: hooks.map(h => ({ active: h.active, point: h.point.toArray(), releasedBy: h.releasedBy })), titans: titans.map(t => ({ alive: t.alive, position: t.root.position.toArray() })), drawCalls: renderer.info.render.calls, triangles: renderer.info.render.triangles }) });

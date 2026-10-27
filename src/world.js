@@ -1,3 +1,5 @@
+import { createCivilians } from './civilian-model.js';
+import { ESCORT_ROUTE } from './civilian-escort.js';
 import * as THREE from 'three';
 import { LOCATIONS } from './trost-mission.js';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
@@ -110,7 +112,13 @@ export function createWorld(scene) {
   box(supplyGroup, material('#e6e4c3'), 0, 1.15, 1.12, 1.3, .25, .07); box(supplyGroup, material('#e6e4c3'), 0, 1.15, 1.12, .25, 1.2, .08);
   const marker = new THREE.Mesh(new THREE.OctahedronGeometry(.7), teal); marker.position.set(13, 5, 42); scene.add(marker);
   const rescue = new THREE.Vector3(...LOCATIONS.rescue); const civilians = new THREE.Group(); civilians.position.copy(rescue); scene.add(civilians);
-  for (let i = 0; i < 3; i++) { const p = new THREE.Group(); p.position.set(i * 1.1 - 1, 0, i % 2); civilians.add(p); box(p, plaster[i], 0, .9, 0, .55, 1.2, .4); ellipsoid(p, material('#c9aa89'), 0, 1.65, 0, .22, .27, .23); }
+  const civilianActors = createCivilians(civilians);
+  const shelter = new THREE.Group(); shelter.position.fromArray(ESCORT_ROUTE.at(-1)); scene.add(shelter);
+  const shelterCanvas = material('#57776a', { side: THREE.DoubleSide });
+  const canopy = new THREE.Mesh(new THREE.PlaneGeometry(8, 6), shelterCanvas); canopy.rotation.x = -Math.PI / 2; canopy.position.set(0, 3, 1); canopy.castShadow = true; shelter.add(canopy);
+  for (const x of [-3.5, 3.5]) for (const z of [-1.5, 3.5]) box(shelter, timber, x, 1.5, z, .13, 3, .13);
+  const emblem = new THREE.Mesh(new THREE.PlaneGeometry(1.5, 1), material('#d8c7a2', { side: THREE.DoubleSide })); emblem.position.set(0, 2.4, -1.5); shelter.add(emblem);
+
   const extraction = new THREE.Vector3(...LOCATIONS.extraction);
   const extractionBeacon = new THREE.Group(); extractionBeacon.position.copy(extraction); scene.add(extractionBeacon);
   const beaconMaterial = material('#7dcc9c', { emissive: '#378557', emissiveIntensity: .7, transparent: true, opacity: .65 });
@@ -139,7 +147,7 @@ export function createWorld(scene) {
     const merged = new THREE.Mesh(mergeGeometries(geometries), mat); merged.castShadow = true; merged.receiveShadow = true; scene.add(merged);
     for (const geometry of geometries) geometry.dispose();
   }
-  return { colliders, anchors, supply, rescue, civilians, marker, flags, extraction, extractionBeacon };
+  return { colliders, anchors, supply, rescue, civilians, marker, flags, extraction, extractionBeacon, civilianActors };
 }
 
 export function createCadet(scene) {

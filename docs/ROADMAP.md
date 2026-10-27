@@ -44,6 +44,14 @@ Checkpoints versionados guardam objetivos, abates e tempo registrado, com retorn
 
 A operação é original e ainda não adapta uma sequência canônica. Cinemáticas, personagens finais, direção de voz e uma operação de 15–20 minutos com arte de produção continuam pendentes.
 
+## Entrega intermediária 6 — escolta de civis
+
+Implementado: os três civis caminham por uma rota definida até um abrigo, com modelo articulado simples e animações de caminhada/espera. O resgate exige chegada ao destino. O grupo aguarda quando o jogador se afasta e para diante de um titã próximo. Abates antecipados continuam válidos. Marcador acompanha o grupo e HUD mostra progresso e motivo da espera.
+
+Checkpoint intermediário preserva avanço na rota; pausa congela o grupo. O formato de save passa à versão 2, mantendo a chave de armazenamento e migrando resgates concluídos da versão 1. Civis permanecem visíveis no abrigo.
+
+Limites: rota autoral para o mapa atual, sem navegação dinâmica, dano/morte de civis, diálogo ou animações finais. Não representa uma cena canônica específica.
+
 ## Marco 4 — demonstração de produção
 
 Uma operação de 15–20 minutos com arte e animação próprias de produção, referências verificadas, missão legível, resgate, abastecimento, destruição controlada e conclusão narrativa. Não será construída a campanha completa antes da aprovação desse marco.
