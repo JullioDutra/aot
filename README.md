@@ -102,6 +102,20 @@ Clique inicia uma preparação de 0,16 s; o corte é resolvido nesse instante, s
 
 O gasto de até 5 pontos de lâmina acontece uma única vez no início, mesmo se o golpe errar ou for interrompido. Cliques durante o ciclo são ignorados, sem ataque enfileirado. A última carga parcial ainda permite um golpe. Receber dano cancela o ataque; pausa congela o tempo restante; reinício e retomada de checkpoint descartam ataques pendentes. Os requisitos de alcance, altura, aproximação por trás e caminho livre continuam iguais, assim como o limite de um abate por golpe. Não há combo, travamento automático no alvo ou colisão detalhada entre lâmina e pele.
 
+## Perfis gráficos — fase 10
+
+A qualidade de Trost pode ser alterada nas configurações e fica salva neste navegador, na chave `trost.graphics.v1`, separada dos checkpoints. Sem preferência válida, o jogo começa em Alta. Quando o armazenamento estiver bloqueado, a escolha funciona durante a sessão e a interface informa isso. A arena de transformação continua com suas próprias configurações.
+
+| Perfil | Limite da escala de pixels | Sombras | Relevo dos materiais | Filtragem anisotrópica máxima |
+| --- | --- | --- | --- | --- |
+| Alta | 1,6 | 2048 × 2048 | Ativo | 8× |
+| Equilibrada | 1,1 | 1024 × 1024 | Ativo | 4× |
+| Desempenho | 0,8 | Desligadas | Desligado | 1× |
+
+A escala efetiva também respeita a densidade da tela e a filtragem respeita o suporte da GPU. Desempenho mantém texturas de cor, geometria, colisões e regras da missão. Voltar para Alta restaura os mapas de relevo originais. Trocar a resolução das sombras libera os alvos de renderização anteriores; reaplicar o mesmo perfil não recompila materiais sem alteração. Redimensionar a janela mantém o perfil escolhido.
+
+Esses perfis reduzem trabalho gráfico de formas específicas; não garantem uma taxa de quadros. Ainda é necessário medir conforto e desempenho em hardware real. Não há ajuste automático por FPS nesta etapa.
+
 ## Validação
 
 ```sh
@@ -118,6 +132,7 @@ O teste de navegador usa Chromium em `/usr/bin/chromium`; defina `CHROMIUM_PATH`
 - `src/world.js`: cenário, personagens, materiais e geometria procedural.
 - `src/architecture.js`: detalhes instanciados de fachada e ornamentação do portão.
 - `src/blade-strike.js`: ciclo, custo e poses do golpe de lâminas.
+- `src/graphics-quality.js`: perfis gráficos, restauração de materiais e persistência da preferência.
 - `src/mechanics.js`: regras independentes de renderização, cobertas por testes.
 - `src/collision.js`: contato com telhados inclinados e obstrução de segmentos.
 - `src/targeting.js`: seleção independente das ancoragens e assistência.
@@ -142,4 +157,4 @@ Uma produção pública/comercial com a propriedade intelectual de Attack on Tit
 
 ## Entregas por fase
 
-Cada fase concluída recebe uma branch, validação, commit, push e PR no GitHub. As fases 1–2 estão no [PR #1](https://github.com/JullioDutra/aot/pull/1), já integrado pelo fluxo externo a esta implementação. A fase 3 está no [PR #2](https://github.com/JullioDutra/aot/pull/2). A fase 4 está no [PR #3](https://github.com/JullioDutra/aot/pull/3). A fase 5 foi integrada pelo [PR #4](https://github.com/JullioDutra/aot/pull/4). A fase 6 foi integrada pelo [PR #5](https://github.com/JullioDutra/aot/pull/5). A fase 7 usa `feat/phase-07-district-architecture`, com base em `main`. A fase 8 usa `feat/phase-08-titan-telegraphs`, inicialmente baseada na branch da fase 7. A fase 9 usa `feat/phase-09-blade-strikes`, inicialmente baseada na fase 8. A base de revisão acompanha a versão integrada mais recente ou a branch predecessora quando necessário. Abertura de PR não implica autorização para merge automático; consulte AGENTS.md.
+Cada fase concluída recebe uma branch, validação, commit, push e PR no GitHub. As fases 1–2 estão no [PR #1](https://github.com/JullioDutra/aot/pull/1), já integrado pelo fluxo externo a esta implementação. A fase 3 está no [PR #2](https://github.com/JullioDutra/aot/pull/2). A fase 4 está no [PR #3](https://github.com/JullioDutra/aot/pull/3). A fase 5 foi integrada pelo [PR #4](https://github.com/JullioDutra/aot/pull/4). A fase 6 foi integrada pelo [PR #5](https://github.com/JullioDutra/aot/pull/5). A fase 7 usa `feat/phase-07-district-architecture`, com base em `main`. A fase 8 usa `feat/phase-08-titan-telegraphs`, inicialmente baseada na branch da fase 7. A fase 9 usa `feat/phase-09-blade-strikes`, inicialmente baseada na fase 8. A fase 10 usa `feat/phase-10-graphics-profiles`, inicialmente baseada na fase 9. A base de revisão acompanha a versão integrada mais recente ou a branch predecessora quando necessário. Abertura de PR não implica autorização para merge automático; consulte AGENTS.md.

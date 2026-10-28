@@ -70,6 +70,12 @@ Implementado: preparação de 0,16 s, impacto único e recuperação até 0,52 s
 
 Mantém os critérios existentes de nuca e um abate por golpe. Não acrescenta combos, perseguição automática, desmembramento ou animações de produção. A arena de transformação mantém seu próprio combate.
 
+## Entrega intermediária 10 — perfis gráficos persistentes
+
+Implementado: Alta, Equilibrada e Desempenho controlam escala de renderização, resolução/ativação das sombras, relevo de materiais e filtragem de texturas. Desempenho remove bump mapping; retornar para Alta restaura os mapas originais. Trocas liberam os alvos de sombra anteriores e evitam recompilar materiais sem mudança. Preferência salva separadamente da missão, com fallback de sessão e recuperação de dados inválidos.
+
+Testes cobrem restauração, liberação de recursos, persistência, armazenamento indisponível e alternância real no navegador. Geometria e regras de jogo permanecem iguais. Não há qualidade adaptativa por FPS, redução automática de geometria ou medição em GPU real; não afirmar meta de 60 fps a partir dos testes por software.
+
 ## Marco 4 — demonstração de produção
 
 Uma operação de 15–20 minutos com arte e animação próprias de produção, referências verificadas, missão legível, resgate, abastecimento, destruição controlada e conclusão narrativa. Não será construída a campanha completa antes da aprovação desse marco.

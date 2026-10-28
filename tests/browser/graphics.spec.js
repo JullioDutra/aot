@@ -1,0 +1,34 @@
+import { test, expect } from '@playwright/test';
+
+test('graphics profiles restore effects, survive reload and resize without WebGL errors', async ({ page }, testInfo) => {
+  test.setTimeout(180000);
+  const errors = [];
+  page.on('pageerror', error => errors.push(error.message));
+  page.on('console', message => { if (message.type() === 'error') errors.push(message.text()); });
+  await page.goto('/');
+  await page.waitForFunction(() => window.__TROST__?.snapshot().drawCalls > 0);
+  const high = await page.evaluate(() => window.__TROST__.snapshot().graphics);
+  expect(high.quality).toBe('high'); expect(high.bumpMaterials).toBeGreaterThan(0);
+  await page.click('#settings-button');
+  await page.selectOption('#quality', 'low');
+  let state = await page.evaluate(() => window.__TROST__.snapshot().graphics);
+  expect(state.shadows).toBe(false); expect(state.bumpMaterials).toBe(0); expect(state.pixelRatio).toBe(.8);
+  await expect(page.locator('#quality-description')).toContainText('salva neste navegador');
+  await page.reload();
+  await page.waitForFunction(() => window.__TROST__?.snapshot().drawCalls > 0);
+  expect((await page.evaluate(() => window.__TROST__.snapshot().graphics)).quality).toBe('low');
+  await page.click('#settings-button'); await expect(page.locator('#quality')).toHaveValue('low');
+  await page.selectOption('#quality', 'medium');
+  await page.waitForTimeout(250);
+  state = await page.evaluate(() => window.__TROST__.snapshot().graphics);
+  expect(state.shadows).toBe(true); expect(state.shadowSize).toBe(1024); expect(state.bumpMaterials).toBe(high.bumpMaterials);
+  await page.selectOption('#quality', 'high');
+  await page.waitForTimeout(250);
+  state = await page.evaluate(() => window.__TROST__.snapshot().graphics);
+  expect(state.shadowSize).toBe(2048); expect(state.bumpMaterials).toBe(high.bumpMaterials);
+  await page.screenshot({ path: testInfo.outputPath('graphics-high.png') });
+  await page.selectOption('#quality', 'low'); await page.setViewportSize({ width: 760, height: 600 });
+  await expect(page.locator('#close-settings')).toBeInViewport();
+  expect((await page.evaluate(() => window.__TROST__.snapshot().graphics)).pixelRatio).toBe(.8);
+  expect(errors).toEqual([]);
+});

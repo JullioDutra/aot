@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import './style.css';
 import { createWorld, createCadet, createTitan } from './world.js';
+import { createGraphicsQuality } from './graphics-quality.js';
 import { createBladeStrike, beginBladeStrike, stepBladeStrike, bladeStrikePhase, bladeStrikePose } from './blade-strike.js';
 import { stepTrostTitan } from './trost-titan-ai.js';
 import { clamp, cableAcceleration, canStrikeNape, insideSupplyRadius, formatTime } from './mechanics.js';
@@ -79,6 +80,13 @@ let mission = createMission(), checkpointStorage;
 let bladeStrike = createBladeStrike();
 let escortStatus = 'idle', escortHeading = 0;
 try { checkpointStorage = window.localStorage; } catch { /* Session-only checkpoints remain available. */ }
+const graphics = createGraphicsQuality({ renderer, scene, light: sun, storage: checkpointStorage, pixelRatio: () => devicePixelRatio });
+function updateGraphicsDescription() {
+  const s = graphics.snapshot(); $('quality').value = s.quality;
+  const descriptions = { high: 'Alta: sombras detalhadas e relevo nos materiais.', medium: 'Equilibrada: sombras mais leves e relevo nos materiais.', low: 'Desempenho: resolução reduzida, sem sombras dinâmicas ou relevo nos materiais.' };
+  $('quality-description').textContent = `${descriptions[s.quality]} ${s.persisted ? 'Escolha salva neste navegador.' : 'Escolha disponível nesta sessão.'}`;
+}
+updateGraphicsDescription();
 let checkpoint = loadCheckpoint(checkpointStorage), checkpointPersistent = !!checkpoint;
 let mode = 'menu', yaw = -.5, pitch = 0, elapsed = 0, kills = 0, rescued = false, toastTime = 0, damageTime = 0;
 let sensitivity = 1, dragging = false, jumpQueued = false, soundEnabled = true, audioContext, hookToneTime = 0;
@@ -379,10 +387,7 @@ $('sensitivity').addEventListener('input', e => { sensitivity = Number(e.target.
 $('anchor-assist').addEventListener('change', e => { assistedAnchors = e.target.checked; });
 $('fov-effect').addEventListener('change', e => { fovEffect = e.target.checked; });
 $('audio-enabled').addEventListener('change', e => { soundEnabled = e.target.checked; });
-$('quality').addEventListener('change', e => {
-  const value = e.target.value; renderer.setPixelRatio(Math.min(devicePixelRatio, value === 'high' ? 1.6 : value === 'medium' ? 1.1 : .8)); renderer.shadowMap.enabled = value !== 'low';
-  scene.traverse(object => { if (object.material) { const materials = Array.isArray(object.material) ? object.material : [object.material]; materials.forEach(m => { m.needsUpdate = true; }); } });
-});
+$('quality').addEventListener('change', e => { graphics.apply(e.target.value); updateGraphicsDescription(); });
 addEventListener('keydown', event => {
   if (event.code === 'Escape') { if (!$('settings').hidden) { $('settings').hidden = true; return; } pause(); return; }
   if (mode !== 'playing') return;
@@ -398,7 +403,7 @@ addEventListener('mousemove', event => { if (mode !== 'playing' || (!dragging &&
 canvas.addEventListener('contextmenu', event => event.preventDefault());
 document.addEventListener('pointerlockchange', () => { if (!document.pointerLockElement && mode === 'playing') pause(); });
 addEventListener('blur', pause); document.addEventListener('visibilitychange', () => { if (document.hidden) pause(); });
-addEventListener('resize', () => { camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix(); renderer.setSize(innerWidth, innerHeight); });
+addEventListener('resize', () => { camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix(); graphics.apply(graphics.snapshot().quality, false); renderer.setSize(innerWidth, innerHeight); });
 canvas.addEventListener('webglcontextlost', event => { event.preventDefault(); pause(); $('fatal-message').textContent = 'O contexto gráfico foi perdido. Recarregue a página e tente a qualidade Desempenho.'; $('fatal').hidden = false; });
 
 let previousTime = performance.now(), uiTimer = 0;
@@ -445,4 +450,4 @@ function animate(now) {
 requestAnimationFrame(animate);
 
 // Read-only diagnostics are available for smoke tests; no teleport or combat cheats ship.
-window.__TROST__ = Object.freeze({ snapshot: () => ({ mode, bladeStrike: { ...bladeStrike }, bladePhase: bladeStrikePhase(bladeStrike), elapsed, kills, rescued, mission: structuredClone(mission), stage: missionStage(mission), checkpoint: checkpoint ? structuredClone(checkpoint) : null, checkpointPersistent, escortStatus, civilianPosition: world.civilians.position.toArray(), grounded: player.grounded, yaw, pitch, assistedAnchors, fovEffect, health: player.health, gas: player.gas, blades: player.blades, position: player.position.toArray(), velocity: player.velocity.toArray(), hooks: hooks.map(h => ({ active: h.active, point: h.point.toArray(), releasedBy: h.releasedBy })), titans: titans.map(t => ({ alive: t.alive, phase: t.phase, attackTimer: t.attackTimer, yaw: t.yaw, telegraphVisible: t.telegraph.visible, position: t.root.position.toArray() })), drawCalls: renderer.info.render.calls, triangles: renderer.info.render.triangles }) });
+window.__TROST__ = Object.freeze({ snapshot: () => ({ mode, graphics: graphics.snapshot(), bladeStrike: { ...bladeStrike }, bladePhase: bladeStrikePhase(bladeStrike), elapsed, kills, rescued, mission: structuredClone(mission), stage: missionStage(mission), checkpoint: checkpoint ? structuredClone(checkpoint) : null, checkpointPersistent, escortStatus, civilianPosition: world.civilians.position.toArray(), grounded: player.grounded, yaw, pitch, assistedAnchors, fovEffect, health: player.health, gas: player.gas, blades: player.blades, position: player.position.toArray(), velocity: player.velocity.toArray(), hooks: hooks.map(h => ({ active: h.active, point: h.point.toArray(), releasedBy: h.releasedBy })), titans: titans.map(t => ({ alive: t.alive, phase: t.phase, attackTimer: t.attackTimer, yaw: t.yaw, telegraphVisible: t.telegraph.visible, position: t.root.position.toArray() })), drawCalls: renderer.info.render.calls, triangles: renderer.info.render.triangles }) });
