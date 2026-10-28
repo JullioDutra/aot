@@ -1,3 +1,4 @@
+import { addWindowDetails, addGateDetails } from './architecture.js';
 import { createCivilians } from './civilian-model.js';
 import { ESCORT_ROUTE } from './civilian-escort.js';
 import * as THREE from 'three';
@@ -22,12 +23,20 @@ function texture(type, color) {
   const c = canvas.getContext('2d'); c.fillStyle = color; c.fillRect(0, 0, 256, 256);
   let seed = 71;
   const rand = () => { seed = (seed * 16807) % 2147483647; return seed / 2147483647; };
-  for (let y = 0; y < 256; y += type === 'roof' ? 16 : 32) {
+  for (let y = 0; type !== 'plaster' && y < 256; y += type === 'roof' ? 16 : 32) {
     for (let x = -32; x < 256; x += 64) {
       const shift = (y / 32) % 2 ? 32 : 0;
       c.fillStyle = `rgba(15,17,17,${.04 + rand() * .17})`;
       c.fillRect(x + shift, y, 62, type === 'roof' ? 14 : 30);
       c.strokeStyle = 'rgba(235,220,185,.12)'; c.strokeRect(x + shift, y, 62, type === 'roof' ? 14 : 30);
+    }
+  }
+  if (type === 'plaster') {
+    for (let i = 0; i < 70; i++) {
+      const x = rand() * 256, y = rand() * 256, radius = 5 + rand() * 28;
+      const stain = c.createRadialGradient(x, y, 0, x, y, radius);
+      stain.addColorStop(0, 'rgba(64,58,40,.08)'); stain.addColorStop(1, 'rgba(64,58,40,0)');
+      c.fillStyle = stain; c.fillRect(x - radius, y - radius, radius * 2, radius * 2);
     }
   }
   for (let i = 0; i < 9000; i++) { c.fillStyle = `rgba(${rand() > .5 ? '255,255,255' : '0,0,0'},.035)`; c.fillRect(rand() * 256, rand() * 256, 2, 2); }
@@ -45,14 +54,18 @@ export function createWorld(scene) {
   const wallMat = material('#b2b5a8', { map: stoneTexture });
   const trimMat = material('#737d76'); const timber = material('#4c4439');
   const roofTex = texture('roof', '#814c39'); roofTex.repeat.set(2, 3);
-  const roofMat = material('#be9780', { map: roofTex });
-  const plaster = ['#c4bba5', '#aaa992', '#b7a98d', '#d1c6ad', '#aaa69a'].map(color => material(color));
+  const roofMat = material('#be9780', { map: roofTex, bumpMap: roofTex, bumpScale: .12 });
+  const plasterTex = texture('plaster', '#eee9df'); plasterTex.repeat.set(2, 2);
+  const plaster = ['#c4bba5', '#aaa992', '#b7a98d', '#d1c6ad', '#aaa69a'].map(color => material(color, { map: plasterTex, bumpMap: plasterTex, bumpScale: .035 }));
   const roadTex = texture('stone', '#777d71'); roadTex.repeat.set(65, 65); roadTex.anisotropy = 4;
   const ground = new THREE.Mesh(new THREE.PlaneGeometry(700, 700), material('#a3a68e', { map: roadTex }));
   ground.rotation.x = -Math.PI / 2; ground.receiveShadow = true; scene.add(ground); anchors.push(ground);
-  const roadMat = material('#898b7c');
+  const streetTex = texture('stone', '#9b9b8b'); streetTex.repeat.set(8, 65);
+  const roadMat = material('#898b7c', { map: streetTex, bumpMap: streetTex, bumpScale: .08 });
+  const crossStreetTex = streetTex.clone(); crossStreetTex.repeat.set(60, 3);
+  const crossRoadMat = material('#898b7c', { map: crossStreetTex, bumpMap: crossStreetTex, bumpScale: .08 });
   box(scene, roadMat, 0, .025, -5, 31, .05, 270, false);
-  for (const z of [-80, -48, -16, 16, 48, 80]) box(scene, roadMat, 0, .03, z, 240, .06, 9, false);
+  for (const z of [-80, -48, -16, 16, 48, 80]) box(scene, crossRoadMat, 0, .03, z, 240, .06, 9, false);
   const addCollider = (x, z, w, d, h, extra = {}) => colliders.push({ minX: x - w / 2, maxX: x + w / 2, minZ: z - d / 2, maxZ: z + d / 2, top: h, ...extra });
   function building(x, z, w, d, h, index) {
     const m = box(scene, plaster[index % plaster.length], x, h / 2, z, w, h, d); anchors.push(m);
@@ -60,15 +73,26 @@ export function createWorld(scene) {
     addCollider(x, z, w, d, h);
     addCollider(x, z, w + 1.3, d + 1.5, h, { bottom: h, roofRise: 4 });
     box(scene, timber, x, h - .8, z, w + .1, .22, d + .1);
+    // Floor bands, corner posts and gable trusses add depth at ODM flight height.
+    for (let y = 3; y < h; y += 3.6) box(scene, timber, x, y, z, w + .14, .12, d + .14);
+    for (const side of [-1, 1]) {
+      for (const edge of [-1, 1]) box(scene, timber, x + side * (w / 2 - .12), h / 2, z + edge * (d / 2 + .05), .18, h, .18);
+      box(scene, timber, x, h + 1.7, z + side * (d / 2 + .77), .16, 3.4, .16);
+      const slope = Math.atan2(4, w / 2 + .65);
+      for (const direction of [-1, 1]) {
+        const beam = box(scene, timber, x + direction * (w / 4 + .325), h + 2, z + side * (d / 2 + .77), Math.hypot(w / 2 + .65, 4), .18, .18);
+        beam.rotation.z = -direction * slope;
+      }
+    }
     box(scene, trimMat, x, 1, z, w + .3, 2, d + .3);
     for (let level = 3.8; level < h - 1; level += 3.6) {
       for (let xx = -w / 2 + 2; xx < w / 2 - 1; xx += 3.3) {
         windows.push({ x: x + xx, y: level, z: z + d / 2 + .06, ry: 0 });
-        windows.push({ x: x + xx, y: level, z: z - d / 2 - .06, ry: 0 });
+        windows.push({ x: x + xx, y: level, z: z - d / 2 - .06, ry: Math.PI });
       }
       for (let zz = -d / 2 + 2; zz < d / 2 - 1; zz += 3.6) {
         windows.push({ x: x + w / 2 + .06, y: level, z: z + zz, ry: Math.PI / 2 });
-        windows.push({ x: x - w / 2 - .06, y: level, z: z + zz, ry: Math.PI / 2 });
+        windows.push({ x: x - w / 2 - .06, y: level, z: z + zz, ry: -Math.PI / 2 });
       }
     }
     box(scene, timber, x, 1.5, z + d / 2 + .1, 1.6, 3, .2);
@@ -91,11 +115,13 @@ export function createWorld(scene) {
   const windowMesh = new THREE.InstancedMesh(boxGeo, material('#253a3b', { metalness: .15, roughness: .45 }), windows.length);
   windows.forEach((p, i) => { frame.position.set(p.x, p.y, p.z); frame.rotation.set(0, p.ry, 0); frame.scale.set(1.1, 1.6, .12); frame.updateMatrix(); windowMesh.setMatrixAt(i, frame.matrix); });
   scene.add(windowMesh);
+  addWindowDetails(scene, windows);
   // Four 50 m defensive walls surround the district. The north gate is visible from the main avenue.
   for (const x of [-145, 145]) { const m = box(scene, wallMat, x, 25, -15, 9, 50, 300); anchors.push(m); addCollider(x, -15, 9, 300, 50); }
   for (const x of [-82, 82]) { const m = box(scene, wallMat, x, 25, -160, 144, 50, 10); anchors.push(m); addCollider(x, -160, 144, 10, 50); }
   const arch = box(scene, wallMat, 0, 36, -160, 20, 28, 10); anchors.push(arch);
   const gate = box(scene, timber, 0, 11, -162, 20, 22, 2); anchors.push(gate); addCollider(0, -160, 20, 10, 50);
+  addGateDetails(scene, box, wallMat, timber, trimMat);
   const backWall = box(scene, wallMat, 0, 25, 135, 298, 50, 9); anchors.push(backWall); addCollider(0, 135, 298, 9, 50);
   for (let t = -140; t <= 140; t += 14) {
     for (const x of [-145, 145]) { box(scene, trimMat, x + (x < 0 ? 4.6 : -4.6), 25, t - 15, .7, 50, 1); box(scene, wallMat, x, 51, t - 15, 10, 2, 8); }

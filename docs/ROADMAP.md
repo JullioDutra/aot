@@ -40,7 +40,7 @@ Esta entrega melhora a leitura e a apresentação do protótipo. Não equivale a
 
 Implementado: sequência de resgate, recuperação do abastecimento, eliminação dos três titãs e confirmação de retirada no portão. Indicador de etapa, destino no cenário e seta de direção. Abates antecipados contam, mas não ignoram as demais etapas. Vitória exige a interação final.
 
-Checkpoints versionados guardam objetivos, abates e tempo registrado, com retorno a posições seguras e equipamento recuperado. Retomada no menu, pausa e derrota; persistência local no navegador, com fallback para a sessão quando armazenamento não estiver disponível. Não há sincronização em nuvem. Civis são encaminhados por interação, sem escolta física.
+Checkpoints versionados guardam objetivos, abates e tempo registrado, com retorno a posições seguras e equipamento recuperado. Retomada no menu, pausa e derrota; persistência local no navegador, com fallback para a sessão quando armazenamento não estiver disponível. Não há sincronização em nuvem. Na entrega original da fase 5, civis eram encaminhados por interação; a fase 6 abaixo acrescenta escolta física.
 
 A operação é original e ainda não adapta uma sequência canônica. Cinemáticas, personagens finais, direção de voz e uma operação de 15–20 minutos com arte de produção continuam pendentes.
 
@@ -51,6 +51,36 @@ Implementado: os três civis caminham por uma rota definida até um abrigo, com 
 Checkpoint intermediário preserva avanço na rota; pausa congela o grupo. O formato de save passa à versão 2, mantendo a chave de armazenamento e migrando resgates concluídos da versão 1. Civis permanecem visíveis no abrigo.
 
 Limites: rota autoral para o mapa atual, sem navegação dinâmica, dano/morte de civis, diálogo ou animações finais. Não representa uma cena canônica específica.
+
+## Entrega intermediária 7 — arquitetura do distrito
+
+Implementado: janelas com molduras, caixilhos, peitoris e venezianas instanciadas; vigas entre pavimentos, postes de canto e frontões; texturas procedurais de reboco, telhas e calçamento com bump mapping. Portão fechado com tábuas, ferragens, pilares e arco de cantaria decorativo. Elementos estáticos compartilham lotes por material.
+
+A geometria de detalhe é ornamental e não acrescenta ancoragens ou colisões individuais. A circulação e os volumes estruturais permanecem iguais. Não equivale a uma reconstrução de Trost validada por episódios nem a arte final. A nova tentativa de consulta a `shingeki.tv` também retornou HTTP 403 no ambiente.
+
+## Entrega intermediária 8 — leitura dos ataques de Trost
+
+Implementado: percepção condicionada à linha de visão contra construções, giro antes da perseguição e preparação apenas contra alvos à frente. Direção travada durante 0,9 s de preparação, setor de alcance no chão e aviso textual. Recuperação de 1,4 s não é cancelada quando o jogador sai da detecção; pausa congela os temporizadores. Regras isoladas da renderização e teste de navegador para antecipação, pausa e impacto.
+
+Limites: detecção por segmento a partir do tronco, sem memória ou patrulha; navegação continua limitada à avenida. Setor representa o teste abstrato de alcance/direção, sem colisão de dedos. Não acrescenta agarrões, defesa da nuca, dano localizado ou animações finais. A arena não muda nesta entrega.
+
+## Entrega intermediária 9 — golpe de lâminas com preparação
+
+Implementado: preparação de 0,16 s, impacto único e recuperação até 0,52 s; poses dos braços e rastro curto amostrados pelo tempo do golpe. Verificação de nuca acontece no corte, usando posição, mira e obstáculos atuais. Indicador textual de prontidão/fase; custo único no início, bloqueio de cliques repetidos, pausa do ciclo e cancelamento por dano/reinício/checkpoint.
+
+Mantém os critérios existentes de nuca e um abate por golpe. Não acrescenta combos, perseguição automática, desmembramento ou animações de produção. A arena de transformação mantém seu próprio combate.
+
+## Entrega intermediária 10 — perfis gráficos persistentes
+
+Implementado: Alta, Equilibrada e Desempenho controlam escala de renderização, resolução/ativação das sombras, relevo de materiais e filtragem de texturas. Desempenho remove bump mapping; retornar para Alta restaura os mapas originais. Trocas liberam os alvos de sombra anteriores e evitam recompilar materiais sem mudança. Preferência salva separadamente da missão, com fallback de sessão e recuperação de dados inválidos.
+
+Testes cobrem restauração, liberação de recursos, persistência, armazenamento indisponível e alternância real no navegador. Geometria e regras de jogo permanecem iguais. Não há qualidade adaptativa por FPS, redução automática de geometria ou medição em GPU real; não afirmar meta de 60 fps a partir dos testes por software.
+
+## Entrega intermediária 11 — controle na operação de Trost
+
+Implementado: Gamepad API padrão com movimento analógico, câmera, gatilhos independentes para cabos, salto/gás, ataque, interação, abastecimento e soltura. Start inicia/retoma/pausa; Back retoma checkpoint na pausa/derrota. Atalhos no HUD, pausa ao desconectar e exigência de controles neutros após interrupções. Teclado/mouse continuam disponíveis.
+
+Limites: primeiro controle padrão, sem vibração, remapeamento, navegação geral dos menus ou suporte na arena. Testes usam API simulada; hardware físico e ergonomia ainda não foram avaliados. Não confundir compatibilidade da API padrão com homologação de modelos específicos.
 
 ## Marco 4 — demonstração de produção
 

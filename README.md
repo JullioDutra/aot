@@ -4,7 +4,7 @@ Primeiro protótipo independente de um jogo 3D inspirado em Attack on Titan. **N
 
 ## Executar
 
-Requer Node.js 22.12+ (validado com 24), npm e um navegador com WebGL 2. Teclado e mouse são necessários. Não há serviços externos, banco de dados, variáveis secretas ou downloads de recursos durante o jogo.
+Requer Node.js 22.12+ (validado com 24), npm e um navegador com WebGL 2. Trost aceita teclado/mouse ou controle com mapeamento padrão do navegador. Configurações e arena ainda exigem teclado/mouse. Não há serviços externos, banco de dados, variáveis secretas ou downloads de recursos durante o jogo.
 
 ```sh
 cd /workspace/aot
@@ -80,6 +80,65 @@ A arena sintetiza sons de passos, impactos, bloqueio, transformação, esquiva e
 
 A atualização é uma etapa intermediária de apresentação, não a conclusão da demonstração de produção prevista no roteiro. Não altera os custos, danos ou regras do ensaio anterior.
 
+## Arquitetura do distrito — fase 7
+
+As fachadas agora possuem molduras, caixilhos, peitoris e venezianas em relevo, além de vigas entre pavimentos e nos frontões dos telhados. Reboco, telhas e calçamento usam texturas procedurais com relevo de iluminação. O portão recebeu tábuas, cintas, rebites, pilares e um arco de cantaria decorativo para ajudar a ler sua escala.
+
+As janelas compartilham três lotes instanciados; as demais peças estáticas entram no agrupamento por material já usado pelo cenário. Esses detalhes são visuais: as colisões e ancoragens continuam nas superfícies estruturais. Não é possível prender cabos individualmente em venezianas ou no arco ornamental. O portão permanece fechado.
+
+Esta é uma melhoria da arquitetura procedural do protótipo. O distrito não foi conferido com plantas ou episódios e não representa a geometria final do anime. Ainda são necessários modelos de produção, revisão artística e medições em GPU real.
+
+## Leitura dos ataques de Trost — fase 8
+
+Os titãs perseguem alvos a menos de 42 m e abaixo de sua altura mais 9 m, desde que a linha entre o tronco e o jogador não atravesse construções. Giram antes de avançar e só iniciam golpes contra alvos à frente. A perseguição continua restrita à avenida central; ainda não há busca, memória do último avistamento ou navegação pelas ruas laterais.
+
+O ataque tem 0,9 segundo de preparação, com direção travada, seguido de 1,4 segundo de recuperação. O setor alaranjado no chão mostra o alcance horizontal de 9 m e a abertura frontal do golpe; o texto informa o tempo restante. Sair desse setor, passar para trás, subir acima de 85% da altura do titã ou colocar uma construção na linha de visão evita o dano no instante de impacto. A área é um auxílio de combate, não uma colisão precisa com cada dedo. Receber um golpe causa 35 pontos de dano, como antes.
+
+A recuperação termina mesmo se o jogador sair do campo de detecção. Ela oferece tempo para contornar o inimigo, mas atingir a nuca ainda exige alcance, altura, direção e caminho livre. Pausar congela os temporizadores e o setor; reiniciar ou retomar checkpoint reinicia os encontros vivos. Essas regras são decisões de equilíbrio do protótipo e não medidas canônicas. A arena de transformação mantém suas regras próprias.
+
+## Golpe de lâminas — fase 9
+
+Clique inicia uma preparação de 0,16 s; o corte é resolvido nesse instante, seguido de recuperação até completar 0,52 s. O indicador abaixo do objetivo mostra preparação, corte, recuperação ou prontidão. As poses dos braços e o rastro curto acompanham o tempo do golpe. Durante o voo, mantenha a nuca ao alcance e na mira até o corte: o clique não reserva um acerto contra um alvo que depois se afaste.
+
+O gasto de até 5 pontos de lâmina acontece uma única vez no início, mesmo se o golpe errar ou for interrompido. Cliques durante o ciclo são ignorados, sem ataque enfileirado. A última carga parcial ainda permite um golpe. Receber dano cancela o ataque; pausa congela o tempo restante; reinício e retomada de checkpoint descartam ataques pendentes. Os requisitos de alcance, altura, aproximação por trás e caminho livre continuam iguais, assim como o limite de um abate por golpe. Não há combo, travamento automático no alvo ou colisão detalhada entre lâmina e pele.
+
+## Perfis gráficos — fase 10
+
+A qualidade de Trost pode ser alterada nas configurações e fica salva neste navegador, na chave `trost.graphics.v1`, separada dos checkpoints. Sem preferência válida, o jogo começa em Alta. Quando o armazenamento estiver bloqueado, a escolha funciona durante a sessão e a interface informa isso. A arena de transformação continua com suas próprias configurações.
+
+| Perfil | Limite da escala de pixels | Sombras | Relevo dos materiais | Filtragem anisotrópica máxima |
+| --- | --- | --- | --- | --- |
+| Alta | 1,6 | 2048 × 2048 | Ativo | 8× |
+| Equilibrada | 1,1 | 1024 × 1024 | Ativo | 4× |
+| Desempenho | 0,8 | Desligadas | Desligado | 1× |
+
+A escala efetiva também respeita a densidade da tela e a filtragem respeita o suporte da GPU. Desempenho mantém texturas de cor, geometria, colisões e regras da missão. Voltar para Alta restaura os mapas de relevo originais. Trocar a resolução das sombras libera os alvos de renderização anteriores; reaplicar o mesmo perfil não recompila materiais sem alteração. Redimensionar a janela mantém o perfil escolhido.
+
+Esses perfis reduzem trabalho gráfico de formas específicas; não garantem uma taxa de quadros. Ainda é necessário medir conforto e desempenho em hardware real. Não há ajuste automático por FPS nesta etapa.
+
+## Controle em Trost — fase 11
+
+Conecte um controle compatível com o mapeamento `standard` da Gamepad API e pressione um botão para o navegador detectá-lo. O primeiro controle padrão disponível é usado; modelos com mapeamento proprietário são ignorados. Se o navegador não disponibilizar a API, teclado/mouse continuam funcionando.
+
+| Controle padrão | Ação |
+| --- | --- |
+| Analógico esquerdo | Movimento com intensidade gradual |
+| Analógico direito | Câmera; respeita a sensibilidade configurada |
+| LT/L2 e RT/R2 | Segurar cabo esquerdo/direito; soltar libera o cabo |
+| A/× | Salto; segurar para gás com cabo preso |
+| X/□ | Ataque de lâminas |
+| Y/△ | Reunir civis / confirmar retirada |
+| RB/R1 | Reabastecer |
+| B/○ | Soltar os dois cabos |
+| Start/Menu/Options | Iniciar ou continuar a operação; pausar/retomar; nova operação após o resultado |
+| Back/View/Share | Retomar checkpoint durante pausa ou derrota |
+
+Start no menu retoma um checkpoint disponível; sem checkpoint, inicia uma operação nova. Para escolher explicitamente uma operação nova com um save existente, use o botão do menu com mouse. As configurações, links e arena de transformação ainda usam teclado/mouse; não há navegação geral de menus com o direcional.
+
+Após pausa, reconexão ou troca de controle, solte botões e centralize os analógicos antes de jogar. Desconectar o controle durante a operação pausa e solta os cabos. Zona morta radial de 18% reduz deriva; os gatilhos são tratados como comandos digitais. Não há vibração, remapeamento ou suporte simultâneo a vários jogadores. O HUD mostra os atalhos do controle quando conectado. Áudio pode exigir um clique/tecla inicial conforme a política do navegador.
+
+A integração foi testada com Gamepad API simulada e controles lógicos; compatibilidade, conforto e latência com hardware físico continuam pendentes.
+
 ## Validação
 
 ```sh
@@ -94,9 +153,14 @@ O teste de navegador usa Chromium em `/usr/bin/chromium`; defina `CHROMIUM_PATH`
 
 - `src/main.js`: estado da missão, física, controles, IA, câmera, áudio e interface.
 - `src/world.js`: cenário, personagens, materiais e geometria procedural.
+- `src/architecture.js`: detalhes instanciados de fachada e ornamentação do portão.
+- `src/blade-strike.js`: ciclo, custo e poses do golpe de lâminas.
+- `src/graphics-quality.js`: perfis gráficos, restauração de materiais e persistência da preferência.
+- `src/gamepad-input.js`: leitura de controle padrão, zona morta, bordas de botão e retorno ao neutro.
 - `src/mechanics.js`: regras independentes de renderização, cobertas por testes.
 - `src/collision.js`: contato com telhados inclinados e obstrução de segmentos.
 - `src/targeting.js`: seleção independente das ancoragens e assistência.
+- `src/trost-titan-ai.js`: percepção, perseguição, preparação e recuperação dos titãs de Trost.
 - `src/trost-mission.js`: objetivos encadeados, validação de eventos e checkpoints versionados.
 - `src/civilian-escort.js`: rota, progresso, espera, ameaça e chegada do grupo.
 - `src/civilian-model.js`: personagens civis procedurais e animação de caminhada.
@@ -109,7 +173,7 @@ O teste de navegador usa Chromium em `/usr/bin/chromium`; defina `CHROMIUM_PATH`
 
 ## Limites atuais
 
-Esta é uma missão de treino não canônica em um distrito inspirado em Trost. O mapa ainda não é uma reconstrução conferida com episódios. O personagem é um cadete genérico. A transformação jogável existe somente no ensaio separado, não na missão de Trost. Não há cinematografia da história, dublagem, desmembramento, titãs devorando pessoas, cavalos ou suporte a controle. O salvamento local está restrito à operação de Trost; a arena não persiste o combate. A violência implementada se limita a impactos e partículas estilizadas.
+Esta é uma missão de treino não canônica em um distrito inspirado em Trost. O mapa ainda não é uma reconstrução conferida com episódios. O personagem é um cadete genérico. A transformação jogável existe somente no ensaio separado, não na missão de Trost. Não há cinematografia da história, dublagem, desmembramento, titãs devorando pessoas, cavalos ou suporte a controle na arena. O salvamento local está restrito à operação de Trost; a arena não persiste o combate. A violência implementada se limita a impactos e partículas estilizadas.
 
 As colisões dos telhados seguem os dois planos de inclinação, mas o corpo do jogador ainda usa um volume simplificado. A IA dos titãs fica na avenida central. Cabos se soltam nas obstruções; ainda não contornam quinas nem se enrolam nas estruturas. O protótipo não implementa ainda simulação completa do ODM. A arte procedural deve ser substituída por modelos e animações de produção depois que movimentação e combate forem aprovados.
 
@@ -117,4 +181,4 @@ Uma produção pública/comercial com a propriedade intelectual de Attack on Tit
 
 ## Entregas por fase
 
-Cada fase concluída recebe uma branch, validação, commit, push e PR no GitHub. As fases 1–2 estão no [PR #1](https://github.com/JullioDutra/aot/pull/1), já integrado pelo fluxo externo a esta implementação. A fase 3 está no [PR #2](https://github.com/JullioDutra/aot/pull/2). A fase 4 está no [PR #3](https://github.com/JullioDutra/aot/pull/3). A fase 5 foi integrada pelo [PR #4](https://github.com/JullioDutra/aot/pull/4). A fase 6 usa `feat/phase-06-civilian-escort`. A base de revisão acompanha a versão integrada mais recente ou a branch predecessora quando necessário. Abertura de PR não implica autorização para merge automático; consulte AGENTS.md.
+Cada fase concluída recebe uma branch, validação, commit, push e PR no GitHub. As fases 1–2 estão no [PR #1](https://github.com/JullioDutra/aot/pull/1), já integrado pelo fluxo externo a esta implementação. A fase 3 está no [PR #2](https://github.com/JullioDutra/aot/pull/2). A fase 4 está no [PR #3](https://github.com/JullioDutra/aot/pull/3). A fase 5 foi integrada pelo [PR #4](https://github.com/JullioDutra/aot/pull/4). A fase 6 foi integrada pelo [PR #5](https://github.com/JullioDutra/aot/pull/5). A fase 7 usa `feat/phase-07-district-architecture`, com base em `main`. A fase 8 usa `feat/phase-08-titan-telegraphs`, inicialmente baseada na branch da fase 7. A fase 9 usa `feat/phase-09-blade-strikes`, inicialmente baseada na fase 8. A fase 10 usa `feat/phase-10-graphics-profiles`, inicialmente baseada na fase 9. A fase 11 usa `feat/phase-11-gamepad-controls`, inicialmente baseada na fase 10. A base de revisão acompanha a versão integrada mais recente ou a branch predecessora quando necessário. Abertura de PR não implica autorização para merge automático; consulte AGENTS.md.
