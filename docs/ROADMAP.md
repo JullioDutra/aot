@@ -94,6 +94,12 @@ Implementado: memória de 5 segundos da última observação válida, aproximaç
 
 Limites: sem patrulha, audição ou navegação fora da avenida. Não é uma simulação de inteligência canônica. Testes cobrem perda de visão, expiração, reavistamento, ausência de rastreamento através das paredes e pausa; diversão e equilíbrio ainda exigem avaliação humana.
 
+## Entrega intermediária 14 — defesa da nuca
+
+Implementado: o titã maior responde à aproximação elevada por trás com preparação vulnerável de 0,75 s, proteção de 1,2 s e recuperação vulnerável de 1,4 s. As mãos alcançam a nuca com articulação de dois segmentos; avisos distinguem cada momento. Cortes verificam proteção no impacto e retornam bloqueio sem abate; o marcador de acerto acompanha a proteção. Pausa e reinício respeitam o novo ciclo.
+
+Somente o encontro de 18 m usa essa defesa. Sem colisão de dedos, dano localizado, desmembramento ou adaptação de comportamento canônico verificado. Testes de regras, posicionamento das mãos e renderização isolada da pose complementam a regressão de navegador; equilíbrio da manobra com ODM ainda precisa de avaliação humana.
+
 ## Marco 4 — demonstração de produção
 
 Uma operação de 15–20 minutos com arte e animação próprias de produção, referências verificadas, missão legível, resgate, abastecimento, destruição controlada e conclusão narrativa. Não será construída a campanha completa antes da aprovação desse marco.

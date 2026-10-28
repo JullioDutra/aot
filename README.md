@@ -169,6 +169,14 @@ O HUD avisa quando um titã próximo está procurando. Use construções para in
 
 Não há patrulha, audição ou navegação pelas ruas laterais. A busca usa a projeção da última posição na avenida, sem calcular um caminho até telhados ou interiores. O comportamento foi verificado por testes determinísticos; equilíbrio e sensação de despistar ainda precisam de avaliação humana.
 
+## Defesa da nuca — fase 14
+
+O titã maior, de 18 m, reage quando detecta o jogador atrás de si, a menos de 12 m na horizontal e acima de 55% de sua altura. Ele para de andar e ergue as mãos durante 0,75 s: a nuca continua vulnerável nessa preparação. Em seguida, protege a nuca por 1,2 s e entra em recuperação por 1,4 s. A proteção termina quando começa a baixar os braços; aproveite essa abertura para cortar.
+
+O aviso de combate distingue preparação, proteção e recuperação. Durante a proteção, o marcador de acerto da nuca desaparece. Um corte que alcançaria a nuca é bloqueado, com faíscas e aviso, sem registrar abate; o gasto normal de lâmina permanece. A proteção é conferida no impacto, não no clique. Os outros dois titãs mantêm seus comportamentos anteriores.
+
+A defesa não interrompe golpes ou recuperações em andamento, não causa dano e completa seu ciclo mesmo se o jogador sair da vista. Pausa congela o ciclo; reinício/checkpoint limpa a defesa. A posição das mãos usa articulações procedurais. A proteção é uma regra abstrata da nuca, sem colisão detalhada de dedos, corte dos braços ou dano localizado. Trata-se de uma variação autoral de combate, não de uma cena ou poder canônico verificado. O equilíbrio ainda requer testes humanos.
+
 ## Validação
 
 ```sh
@@ -190,7 +198,8 @@ O teste de navegador usa Chromium em `/usr/bin/chromium`; defina `CHROMIUM_PATH`
 - `src/mechanics.js`: regras independentes de renderização, cobertas por testes.
 - `src/collision.js`: contato com telhados inclinados e obstrução de segmentos.
 - `src/targeting.js`: seleção independente das ancoragens e assistência.
-- `src/trost-titan-ai.js`: percepção, perseguição, preparação e recuperação dos titãs de Trost.
+- `src/trost-titan-ai.js`: percepção, busca, ataque e defesa da nuca dos titãs de Trost.
+- `src/nape-guard-pose.js`: alcance articulado dos braços para cobrir a nuca.
 - `src/trost-mission.js`: objetivos encadeados, validação de eventos e checkpoints versionados.
 - `src/civilian-escort.js`: rota, progresso, espera, ameaça e chegada do grupo.
 - `src/civilian-model.js`: personagens civis procedurais e animação de caminhada.
@@ -211,4 +220,4 @@ Uma produção pública/comercial com a propriedade intelectual de Attack on Tit
 
 ## Entregas por fase
 
-Cada fase concluída recebe uma branch, validação, commit, push e PR no GitHub. As fases 1–2 estão no [PR #1](https://github.com/JullioDutra/aot/pull/1), já integrado pelo fluxo externo a esta implementação. A fase 3 está no [PR #2](https://github.com/JullioDutra/aot/pull/2). A fase 4 está no [PR #3](https://github.com/JullioDutra/aot/pull/3). A fase 5 foi integrada pelo [PR #4](https://github.com/JullioDutra/aot/pull/4). A fase 6 foi integrada pelo [PR #5](https://github.com/JullioDutra/aot/pull/5). As fases 7 a 11 foram integradas juntas pelo [PR #6](https://github.com/JullioDutra/aot/pull/6). A fase 12 usa `feat/phase-12-arena-gamepad`, com base em `main`. A fase 13 usa `feat/phase-13-titan-search`, baseada na fase 12 enquanto ela aguarda integração. A base de revisão acompanha a versão integrada mais recente ou a branch predecessora quando necessário. Abertura de PR não implica autorização para merge automático; consulte AGENTS.md.
+Cada fase concluída recebe uma branch, validação, commit, push e PR no GitHub. As fases 1–2 estão no [PR #1](https://github.com/JullioDutra/aot/pull/1), já integrado pelo fluxo externo a esta implementação. A fase 3 está no [PR #2](https://github.com/JullioDutra/aot/pull/2). A fase 4 está no [PR #3](https://github.com/JullioDutra/aot/pull/3). A fase 5 foi integrada pelo [PR #4](https://github.com/JullioDutra/aot/pull/4). A fase 6 foi integrada pelo [PR #5](https://github.com/JullioDutra/aot/pull/5). As fases 7 a 11 foram integradas juntas pelo [PR #6](https://github.com/JullioDutra/aot/pull/6). A fase 12 usa `feat/phase-12-arena-gamepad`, com base em `main`. A fase 13 usa `feat/phase-13-titan-search`, baseada na fase 12 enquanto ela aguarda integração. A fase 14 usa `feat/phase-14-nape-defense`, baseada na fase 13 enquanto ela aguarda integração. A base de revisão acompanha a versão integrada mais recente ou a branch predecessora quando necessário. Abertura de PR não implica autorização para merge automático; consulte AGENTS.md.

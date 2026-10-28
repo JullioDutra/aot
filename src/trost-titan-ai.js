@@ -1,5 +1,12 @@
 const clamp = (n, min, max) => Math.max(min, Math.min(max, n));
 export const TITAN_MEMORY_SECONDS = 5;
+export const napeProtected = state => state.phase === 'guard';
+export function napeGuardWeight(state) {
+  if (state.phase === 'guardPrepare') return clamp(1 - state.attackTimer / .75, 0, 1);
+  if (state.phase === 'guard') return 1;
+  if (state.phase === 'guardRecover') return clamp((state.attackTimer - .95) / .45, 0, 1);
+  return 0;
+}
 
 // Only observed positions enter memory. Search stays on the authored avenue;
 // it is not pathfinding through buildings or knowledge of an occluded player.
@@ -19,6 +26,15 @@ export function stepTrostTitan(state, input, dt) {
     next.awareness = next.lastSeen ? 'searching' : 'idle';
   }
   const facing = () => distance < .001 ? 1 : (dx * Math.sin(next.yaw) + dz * Math.cos(next.yaw)) / distance;
+  if (['guardPrepare', 'guard', 'guardRecover'].includes(next.phase)) {
+    next.attackTimer = Math.max(0, next.attackTimer - dt);
+    if (next.attackTimer === 0) {
+      if (next.phase === 'guardPrepare') { next.phase = 'guard'; next.attackTimer = 1.2; }
+      else if (next.phase === 'guard') { next.phase = 'guardRecover'; next.attackTimer = 1.4; }
+      else next.phase = 'walk';
+    }
+    return next;
+  }
   if (next.phase === 'windup') {
     next.attackTimer = Math.max(0, next.attackTimer - dt);
     if (next.attackTimer === 0) {
@@ -30,6 +46,12 @@ export function stepTrostTitan(state, input, dt) {
   if (next.phase === 'recover') {
     next.attackTimer = Math.max(0, next.attackTimer - dt);
     if (next.attackTimer === 0) next.phase = 'walk';
+    return next;
+  }
+  // Only the larger encounter uses this defensive response. Preparation is
+  // vulnerable and cannot interrupt an attack or recovery already in progress.
+  if (index === 1 && detected && distance < 12 && altitude > height * .55 && facing() < -.2) {
+    next.phase = 'guardPrepare'; next.attackTimer = .75;
     return next;
   }
   if (!next.lastSeen) return next;
