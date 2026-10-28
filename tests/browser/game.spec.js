@@ -58,3 +58,25 @@ test('viewport resizes without losing the renderer and settings remain usable', 
   await page.keyboard.press('Escape');
   await expect(page.locator('#resume-button')).toBeVisible();
 });
+
+test('blade preparation spends once, freezes on pause and finishes after resuming', async ({ page }) => {
+  await page.goto('/');
+  await page.click('#settings-button'); await page.selectOption('#quality', 'low'); await page.click('#close-settings');
+  await page.click('#start-button');
+  await page.waitForFunction(() => window.__TROST__.snapshot().elapsed > .1);
+  // Same input handlers as real clicks; dispatch together to pause before a render tick.
+  await page.evaluate(() => {
+    const canvas = document.getElementById('game');
+    canvas.dispatchEvent(new MouseEvent('mousedown', { button: 0 }));
+    canvas.dispatchEvent(new MouseEvent('mousedown', { button: 0 }));
+    window.dispatchEvent(new KeyboardEvent('keydown', { code: 'Escape' }));
+  });
+  const pending = await page.evaluate(() => window.__TROST__.snapshot());
+  expect(pending.blades).toBe(95); expect(pending.bladePhase).toBe('prepare'); expect(pending.kills).toBe(0);
+  await page.waitForTimeout(250);
+  expect((await page.evaluate(() => window.__TROST__.snapshot())).bladeStrike).toEqual(pending.bladeStrike);
+  await page.click('#resume-button');
+  await page.waitForFunction(() => window.__TROST__.snapshot().bladePhase === 'ready');
+  expect((await page.evaluate(() => window.__TROST__.snapshot())).blades).toBe(95);
+  await expect(page.locator('#blade-action')).toContainText('PRONTAS');
+});

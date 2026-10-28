@@ -64,6 +64,12 @@ Implementado: percepção condicionada à linha de visão contra construções, 
 
 Limites: detecção por segmento a partir do tronco, sem memória ou patrulha; navegação continua limitada à avenida. Setor representa o teste abstrato de alcance/direção, sem colisão de dedos. Não acrescenta agarrões, defesa da nuca, dano localizado ou animações finais. A arena não muda nesta entrega.
 
+## Entrega intermediária 9 — golpe de lâminas com preparação
+
+Implementado: preparação de 0,16 s, impacto único e recuperação até 0,52 s; poses dos braços e rastro curto amostrados pelo tempo do golpe. Verificação de nuca acontece no corte, usando posição, mira e obstáculos atuais. Indicador textual de prontidão/fase; custo único no início, bloqueio de cliques repetidos, pausa do ciclo e cancelamento por dano/reinício/checkpoint.
+
+Mantém os critérios existentes de nuca e um abate por golpe. Não acrescenta combos, perseguição automática, desmembramento ou animações de produção. A arena de transformação mantém seu próprio combate.
+
 ## Marco 4 — demonstração de produção
 
 Uma operação de 15–20 minutos com arte e animação próprias de produção, referências verificadas, missão legível, resgate, abastecimento, destruição controlada e conclusão narrativa. Não será construída a campanha completa antes da aprovação desse marco.

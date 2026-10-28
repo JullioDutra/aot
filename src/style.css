@@ -9,3 +9,5 @@
 #escort-status{font-size:10px;color:#b9d2b6;line-height:1.5;border-left:2px solid #aac694;padding-left:9px;margin-top:12px;max-width:270px}
 
 #combat-warning { margin-top: 12px; padding: 8px 10px; border-left: 3px solid #ef9b53; background: #30271ed9; color: #ffe4bb; font-size: 12px; line-height: 1.5; }
+
+#blade-action { margin-top: 12px; font-size: 10px; letter-spacing: 1px; color: #e3d5ad; }

@@ -96,6 +96,12 @@ O ataque tem 0,9 segundo de preparação, com direção travada, seguido de 1,4 
 
 A recuperação termina mesmo se o jogador sair do campo de detecção. Ela oferece tempo para contornar o inimigo, mas atingir a nuca ainda exige alcance, altura, direção e caminho livre. Pausar congela os temporizadores e o setor; reiniciar ou retomar checkpoint reinicia os encontros vivos. Essas regras são decisões de equilíbrio do protótipo e não medidas canônicas. A arena de transformação mantém suas regras próprias.
 
+## Golpe de lâminas — fase 9
+
+Clique inicia uma preparação de 0,16 s; o corte é resolvido nesse instante, seguido de recuperação até completar 0,52 s. O indicador abaixo do objetivo mostra preparação, corte, recuperação ou prontidão. As poses dos braços e o rastro curto acompanham o tempo do golpe. Durante o voo, mantenha a nuca ao alcance e na mira até o corte: o clique não reserva um acerto contra um alvo que depois se afaste.
+
+O gasto de até 5 pontos de lâmina acontece uma única vez no início, mesmo se o golpe errar ou for interrompido. Cliques durante o ciclo são ignorados, sem ataque enfileirado. A última carga parcial ainda permite um golpe. Receber dano cancela o ataque; pausa congela o tempo restante; reinício e retomada de checkpoint descartam ataques pendentes. Os requisitos de alcance, altura, aproximação por trás e caminho livre continuam iguais, assim como o limite de um abate por golpe. Não há combo, travamento automático no alvo ou colisão detalhada entre lâmina e pele.
+
 ## Validação
 
 ```sh
@@ -111,6 +117,7 @@ O teste de navegador usa Chromium em `/usr/bin/chromium`; defina `CHROMIUM_PATH`
 - `src/main.js`: estado da missão, física, controles, IA, câmera, áudio e interface.
 - `src/world.js`: cenário, personagens, materiais e geometria procedural.
 - `src/architecture.js`: detalhes instanciados de fachada e ornamentação do portão.
+- `src/blade-strike.js`: ciclo, custo e poses do golpe de lâminas.
 - `src/mechanics.js`: regras independentes de renderização, cobertas por testes.
 - `src/collision.js`: contato com telhados inclinados e obstrução de segmentos.
 - `src/targeting.js`: seleção independente das ancoragens e assistência.
@@ -135,4 +142,4 @@ Uma produção pública/comercial com a propriedade intelectual de Attack on Tit
 
 ## Entregas por fase
 
-Cada fase concluída recebe uma branch, validação, commit, push e PR no GitHub. As fases 1–2 estão no [PR #1](https://github.com/JullioDutra/aot/pull/1), já integrado pelo fluxo externo a esta implementação. A fase 3 está no [PR #2](https://github.com/JullioDutra/aot/pull/2). A fase 4 está no [PR #3](https://github.com/JullioDutra/aot/pull/3). A fase 5 foi integrada pelo [PR #4](https://github.com/JullioDutra/aot/pull/4). A fase 6 foi integrada pelo [PR #5](https://github.com/JullioDutra/aot/pull/5). A fase 7 usa `feat/phase-07-district-architecture`, com base em `main`. A fase 8 usa `feat/phase-08-titan-telegraphs`, inicialmente baseada na branch da fase 7. A base de revisão acompanha a versão integrada mais recente ou a branch predecessora quando necessário. Abertura de PR não implica autorização para merge automático; consulte AGENTS.md.
+Cada fase concluída recebe uma branch, validação, commit, push e PR no GitHub. As fases 1–2 estão no [PR #1](https://github.com/JullioDutra/aot/pull/1), já integrado pelo fluxo externo a esta implementação. A fase 3 está no [PR #2](https://github.com/JullioDutra/aot/pull/2). A fase 4 está no [PR #3](https://github.com/JullioDutra/aot/pull/3). A fase 5 foi integrada pelo [PR #4](https://github.com/JullioDutra/aot/pull/4). A fase 6 foi integrada pelo [PR #5](https://github.com/JullioDutra/aot/pull/5). A fase 7 usa `feat/phase-07-district-architecture`, com base em `main`. A fase 8 usa `feat/phase-08-titan-telegraphs`, inicialmente baseada na branch da fase 7. A fase 9 usa `feat/phase-09-blade-strikes`, inicialmente baseada na fase 8. A base de revisão acompanha a versão integrada mais recente ou a branch predecessora quando necessário. Abertura de PR não implica autorização para merge automático; consulte AGENTS.md.
