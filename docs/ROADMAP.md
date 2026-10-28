@@ -80,7 +80,13 @@ Testes cobrem restauração, liberação de recursos, persistência, armazenamen
 
 Implementado: Gamepad API padrão com movimento analógico, câmera, gatilhos independentes para cabos, salto/gás, ataque, interação, abastecimento e soltura. Start inicia/retoma/pausa; Back retoma checkpoint na pausa/derrota. Atalhos no HUD, pausa ao desconectar e exigência de controles neutros após interrupções. Teclado/mouse continuam disponíveis.
 
-Limites: primeiro controle padrão, sem vibração, remapeamento, navegação geral dos menus ou suporte na arena. Testes usam API simulada; hardware físico e ergonomia ainda não foram avaliados. Não confundir compatibilidade da API padrão com homologação de modelos específicos.
+Limites da entrega 11: primeiro controle padrão, sem vibração, remapeamento ou navegação geral dos menus. A entrega 12 abaixo acrescenta suporte na arena. Testes usam API simulada; hardware físico e ergonomia ainda não foram avaliados. Não confundir compatibilidade da API padrão com homologação de modelos específicos.
+
+## Entrega intermediária 12 — controle na arena de transformação
+
+Implementado: mapeamento próprio para transformação, soco, golpe forte, agarrão, defesa, esquiva, regeneração, saída e fixação de alvo; movimento e câmera analógicos. Start entra/pausa/retoma e Back reinicia durante pausa/resultado. HUD, avisos e ajuda da pausa reconhecem o controle. A leitura reutiliza o módulo de Trost, com mapeamentos isolados.
+
+Desconexão pausa e limpa ações contínuas; retomada exige controles neutros. Custos e regras da simulação não mudam. Testes cobrem mapeamentos independentes e um encontro no navegador com API simulada. Sem vibração, remapeamento, navegação completa dos menus ou homologação de controles físicos.
 
 ## Marco 4 — demonstração de produção
 

@@ -5,10 +5,11 @@ export function stick(x = 0, y = 0, deadzone = .18) {
   const scale = (Math.min(1, length) - deadzone) / (1 - deadzone) / length;
   return [x * scale, y * scale];
 }
-const bindings = { jump: 0, release: 1, attack: 2, interact: 3, supply: 5, left: 6, right: 7, checkpoint: 8, menu: 9 };
+const trostBindings = { jump: 0, release: 1, attack: 2, interact: 3, supply: 5, left: 6, right: 7, checkpoint: 8, menu: 9 };
+export const ARENA_GAMEPAD_BINDINGS = Object.freeze({ dodge: 0, exit: 1, light: 2, heavy: 3, grab: 4, transform: 5, guard: 6, regenerate: 7, restart: 8, menu: 9, lock: 11 });
 const empty = () => ({ connected: false, armed: false, move: [0, 0], look: [0, 0], held: {}, pressed: {}, lost: false });
 
-export function createGamepadInput() {
+export function createGamepadInput(bindings = trostBindings, menuActions = ['menu', 'checkpoint']) {
   let identity = null, previous = {}, armed = false;
   return {
     suspend() { armed = false; },
@@ -25,7 +26,7 @@ export function createGamepadInput() {
       if (!Object.values(buttons).some(Boolean) && [...move, ...look].every(n => n === 0)) armed = true;
       const frame = { connected: true, armed, lost, move: armed ? move : [0, 0], look: armed ? look : [0, 0], held: armed ? buttons : {}, pressed: armed ? pressed : {} };
       // Menu actions remain available while gameplay waits for neutral controls.
-      frame.pressed.menu = pressed.menu; frame.pressed.checkpoint = pressed.checkpoint;
+      for (const action of menuActions) frame.pressed[action] = pressed[action];
       return frame;
     },
   };
