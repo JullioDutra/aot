@@ -80,6 +80,14 @@ A arena sintetiza sons de passos, impactos, bloqueio, transformação, esquiva e
 
 A atualização é uma etapa intermediária de apresentação, não a conclusão da demonstração de produção prevista no roteiro. Não altera os custos, danos ou regras do ensaio anterior.
 
+## Arquitetura do distrito — fase 7
+
+As fachadas agora possuem molduras, caixilhos, peitoris e venezianas em relevo, além de vigas entre pavimentos e nos frontões dos telhados. Reboco, telhas e calçamento usam texturas procedurais com relevo de iluminação. O portão recebeu tábuas, cintas, rebites, pilares e um arco de cantaria decorativo para ajudar a ler sua escala.
+
+As janelas compartilham três lotes instanciados; as demais peças estáticas entram no agrupamento por material já usado pelo cenário. Esses detalhes são visuais: as colisões e ancoragens continuam nas superfícies estruturais. Não é possível prender cabos individualmente em venezianas ou no arco ornamental. O portão permanece fechado.
+
+Esta é uma melhoria da arquitetura procedural do protótipo. O distrito não foi conferido com plantas ou episódios e não representa a geometria final do anime. Ainda são necessários modelos de produção, revisão artística e medições em GPU real.
+
 ## Validação
 
 ```sh
@@ -94,6 +102,7 @@ O teste de navegador usa Chromium em `/usr/bin/chromium`; defina `CHROMIUM_PATH`
 
 - `src/main.js`: estado da missão, física, controles, IA, câmera, áudio e interface.
 - `src/world.js`: cenário, personagens, materiais e geometria procedural.
+- `src/architecture.js`: detalhes instanciados de fachada e ornamentação do portão.
 - `src/mechanics.js`: regras independentes de renderização, cobertas por testes.
 - `src/collision.js`: contato com telhados inclinados e obstrução de segmentos.
 - `src/targeting.js`: seleção independente das ancoragens e assistência.
@@ -117,4 +126,4 @@ Uma produção pública/comercial com a propriedade intelectual de Attack on Tit
 
 ## Entregas por fase
 
-Cada fase concluída recebe uma branch, validação, commit, push e PR no GitHub. As fases 1–2 estão no [PR #1](https://github.com/JullioDutra/aot/pull/1), já integrado pelo fluxo externo a esta implementação. A fase 3 está no [PR #2](https://github.com/JullioDutra/aot/pull/2). A fase 4 está no [PR #3](https://github.com/JullioDutra/aot/pull/3). A fase 5 foi integrada pelo [PR #4](https://github.com/JullioDutra/aot/pull/4). A fase 6 usa `feat/phase-06-civilian-escort`. A base de revisão acompanha a versão integrada mais recente ou a branch predecessora quando necessário. Abertura de PR não implica autorização para merge automático; consulte AGENTS.md.
+Cada fase concluída recebe uma branch, validação, commit, push e PR no GitHub. As fases 1–2 estão no [PR #1](https://github.com/JullioDutra/aot/pull/1), já integrado pelo fluxo externo a esta implementação. A fase 3 está no [PR #2](https://github.com/JullioDutra/aot/pull/2). A fase 4 está no [PR #3](https://github.com/JullioDutra/aot/pull/3). A fase 5 foi integrada pelo [PR #4](https://github.com/JullioDutra/aot/pull/4). A fase 6 foi integrada pelo [PR #5](https://github.com/JullioDutra/aot/pull/5). A fase 7 usa `feat/phase-07-district-architecture`, com base em `main`. A base de revisão acompanha a versão integrada mais recente ou a branch predecessora quando necessário. Abertura de PR não implica autorização para merge automático; consulte AGENTS.md.

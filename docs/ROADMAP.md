@@ -40,7 +40,7 @@ Esta entrega melhora a leitura e a apresentação do protótipo. Não equivale a
 
 Implementado: sequência de resgate, recuperação do abastecimento, eliminação dos três titãs e confirmação de retirada no portão. Indicador de etapa, destino no cenário e seta de direção. Abates antecipados contam, mas não ignoram as demais etapas. Vitória exige a interação final.
 
-Checkpoints versionados guardam objetivos, abates e tempo registrado, com retorno a posições seguras e equipamento recuperado. Retomada no menu, pausa e derrota; persistência local no navegador, com fallback para a sessão quando armazenamento não estiver disponível. Não há sincronização em nuvem. Civis são encaminhados por interação, sem escolta física.
+Checkpoints versionados guardam objetivos, abates e tempo registrado, com retorno a posições seguras e equipamento recuperado. Retomada no menu, pausa e derrota; persistência local no navegador, com fallback para a sessão quando armazenamento não estiver disponível. Não há sincronização em nuvem. Na entrega original da fase 5, civis eram encaminhados por interação; a fase 6 abaixo acrescenta escolta física.
 
 A operação é original e ainda não adapta uma sequência canônica. Cinemáticas, personagens finais, direção de voz e uma operação de 15–20 minutos com arte de produção continuam pendentes.
 
@@ -51,6 +51,12 @@ Implementado: os três civis caminham por uma rota definida até um abrigo, com 
 Checkpoint intermediário preserva avanço na rota; pausa congela o grupo. O formato de save passa à versão 2, mantendo a chave de armazenamento e migrando resgates concluídos da versão 1. Civis permanecem visíveis no abrigo.
 
 Limites: rota autoral para o mapa atual, sem navegação dinâmica, dano/morte de civis, diálogo ou animações finais. Não representa uma cena canônica específica.
+
+## Entrega intermediária 7 — arquitetura do distrito
+
+Implementado: janelas com molduras, caixilhos, peitoris e venezianas instanciadas; vigas entre pavimentos, postes de canto e frontões; texturas procedurais de reboco, telhas e calçamento com bump mapping. Portão fechado com tábuas, ferragens, pilares e arco de cantaria decorativo. Elementos estáticos compartilham lotes por material.
+
+A geometria de detalhe é ornamental e não acrescenta ancoragens ou colisões individuais. A circulação e os volumes estruturais permanecem iguais. Não equivale a uma reconstrução de Trost validada por episódios nem a arte final. A nova tentativa de consulta a `shingeki.tv` também retornou HTTP 403 no ambiente.
 
 ## Marco 4 — demonstração de produção
 
