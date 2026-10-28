@@ -1,0 +1,33 @@
+import { test, expect } from '@playwright/test';
+import { CHECKPOINT_KEY, createCheckpoint } from '../../src/trost-mission.js';
+
+test('Trost warns before a strike, freezes its timer on pause and resolves one hit', async ({ page }, testInfo) => {
+  test.setTimeout(180000);
+  const errors = []; page.on('pageerror', error => errors.push(error.message));
+  const record = createCheckpoint({ rescued: true, supplied: true, defeated: [], extracted: false }, 30);
+  await page.addInitScript(({ key, record }) => localStorage.setItem(key, JSON.stringify(record)), { key: CHECKPOINT_KEY, record });
+  await page.goto('/');
+  await page.click('#settings-button'); await page.selectOption('#quality', 'low'); await page.click('#close-settings');
+  await page.click('#continue-button');
+  await page.waitForFunction(() => window.__TROST__.snapshot().elapsed > 30.1);
+  await page.evaluate(() => {
+    const s = window.__TROST__.snapshot();
+    const yaw = Math.atan2(1 - s.position[0], -(-6 - s.position[2]));
+    window.dispatchEvent(new MouseEvent('mousemove', { movementX: (yaw - s.yaw) / .0022, movementY: s.pitch / .0022 }));
+  });
+  await page.keyboard.down('w');
+  await page.waitForFunction(() => window.__TROST__.snapshot().titans[0].phase === 'windup', null, { timeout: 90000 });
+  await page.keyboard.up('w'); await page.keyboard.press('Escape');
+  const paused = await page.evaluate(() => window.__TROST__.snapshot());
+  expect(paused.health).toBe(100); expect(paused.titans[0].telegraphVisible).toBe(true);
+  await expect(page.locator('#combat-warning')).toContainText('GOLPE EM');
+  await page.waitForTimeout(250);
+  expect((await page.evaluate(() => window.__TROST__.snapshot())).titans[0].attackTimer).toBe(paused.titans[0].attackTimer);
+  await page.screenshot({ path: testInfo.outputPath('titan-windup.png') });
+  await page.click('#resume-button');
+  await page.waitForFunction(() => window.__TROST__.snapshot().titans[0].phase === 'recover');
+  const hit = await page.evaluate(() => window.__TROST__.snapshot());
+  expect(hit.health).toBe(65); expect(hit.titans[0].telegraphVisible).toBe(false);
+  await expect(page.locator('#combat-warning')).toContainText('RECUPERAÇÃO');
+  expect(errors).toEqual([]);
+});

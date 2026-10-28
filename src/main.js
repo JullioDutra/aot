@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import './style.css';
 import { createWorld, createCadet, createTitan } from './world.js';
+import { stepTrostTitan } from './trost-titan-ai.js';
 import { clamp, cableAcceleration, canStrikeNape, insideSupplyRadius, formatTime } from './mechanics.js';
 import { resolveMotion, segmentObstructed } from './collision.js';
 import { stepEscort, escortPosition, escortProgress, ESCORT_ROUTE } from './civilian-escort.js';
@@ -38,6 +39,13 @@ void main(){vec3 direction=normalize(vPosition);float t=pow(max(direction.y,0.0)
 const sunDisk = new THREE.Mesh(new THREE.SphereGeometry(12, 20, 12), new THREE.MeshBasicMaterial({ color: '#fff2c9', fog: false })); sunDisk.position.set(-230, 180, -470); scene.add(sunDisk);
 const world = createWorld(scene), cadet = createCadet(scene);
 const titans = [createTitan(scene, 1, -6, 15, 0), createTitan(scene, -3, -62, 18, 1), createTitan(scene, 10, -112, 13, 2)];
+// Ground sector matches the frontal strike cone (dot > .25, radius 9 m).
+const strikeSector = new THREE.RingGeometry(.35, 9, 40, 1, -Math.PI / 2 - Math.acos(.25), 2 * Math.acos(.25));
+for (const t of titans) {
+  const sector = new THREE.Mesh(strikeSector, new THREE.MeshBasicMaterial({ color: '#ef9b53', transparent: true, opacity: .28, side: THREE.DoubleSide, depthWrite: false }));
+  sector.rotation.x = -Math.PI / 2;
+  t.telegraph = new THREE.Group(); t.telegraph.add(sector); t.telegraph.visible = false; scene.add(t.telegraph);
+}
 const waypoint = new THREE.Mesh(new THREE.OctahedronGeometry(.85), new THREE.MeshBasicMaterial({ color: '#edc987', transparent: true, opacity: .85 })); scene.add(waypoint); waypoint.visible = false;
 function updateMissionGuide(objective) {
   let destination = objective.position ? new THREE.Vector3(...objective.position) : null;
@@ -106,7 +114,7 @@ function reset(save = true) {
   mission = createMission(); escortStatus = 'idle'; escortHeading = 0; world.civilians.position.copy(world.rescue);
   player.position.set(-25, 17, 65); player.velocity.set(0, 0, 0); Object.assign(player, { health: 100, gas: 100, blades: 100, grounded: true, invincible: 0 });
   elapsed = kills = attackCooldown = slashTime = damageTime = 0; rescued = false; yaw = -.5; pitch = 0; cameraInitialized = false; world.civilians.visible = true;
-  for (const t of titans) { t.alive = true; t.deathTime = 0; t.root.visible = true; t.root.position.copy(t.spawn); t.root.rotation.set(0, Math.PI, 0); t.yaw = Math.PI; t.attackTimer = 0; t.phase = 'walk'; }
+  for (const t of titans) { t.alive = true; t.deathTime = 0; t.root.visible = true; t.root.position.copy(t.spawn); t.root.rotation.set(0, Math.PI, 0); t.yaw = Math.PI; t.attackTimer = 0; t.phase = 'walk'; t.telegraph.visible = false; }
   for (const effect of effects) { scene.remove(effect.mesh); effect.mesh.material.dispose(); } effects.length = 0;
   if (save) recordCheckpoint();
   start();
@@ -266,31 +274,25 @@ function integratePlayer(dt) {
 function updateTitans(dt, time, active) {
   for (const t of titans) {
     if (!t.alive) {
+      t.telegraph.visible = false;
       t.deathTime += dt; t.root.rotation.x = -Math.min(1.45, t.deathTime * .8);
       if (t.deathTime < 4 && Math.random() < .5) particles(t.root.position.clone().add(new THREE.Vector3(0, 5, 0)), 'steam', 1, 5);
       if (t.deathTime > 5) t.root.visible = false; continue;
     }
-    const offset = player.position.clone().sub(t.root.position); offset.y = 0; const distance = offset.length();
-    if (active && distance < 42 && player.position.y < t.height + 9) {
-      const targetYaw = Math.atan2(offset.x, offset.z); let difference = Math.atan2(Math.sin(targetYaw - t.yaw), Math.cos(targetYaw - t.yaw));
-      if (t.phase === 'walk') t.yaw += clamp(difference, -dt * .55, dt * .55);
-      if (distance > 7 && t.phase === 'walk') {
-        const next = t.root.position.clone().addScaledVector(offset.normalize(), dt * (t.index === 2 ? 3.3 : 2));
-        // Titans stay in the central street rather than clipping into houses.
-        next.x = clamp(next.x, -9, 9); next.z = clamp(next.z, -125, 68); t.root.position.copy(next);
-      }
-      if (distance < 8 && player.position.y < t.height * .8 && t.phase === 'walk') { t.phase = 'windup'; t.attackTimer = .9; }
-      if (t.phase === 'windup') {
-        t.attackTimer -= dt;
-        if (t.attackTimer <= 0) {
-          t.phase = 'recover'; t.attackTimer = 1.4;
-          const attackDirection = new THREE.Vector3(Math.sin(t.yaw), 0, Math.cos(t.yaw));
-          if (distance < 9 && player.position.y < t.height * .85 && offset.normalize().dot(attackDirection) > .25) damage(35, offset.normalize());
-        }
-      } else if (t.phase === 'recover') { t.attackTimer -= dt; if (t.attackTimer <= 0) t.phase = 'walk'; }
-    } else if (active) { t.phase = 'walk'; }
+    let walking = false;
+    if (active) {
+      const visible = !segmentObstructed(
+        [t.root.position.x, t.height * .55, t.root.position.z],
+        [player.position.x, player.position.y + 1, player.position.z], world.colliders, .05);
+      const next = stepTrostTitan(t, { position: t.root.position.toArray(), player: player.position.toArray(), height: t.height, index: t.index, visible }, dt);
+      t.phase = next.phase; t.attackTimer = next.attackTimer; t.yaw = next.yaw; walking = next.moving;
+      t.root.position.fromArray(next.position);
+      if (next.hit) damage(35, new THREE.Vector3(Math.sin(t.yaw), 0, Math.cos(t.yaw)));
+    }
     t.root.rotation.y = t.yaw;
-    const walking = active && distance < 42 && distance > 7 && t.phase === 'walk';
+    t.telegraph.visible = active && t.phase === 'windup';
+    t.telegraph.position.set(t.root.position.x, .12, t.root.position.z); t.telegraph.rotation.y = t.yaw;
+    t.telegraph.children[0].material.opacity = .18 + .25 * (1 - t.attackTimer / .9);
     t.legs.forEach((leg, i) => { leg.rotation.x = walking ? Math.sin(time * 2.5 + i * Math.PI) * .22 : Math.sin(time + i * 2) * .025; });
     t.arms.forEach((arm, i) => { const pose = t.phase === 'windup' ? -1.9 : t.phase === 'recover' ? -.5 : Math.sin(time * 2.5 + i * Math.PI) * .12; arm.rotation.x = THREE.MathUtils.damp(arm.rotation.x, pose, 7, dt); arm.rotation.z = (i === 0 ? .08 : -.08); });
   }
@@ -316,6 +318,12 @@ function updateHUD() {
   for (const name of ['gas', 'blades', 'health']) { const key = name === 'blades' ? 'blade' : name; $(`${key}-value`).textContent = `${Math.ceil(player[name])}%`; $(`${key}-bar`).style.width = `${player[name]}%`; }
   $('speed').textContent = Math.round(player.velocity.length() * 3.6); $('altitude').textContent = `${Math.round(player.position.y)} M · ALTITUDE`;
   const objective = missionObjective(mission);
+  const threat = titans.filter(t => t.alive && t.phase !== 'walk' && t.root.position.distanceTo(player.position) < 25)
+    .sort((a, b) => a.root.position.distanceToSquared(player.position) - b.root.position.distanceToSquared(player.position))[0];
+  $('combat-warning').hidden = !threat;
+  if (threat) $('combat-warning').textContent = threat.phase === 'windup'
+    ? `GOLPE EM ${Math.max(0, threat.attackTimer).toFixed(1)} s · Saia do setor ou ganhe altura`
+    : 'TITÃ EM RECUPERAÇÃO · Contorne e alcance a nuca';
   $('objective').textContent = objective.title; $('rescue-status').textContent = objective.detail;
   $('mission-phase').textContent = `ETAPA ${objective.order} / 4 · ${missionStage(mission) === 'complete' ? 'CONCLUÍDA' : 'ROTA DE RETIRADA'}`;
   updateMissionGuide(objective);
@@ -416,4 +424,4 @@ function animate(now) {
 requestAnimationFrame(animate);
 
 // Read-only diagnostics are available for smoke tests; no teleport or combat cheats ship.
-window.__TROST__ = Object.freeze({ snapshot: () => ({ mode, elapsed, kills, rescued, mission: structuredClone(mission), stage: missionStage(mission), checkpoint: checkpoint ? structuredClone(checkpoint) : null, checkpointPersistent, escortStatus, civilianPosition: world.civilians.position.toArray(), grounded: player.grounded, yaw, pitch, assistedAnchors, fovEffect, health: player.health, gas: player.gas, blades: player.blades, position: player.position.toArray(), velocity: player.velocity.toArray(), hooks: hooks.map(h => ({ active: h.active, point: h.point.toArray(), releasedBy: h.releasedBy })), titans: titans.map(t => ({ alive: t.alive, position: t.root.position.toArray() })), drawCalls: renderer.info.render.calls, triangles: renderer.info.render.triangles }) });
+window.__TROST__ = Object.freeze({ snapshot: () => ({ mode, elapsed, kills, rescued, mission: structuredClone(mission), stage: missionStage(mission), checkpoint: checkpoint ? structuredClone(checkpoint) : null, checkpointPersistent, escortStatus, civilianPosition: world.civilians.position.toArray(), grounded: player.grounded, yaw, pitch, assistedAnchors, fovEffect, health: player.health, gas: player.gas, blades: player.blades, position: player.position.toArray(), velocity: player.velocity.toArray(), hooks: hooks.map(h => ({ active: h.active, point: h.point.toArray(), releasedBy: h.releasedBy })), titans: titans.map(t => ({ alive: t.alive, phase: t.phase, attackTimer: t.attackTimer, yaw: t.yaw, telegraphVisible: t.telegraph.visible, position: t.root.position.toArray() })), drawCalls: renderer.info.render.calls, triangles: renderer.info.render.triangles }) });

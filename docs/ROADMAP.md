@@ -58,6 +58,12 @@ Implementado: janelas com molduras, caixilhos, peitoris e venezianas instanciada
 
 A geometria de detalhe é ornamental e não acrescenta ancoragens ou colisões individuais. A circulação e os volumes estruturais permanecem iguais. Não equivale a uma reconstrução de Trost validada por episódios nem a arte final. A nova tentativa de consulta a `shingeki.tv` também retornou HTTP 403 no ambiente.
 
+## Entrega intermediária 8 — leitura dos ataques de Trost
+
+Implementado: percepção condicionada à linha de visão contra construções, giro antes da perseguição e preparação apenas contra alvos à frente. Direção travada durante 0,9 s de preparação, setor de alcance no chão e aviso textual. Recuperação de 1,4 s não é cancelada quando o jogador sai da detecção; pausa congela os temporizadores. Regras isoladas da renderização e teste de navegador para antecipação, pausa e impacto.
+
+Limites: detecção por segmento a partir do tronco, sem memória ou patrulha; navegação continua limitada à avenida. Setor representa o teste abstrato de alcance/direção, sem colisão de dedos. Não acrescenta agarrões, defesa da nuca, dano localizado ou animações finais. A arena não muda nesta entrega.
+
 ## Marco 4 — demonstração de produção
 
 Uma operação de 15–20 minutos com arte e animação próprias de produção, referências verificadas, missão legível, resgate, abastecimento, destruição controlada e conclusão narrativa. Não será construída a campanha completa antes da aprovação desse marco.

@@ -88,6 +88,14 @@ As janelas compartilham três lotes instanciados; as demais peças estáticas en
 
 Esta é uma melhoria da arquitetura procedural do protótipo. O distrito não foi conferido com plantas ou episódios e não representa a geometria final do anime. Ainda são necessários modelos de produção, revisão artística e medições em GPU real.
 
+## Leitura dos ataques de Trost — fase 8
+
+Os titãs perseguem alvos a menos de 42 m e abaixo de sua altura mais 9 m, desde que a linha entre o tronco e o jogador não atravesse construções. Giram antes de avançar e só iniciam golpes contra alvos à frente. A perseguição continua restrita à avenida central; ainda não há busca, memória do último avistamento ou navegação pelas ruas laterais.
+
+O ataque tem 0,9 segundo de preparação, com direção travada, seguido de 1,4 segundo de recuperação. O setor alaranjado no chão mostra o alcance horizontal de 9 m e a abertura frontal do golpe; o texto informa o tempo restante. Sair desse setor, passar para trás, subir acima de 85% da altura do titã ou colocar uma construção na linha de visão evita o dano no instante de impacto. A área é um auxílio de combate, não uma colisão precisa com cada dedo. Receber um golpe causa 35 pontos de dano, como antes.
+
+A recuperação termina mesmo se o jogador sair do campo de detecção. Ela oferece tempo para contornar o inimigo, mas atingir a nuca ainda exige alcance, altura, direção e caminho livre. Pausar congela os temporizadores e o setor; reiniciar ou retomar checkpoint reinicia os encontros vivos. Essas regras são decisões de equilíbrio do protótipo e não medidas canônicas. A arena de transformação mantém suas regras próprias.
+
 ## Validação
 
 ```sh
@@ -106,6 +114,7 @@ O teste de navegador usa Chromium em `/usr/bin/chromium`; defina `CHROMIUM_PATH`
 - `src/mechanics.js`: regras independentes de renderização, cobertas por testes.
 - `src/collision.js`: contato com telhados inclinados e obstrução de segmentos.
 - `src/targeting.js`: seleção independente das ancoragens e assistência.
+- `src/trost-titan-ai.js`: percepção, perseguição, preparação e recuperação dos titãs de Trost.
 - `src/trost-mission.js`: objetivos encadeados, validação de eventos e checkpoints versionados.
 - `src/civilian-escort.js`: rota, progresso, espera, ameaça e chegada do grupo.
 - `src/civilian-model.js`: personagens civis procedurais e animação de caminhada.
@@ -126,4 +135,4 @@ Uma produção pública/comercial com a propriedade intelectual de Attack on Tit
 
 ## Entregas por fase
 
-Cada fase concluída recebe uma branch, validação, commit, push e PR no GitHub. As fases 1–2 estão no [PR #1](https://github.com/JullioDutra/aot/pull/1), já integrado pelo fluxo externo a esta implementação. A fase 3 está no [PR #2](https://github.com/JullioDutra/aot/pull/2). A fase 4 está no [PR #3](https://github.com/JullioDutra/aot/pull/3). A fase 5 foi integrada pelo [PR #4](https://github.com/JullioDutra/aot/pull/4). A fase 6 foi integrada pelo [PR #5](https://github.com/JullioDutra/aot/pull/5). A fase 7 usa `feat/phase-07-district-architecture`, com base em `main`. A base de revisão acompanha a versão integrada mais recente ou a branch predecessora quando necessário. Abertura de PR não implica autorização para merge automático; consulte AGENTS.md.
+Cada fase concluída recebe uma branch, validação, commit, push e PR no GitHub. As fases 1–2 estão no [PR #1](https://github.com/JullioDutra/aot/pull/1), já integrado pelo fluxo externo a esta implementação. A fase 3 está no [PR #2](https://github.com/JullioDutra/aot/pull/2). A fase 4 está no [PR #3](https://github.com/JullioDutra/aot/pull/3). A fase 5 foi integrada pelo [PR #4](https://github.com/JullioDutra/aot/pull/4). A fase 6 foi integrada pelo [PR #5](https://github.com/JullioDutra/aot/pull/5). A fase 7 usa `feat/phase-07-district-architecture`, com base em `main`. A fase 8 usa `feat/phase-08-titan-telegraphs`, inicialmente baseada na branch da fase 7. A base de revisão acompanha a versão integrada mais recente ou a branch predecessora quando necessário. Abertura de PR não implica autorização para merge automático; consulte AGENTS.md.
