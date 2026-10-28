@@ -100,6 +100,12 @@ Implementado: o titã maior responde à aproximação elevada por trás com prep
 
 Somente o encontro de 18 m usa essa defesa. Sem colisão de dedos, dano localizado, desmembramento ou adaptação de comportamento canônico verificado. Testes de regras, posicionamento das mãos e renderização isolada da pose complementam a regressão de navegador; equilíbrio da manobra com ODM ainda precisa de avaliação humana.
 
+## Entrega intermediária 15 — som direcional em Trost
+
+Implementado: passos pelo deslocamento, preparação/impacto por transição de ataque e efeitos de defesa, bloqueio e abate. Posição estéreo acompanha o rumo da câmera; distância tridimensional atenua até 80 m; construções reduzem o volume. Sintetizador compartilhado com a arena, com limite de fontes e fallback centralizado quando estéreo não estiver disponível. Pausa, mute, resultado e reinício interrompem os sons ativos.
+
+Limites: sons sintetizados, sem áudio oficial, reverberação, HRTF ou filtragem acústica. Mixagem amostrada no início de cada efeito. Testes de regras e navegador não substituem escuta humana; não afirmar qualidade sonora final. O som não altera a percepção da IA.
+
 ## Marco 4 — demonstração de produção
 
 Uma operação de 15–20 minutos com arte e animação próprias de produção, referências verificadas, missão legível, resgate, abastecimento, destruição controlada e conclusão narrativa. Não será construída a campanha completa antes da aprovação desse marco.

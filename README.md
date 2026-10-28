@@ -177,6 +177,14 @@ O aviso de combate distingue preparação, proteção e recuperação. Durante a
 
 A defesa não interrompe golpes ou recuperações em andamento, não causa dano e completa seu ciclo mesmo se o jogador sair da vista. Pausa congela o ciclo; reinício/checkpoint limpa a defesa. A posição das mãos usa articulações procedurais. A proteção é uma regra abstrata da nuca, sem colisão detalhada de dedos, corte dos braços ou dano localizado. Trata-se de uma variação autoral de combate, não de uma cena ou poder canônico verificado. O equilíbrio ainda requer testes humanos.
 
+## Som direcional dos titãs — fase 15
+
+Passos, preparação de ataque, impacto, movimento de defesa da nuca, bloqueio de lâminas e abate agora usam sons sintetizados com posição estéreo em Trost. Esquerda/direita seguem a orientação horizontal da câmera. O volume diminui com a distância, incluindo altura, e chega a zero a 80 m. Uma construção entre a origem do som e o jogador reduz o volume para um quarto; é abafamento por volume, sem filtragem acústica ou reverberação.
+
+Os passos são acionados pelo deslocamento real, a cada 16% da altura do titã percorridos. Parar não produz novos passos. Preparação e impacto soam uma vez por transição; o golpe produz som mesmo quando erra. Pausa, resultado, reinício e a opção de desligar áudio interrompem os sons ativos. Retomar não reproduz eventos acumulados. O sintetizador limita a 20 fontes simultâneas (até dez efeitos de duas fontes); os sinais simples de equipamento usam o mesmo contexto de áudio, mas não têm posição estéreo.
+
+Os sons são originais e procedurais, sem gravações do anime. O navegador pode exigir clique/tecla para liberar áudio; falha ou ausência da API não impede jogar. Sem StereoPanner, os efeitos permanecem centralizados. A mixagem fica fixa durante cada efeito curto, sem HRTF, propagação física ou atualização contínua quando a câmera gira. Testes verificam as regras e o ciclo de áudio; clareza, conforto e qualidade sonora ainda precisam de escuta humana com fones e caixas.
+
 ## Validação
 
 ```sh
@@ -207,7 +215,8 @@ O teste de navegador usa Chromium em `/usr/bin/chromium`; defina `CHROMIUM_PATH`
 - `src/titan-main.js`: arena, efeitos, controles e visualização da simulação.
 - `src/titan-model.js`: geometria procedural e hierarquia de articulações.
 - `src/titan-animation.js`: poses amostradas pelo tempo da simulação.
-- `src/arena-audio.js`: síntese de efeitos sonoros, limite de vozes, mute e pausa.
+- `src/arena-audio.js`: sintetizador compartilhado, posição estéreo, limite de fontes, mute e pausa.
+- `src/titan-audio-cues.js`: distância, direção, abafamento e eventos sonoros dos titãs de Trost.
 - `docs/ROADMAP.md`: escopo, limites e próximos marcos.
 
 ## Limites atuais
@@ -220,4 +229,4 @@ Uma produção pública/comercial com a propriedade intelectual de Attack on Tit
 
 ## Entregas por fase
 
-Cada fase concluída recebe uma branch, validação, commit, push e PR no GitHub. As fases 1–2 estão no [PR #1](https://github.com/JullioDutra/aot/pull/1), já integrado pelo fluxo externo a esta implementação. A fase 3 está no [PR #2](https://github.com/JullioDutra/aot/pull/2). A fase 4 está no [PR #3](https://github.com/JullioDutra/aot/pull/3). A fase 5 foi integrada pelo [PR #4](https://github.com/JullioDutra/aot/pull/4). A fase 6 foi integrada pelo [PR #5](https://github.com/JullioDutra/aot/pull/5). As fases 7 a 11 foram integradas juntas pelo [PR #6](https://github.com/JullioDutra/aot/pull/6). A fase 12 usa `feat/phase-12-arena-gamepad`, com base em `main`. A fase 13 usa `feat/phase-13-titan-search`, baseada na fase 12 enquanto ela aguarda integração. A fase 14 usa `feat/phase-14-nape-defense`, baseada na fase 13 enquanto ela aguarda integração. A base de revisão acompanha a versão integrada mais recente ou a branch predecessora quando necessário. Abertura de PR não implica autorização para merge automático; consulte AGENTS.md.
+Cada fase concluída recebe uma branch, validação, commit, push e PR no GitHub. As fases 1–2 estão no [PR #1](https://github.com/JullioDutra/aot/pull/1), já integrado pelo fluxo externo a esta implementação. A fase 3 está no [PR #2](https://github.com/JullioDutra/aot/pull/2). A fase 4 está no [PR #3](https://github.com/JullioDutra/aot/pull/3). A fase 5 foi integrada pelo [PR #4](https://github.com/JullioDutra/aot/pull/4). A fase 6 foi integrada pelo [PR #5](https://github.com/JullioDutra/aot/pull/5). As fases 7 a 11 foram integradas juntas pelo [PR #6](https://github.com/JullioDutra/aot/pull/6). A fase 12 usa `feat/phase-12-arena-gamepad`, com base em `main`. A fase 13 usa `feat/phase-13-titan-search`, baseada na fase 12 enquanto ela aguarda integração. A fase 14 usa `feat/phase-14-nape-defense`, baseada na fase 13 enquanto ela aguarda integração. A fase 15 usa `feat/phase-15-titan-spatial-audio`, baseada na fase 14 enquanto ela aguarda integração. A base de revisão acompanha a versão integrada mais recente ou a branch predecessora quando necessário. Abertura de PR não implica autorização para merge automático; consulte AGENTS.md.

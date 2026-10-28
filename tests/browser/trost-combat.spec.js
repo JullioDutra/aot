@@ -19,6 +19,11 @@ test('Trost warns before a strike, freezes its timer on pause and resolves one h
   await page.waitForFunction(() => window.__TROST__.snapshot().titans[0].phase === 'windup', null, { timeout: 90000 });
   await page.keyboard.up('w'); await page.keyboard.press('Escape');
   const paused = await page.evaluate(() => window.__TROST__.snapshot());
+  expect(paused.audio.available).toBe(true);
+  expect(paused.audio.played).toBeGreaterThan(0);
+  expect(paused.audio.paused).toBe(true);
+  expect(paused.audio.activeVoices).toBe(0);
+  expect(paused.audio.activeTones).toBe(0);
   expect(paused.titans[0].awareness).toBe('tracking');
   expect(paused.titans[0].memory).toBe(5);
   expect(paused.titans[0].lastSeen).not.toBeNull();
@@ -33,6 +38,8 @@ test('Trost warns before a strike, freezes its timer on pause and resolves one h
   await page.click('#resume-button');
   await page.waitForFunction(() => window.__TROST__.snapshot().titans[0].phase === 'recover');
   const hit = await page.evaluate(() => window.__TROST__.snapshot());
+  expect(hit.audio.played).toBeGreaterThan(paused.audio.played);
+  expect(hit.audio.paused).toBe(false);
   expect(hit.health).toBe(65); expect(hit.titans[0].telegraphVisible).toBe(false);
   await expect(page.locator('#combat-warning')).toContainText('RECUPERAÇÃO');
   expect(errors).toEqual([]);
