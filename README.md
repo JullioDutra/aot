@@ -4,7 +4,7 @@ Primeiro protótipo independente de um jogo 3D inspirado em Attack on Titan. **N
 
 ## Executar
 
-Requer Node.js 22.12+ (validado com 24), npm e um navegador com WebGL 2. Trost aceita teclado/mouse ou controle com mapeamento padrão do navegador. Configurações e arena ainda exigem teclado/mouse. Não há serviços externos, banco de dados, variáveis secretas ou downloads de recursos durante o jogo.
+Requer Node.js 22.12+ (validado com 24), npm e um navegador com WebGL 2. Trost aceita teclado/mouse ou controle com mapeamento padrão do navegador. Configurações e links ainda exigem teclado/mouse; a arena também aceita controle padrão. Não há serviços externos, banco de dados, variáveis secretas ou downloads de recursos durante o jogo.
 
 ```sh
 cd /workspace/aot
@@ -90,7 +90,7 @@ Esta é uma melhoria da arquitetura procedural do protótipo. O distrito não fo
 
 ## Leitura dos ataques de Trost — fase 8
 
-Os titãs perseguem alvos a menos de 42 m e abaixo de sua altura mais 9 m, desde que a linha entre o tronco e o jogador não atravesse construções. Giram antes de avançar e só iniciam golpes contra alvos à frente. A perseguição continua restrita à avenida central; ainda não há busca, memória do último avistamento ou navegação pelas ruas laterais.
+Os titãs perseguem alvos a menos de 42 m e abaixo de sua altura mais 9 m, desde que a linha entre o tronco e o jogador não atravesse construções. Giram antes de avançar e só iniciam golpes contra alvos à frente. A perseguição continua restrita à avenida central; a fase 13 acrescenta memória do último avistamento, mas ainda não há navegação pelas ruas laterais.
 
 O ataque tem 0,9 segundo de preparação, com direção travada, seguido de 1,4 segundo de recuperação. O setor alaranjado no chão mostra o alcance horizontal de 9 m e a abertura frontal do golpe; o texto informa o tempo restante. Sair desse setor, passar para trás, subir acima de 85% da altura do titã ou colocar uma construção na linha de visão evita o dano no instante de impacto. A área é um auxílio de combate, não uma colisão precisa com cada dedo. Receber um golpe causa 35 pontos de dano, como antes.
 
@@ -133,11 +133,57 @@ Conecte um controle compatível com o mapeamento `standard` da Gamepad API e pre
 | Start/Menu/Options | Iniciar ou continuar a operação; pausar/retomar; nova operação após o resultado |
 | Back/View/Share | Retomar checkpoint durante pausa ou derrota |
 
-Start no menu retoma um checkpoint disponível; sem checkpoint, inicia uma operação nova. Para escolher explicitamente uma operação nova com um save existente, use o botão do menu com mouse. As configurações, links e arena de transformação ainda usam teclado/mouse; não há navegação geral de menus com o direcional.
+Start no menu retoma um checkpoint disponível; sem checkpoint, inicia uma operação nova. Para escolher explicitamente uma operação nova com um save existente, use o botão do menu com mouse. As configurações e links ainda usam teclado/mouse; não há navegação geral de menus com o direcional. A arena tem seu mapeamento próprio descrito abaixo.
 
 Após pausa, reconexão ou troca de controle, solte botões e centralize os analógicos antes de jogar. Desconectar o controle durante a operação pausa e solta os cabos. Zona morta radial de 18% reduz deriva; os gatilhos são tratados como comandos digitais. Não há vibração, remapeamento ou suporte simultâneo a vários jogadores. O HUD mostra os atalhos do controle quando conectado. Áudio pode exigir um clique/tecla inicial conforme a política do navegador.
 
 A integração foi testada com Gamepad API simulada e controles lógicos; compatibilidade, conforto e latência com hardware físico continuam pendentes.
+
+## Controle na arena — fase 12
+
+A arena de transformação aceita o primeiro controle padrão detectado pelo navegador, usando a mesma zona morta e proteção contra comandos presos de Trost. Pressione um botão para detectar; Start entra no ensaio sem exigir captura do mouse. Os avisos e a ajuda da pausa mostram o mapeamento correspondente ao dispositivo conectado.
+
+| Controle padrão | Ação na arena |
+| --- | --- |
+| Analógico esquerdo / direito | Movimento / câmera |
+| RB/R1 | Transformar |
+| X/□ / Y/△ | Soco / golpe forte |
+| LB/L1 | Agarrar durante a recuperação do adversário |
+| Segurar LT/L2 | Defender |
+| A/× | Esquivar na direção do movimento |
+| Segurar RT/R2 | Regenerar, respeitando os custos e requisitos do combate |
+| B/○ | Sair da forma titã |
+| R3 | Alternar alvo fixado / mira livre |
+| Start/Menu/Options | Entrar, pausar, retomar ou iniciar novo ensaio após o resultado |
+| Back/View/Share | Reiniciar o ensaio na pausa ou após o resultado |
+
+Desconectar ou substituir o controle pausa e interrompe defesa/regeneração. Ao retomar, solte botões e centralize analógicos antes de agir. Golpes, transformação, esquiva e agarrão são acionados uma vez por pressão; segurar o botão não repete ataques. Os limites de energia, fadiga, alcance e resistência continuam os mesmos. Não há vibração, remapeamento ou navegação geral de menus; opções de áudio/gráficos e links continuam usando teclado/mouse. O áudio pode depender de um clique/tecla inicial por política do navegador.
+
+Testes automatizados usam a Gamepad API simulada. Avaliação com controles físicos e ergonomia ainda está pendente.
+
+## Busca dos titãs — fase 13
+
+Ao perder a linha de visão, o titã procura durante até 5 segundos na última posição observada, limitada à avenida central. Ele não acompanha a posição atual de um jogador escondido. Ao chegar perto desse ponto, aguarda até a memória expirar; um novo avistamento válido renova a busca. Sair do alcance ou subir além da altura de detecção também deixa apenas a última observação na memória.
+
+O HUD avisa quando um titã próximo está procurando. Use construções para interromper a visão e mudar de posição. A busca não inicia golpes sem detectar o jogador; golpes já preparados continuam seu ciclo e só causam dano se houver visão e alcance no impacto. Pausa congela a memória e reinício/checkpoint limpa as observações. Os 5 segundos são um parâmetro de jogo, não uma regra canônica.
+
+Não há patrulha, audição ou navegação pelas ruas laterais. A busca usa a projeção da última posição na avenida, sem calcular um caminho até telhados ou interiores. O comportamento foi verificado por testes determinísticos; equilíbrio e sensação de despistar ainda precisam de avaliação humana.
+
+## Defesa da nuca — fase 14
+
+O titã maior, de 18 m, reage quando detecta o jogador atrás de si, a menos de 12 m na horizontal e acima de 55% de sua altura. Ele para de andar e ergue as mãos durante 0,75 s: a nuca continua vulnerável nessa preparação. Em seguida, protege a nuca por 1,2 s e entra em recuperação por 1,4 s. A proteção termina quando começa a baixar os braços; aproveite essa abertura para cortar.
+
+O aviso de combate distingue preparação, proteção e recuperação. Durante a proteção, o marcador de acerto da nuca desaparece. Um corte que alcançaria a nuca é bloqueado, com faíscas e aviso, sem registrar abate; o gasto normal de lâmina permanece. A proteção é conferida no impacto, não no clique. Os outros dois titãs mantêm seus comportamentos anteriores.
+
+A defesa não interrompe golpes ou recuperações em andamento, não causa dano e completa seu ciclo mesmo se o jogador sair da vista. Pausa congela o ciclo; reinício/checkpoint limpa a defesa. A posição das mãos usa articulações procedurais. A proteção é uma regra abstrata da nuca, sem colisão detalhada de dedos, corte dos braços ou dano localizado. Trata-se de uma variação autoral de combate, não de uma cena ou poder canônico verificado. O equilíbrio ainda requer testes humanos.
+
+## Som direcional dos titãs — fase 15
+
+Passos, preparação de ataque, impacto, movimento de defesa da nuca, bloqueio de lâminas e abate agora usam sons sintetizados com posição estéreo em Trost. Esquerda/direita seguem a orientação horizontal da câmera. O volume diminui com a distância, incluindo altura, e chega a zero a 80 m. Uma construção entre a origem do som e o jogador reduz o volume para um quarto; é abafamento por volume, sem filtragem acústica ou reverberação.
+
+Os passos são acionados pelo deslocamento real, a cada 16% da altura do titã percorridos. Parar não produz novos passos. Preparação e impacto soam uma vez por transição; o golpe produz som mesmo quando erra. Pausa, resultado, reinício e a opção de desligar áudio interrompem os sons ativos. Retomar não reproduz eventos acumulados. O sintetizador limita a 20 fontes simultâneas (até dez efeitos de duas fontes); os sinais simples de equipamento usam o mesmo contexto de áudio, mas não têm posição estéreo.
+
+Os sons são originais e procedurais, sem gravações do anime. O navegador pode exigir clique/tecla para liberar áudio; falha ou ausência da API não impede jogar. Sem StereoPanner, os efeitos permanecem centralizados. A mixagem fica fixa durante cada efeito curto, sem HRTF, propagação física ou atualização contínua quando a câmera gira. Testes verificam as regras e o ciclo de áudio; clareza, conforto e qualidade sonora ainda precisam de escuta humana com fones e caixas.
 
 ## Validação
 
@@ -160,7 +206,8 @@ O teste de navegador usa Chromium em `/usr/bin/chromium`; defina `CHROMIUM_PATH`
 - `src/mechanics.js`: regras independentes de renderização, cobertas por testes.
 - `src/collision.js`: contato com telhados inclinados e obstrução de segmentos.
 - `src/targeting.js`: seleção independente das ancoragens e assistência.
-- `src/trost-titan-ai.js`: percepção, perseguição, preparação e recuperação dos titãs de Trost.
+- `src/trost-titan-ai.js`: percepção, busca, ataque e defesa da nuca dos titãs de Trost.
+- `src/nape-guard-pose.js`: alcance articulado dos braços para cobrir a nuca.
 - `src/trost-mission.js`: objetivos encadeados, validação de eventos e checkpoints versionados.
 - `src/civilian-escort.js`: rota, progresso, espera, ameaça e chegada do grupo.
 - `src/civilian-model.js`: personagens civis procedurais e animação de caminhada.
@@ -168,12 +215,13 @@ O teste de navegador usa Chromium em `/usr/bin/chromium`; defina `CHROMIUM_PATH`
 - `src/titan-main.js`: arena, efeitos, controles e visualização da simulação.
 - `src/titan-model.js`: geometria procedural e hierarquia de articulações.
 - `src/titan-animation.js`: poses amostradas pelo tempo da simulação.
-- `src/arena-audio.js`: síntese de efeitos sonoros, limite de vozes, mute e pausa.
+- `src/arena-audio.js`: sintetizador compartilhado, posição estéreo, limite de fontes, mute e pausa.
+- `src/titan-audio-cues.js`: distância, direção, abafamento e eventos sonoros dos titãs de Trost.
 - `docs/ROADMAP.md`: escopo, limites e próximos marcos.
 
 ## Limites atuais
 
-Esta é uma missão de treino não canônica em um distrito inspirado em Trost. O mapa ainda não é uma reconstrução conferida com episódios. O personagem é um cadete genérico. A transformação jogável existe somente no ensaio separado, não na missão de Trost. Não há cinematografia da história, dublagem, desmembramento, titãs devorando pessoas, cavalos ou suporte a controle na arena. O salvamento local está restrito à operação de Trost; a arena não persiste o combate. A violência implementada se limita a impactos e partículas estilizadas.
+Esta é uma missão de treino não canônica em um distrito inspirado em Trost. O mapa ainda não é uma reconstrução conferida com episódios. O personagem é um cadete genérico. A transformação jogável existe somente no ensaio separado, não na missão de Trost. Não há cinematografia da história, dublagem, desmembramento, titãs devorando pessoas, ou cavalos. O salvamento local está restrito à operação de Trost; a arena não persiste o combate. A violência implementada se limita a impactos e partículas estilizadas.
 
 As colisões dos telhados seguem os dois planos de inclinação, mas o corpo do jogador ainda usa um volume simplificado. A IA dos titãs fica na avenida central. Cabos se soltam nas obstruções; ainda não contornam quinas nem se enrolam nas estruturas. O protótipo não implementa ainda simulação completa do ODM. A arte procedural deve ser substituída por modelos e animações de produção depois que movimentação e combate forem aprovados.
 
@@ -181,4 +229,4 @@ Uma produção pública/comercial com a propriedade intelectual de Attack on Tit
 
 ## Entregas por fase
 
-Cada fase concluída recebe uma branch, validação, commit, push e PR no GitHub. As fases 1–2 estão no [PR #1](https://github.com/JullioDutra/aot/pull/1), já integrado pelo fluxo externo a esta implementação. A fase 3 está no [PR #2](https://github.com/JullioDutra/aot/pull/2). A fase 4 está no [PR #3](https://github.com/JullioDutra/aot/pull/3). A fase 5 foi integrada pelo [PR #4](https://github.com/JullioDutra/aot/pull/4). A fase 6 foi integrada pelo [PR #5](https://github.com/JullioDutra/aot/pull/5). A fase 7 usa `feat/phase-07-district-architecture`, com base em `main`. A fase 8 usa `feat/phase-08-titan-telegraphs`, inicialmente baseada na branch da fase 7. A fase 9 usa `feat/phase-09-blade-strikes`, inicialmente baseada na fase 8. A fase 10 usa `feat/phase-10-graphics-profiles`, inicialmente baseada na fase 9. A fase 11 usa `feat/phase-11-gamepad-controls`, inicialmente baseada na fase 10. A base de revisão acompanha a versão integrada mais recente ou a branch predecessora quando necessário. Abertura de PR não implica autorização para merge automático; consulte AGENTS.md.
+Cada fase concluída recebe uma branch, validação, commit, push e PR no GitHub. As fases 1–2 estão no [PR #1](https://github.com/JullioDutra/aot/pull/1), já integrado pelo fluxo externo a esta implementação. A fase 3 está no [PR #2](https://github.com/JullioDutra/aot/pull/2). A fase 4 está no [PR #3](https://github.com/JullioDutra/aot/pull/3). A fase 5 foi integrada pelo [PR #4](https://github.com/JullioDutra/aot/pull/4). A fase 6 foi integrada pelo [PR #5](https://github.com/JullioDutra/aot/pull/5). As fases 7 a 11 foram integradas juntas pelo [PR #6](https://github.com/JullioDutra/aot/pull/6). A fase 12 usa `feat/phase-12-arena-gamepad`, com base em `main`. A fase 13 usa `feat/phase-13-titan-search`, baseada na fase 12 enquanto ela aguarda integração. A fase 14 usa `feat/phase-14-nape-defense`, baseada na fase 13 enquanto ela aguarda integração. A fase 15 usa `feat/phase-15-titan-spatial-audio`, baseada na fase 14 enquanto ela aguarda integração. A base de revisão acompanha a versão integrada mais recente ou a branch predecessora quando necessário. Abertura de PR não implica autorização para merge automático; consulte AGENTS.md.

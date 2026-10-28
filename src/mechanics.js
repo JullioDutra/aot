@@ -11,8 +11,8 @@ export function cableAcceleration(position, velocity, anchor, restLength, boost 
   return direction.map(v => v * force);
 }
 
-export function canStrikeNape(player, nape, forward, blades, alive) {
-  if (!alive || blades <= 0) return false;
+export function canStrikeNape(player, nape, forward, blades, alive, protectedNape = false) {
+  if (!alive || blades <= 0 || protectedNape) return false;
   const offset = player.map((v, i) => v - nape[i]);
   const distance = Math.hypot(...offset);
   const behind = offset[0] * forward[0] + offset[2] * forward[2] < 0.8;

@@ -17,21 +17,23 @@ export class ArenaAudio {
   setEnabled(enabled) { this.enabled = enabled; if (!enabled) this.silence(); else if (!this.paused) void this.start(); }
   silence() { for (const source of this.voices) { try { source.stop(); } catch { /* Already stopped. */ } } this.voices.clear(); }
   pause() { this.paused = true; this.silence(); }
-  play(kind, distance = 0) {
-    if (!this.enabled || this.paused || !this.context || this.context.state !== 'running' || this.voices.size > 18) return;
+  play(kind, distance = 0, pan = 0, level = 1) {
+    if (!this.enabled || this.paused || !this.context || this.context.state !== 'running' || this.voices.size + 2 > 20 || level <= 0) return;
     const presets = {
-      step: [48, .22, .18, 120], punch: [85, .22, .42, 750], heavy: [48, .42, .55, 420],
+      warning: [70, .55, .22, 350], step: [48, .22, .18, 120], punch: [85, .22, .42, 750], heavy: [48, .42, .55, 420],
       block: [180, .18, .3, 1700], transform: [38, 1.25, .65, 650], steam: [130, .45, .08, 2200],
       dodge: [95, .2, .14, 1100], defeat: [32, .9, .5, 260],
     };
     const [frequency, duration, volume, cutoff] = presets[kind] || presets.punch;
     const now = this.context.currentTime, gain = this.context.createGain();
-    gain.gain.setValueAtTime(.001, now); gain.gain.linearRampToValueAtTime(volume / (1 + distance * .025), now + .015); gain.gain.exponentialRampToValueAtTime(.001, now + duration); gain.connect(this.master);
+    gain.gain.setValueAtTime(.001, now); gain.gain.linearRampToValueAtTime(volume * Math.min(1, level) / (1 + Math.max(0, distance) * .025), now + .015); gain.gain.exponentialRampToValueAtTime(.001, now + duration); const panner = this.context.createStereoPanner?.();
+    if (panner) { panner.pan.value = Math.max(-1, Math.min(1, pan)); gain.connect(panner); panner.connect(this.master); }
+    else gain.connect(this.master);
     const oscillator = this.context.createOscillator(); oscillator.type = 'sine'; oscillator.frequency.setValueAtTime(frequency, now); oscillator.frequency.exponentialRampToValueAtTime(22, now + duration); oscillator.connect(gain);
     const noise = this.context.createBufferSource(), filter = this.context.createBiquadFilter(); noise.buffer = this.noise; filter.type = 'lowpass'; filter.frequency.value = cutoff; noise.connect(filter); filter.connect(gain);
     let ended = 0;
     for (const source of [oscillator, noise]) {
-      this.voices.add(source); source.onended = () => { this.voices.delete(source); source.disconnect(); if (++ended === 2) { filter.disconnect(); gain.disconnect(); } };
+      this.voices.add(source); source.onended = () => { this.voices.delete(source); source.disconnect(); if (++ended === 2) { filter.disconnect(); gain.disconnect(); panner?.disconnect(); } };
       source.start(now); source.stop(now + duration);
     }
     this.played++;

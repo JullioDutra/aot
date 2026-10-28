@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { stick, createGamepadInput } from '../src/gamepad-input.js';
+import { stick, createGamepadInput, ARENA_GAMEPAD_BINDINGS } from '../src/gamepad-input.js';
 const pad = (pressed = [], axes = [0, 0, 0, 0]) => ({ index: 0, id: 'test', connected: true, mapping: 'standard', axes, buttons: Array.from({ length: 17 }, (_, i) => ({ pressed: pressed.includes(i), value: pressed.includes(i) ? 1 : 0 })) });
 test('radial deadzone removes drift and preserves partial analog magnitude', () => {
   assert.deepEqual(stick(.1, .1), [0, 0]);
@@ -30,4 +30,18 @@ test('disconnect clears held inputs and replacement controllers require neutral'
 test('missing API data and nonstandard mappings are ignored', () => {
   const input = createGamepadInput(); assert.equal(input.sample().connected, false);
   assert.equal(input.sample([null, { ...pad(), mapping: '' }]).connected, false);
+});
+
+test('arena bindings cover combat actions without changing the Trost mapping', () => {
+  const arena = createGamepadInput(ARENA_GAMEPAD_BINDINGS, ['menu', 'restart']), trost = createGamepadInput();
+  arena.sample([pad()]); trost.sample([pad()]);
+  const a = arena.sample([pad([0, 1, 2, 3, 4, 5, 6, 7, 11])]);
+  for (const action of ['dodge', 'exit', 'light', 'heavy', 'grab', 'transform', 'guard', 'regenerate', 'lock']) assert.equal(a.pressed[action], true);
+  const t = trost.sample([pad([5, 6, 7])]); assert.equal(t.held.left, true); assert.equal(t.held.right, true); assert.equal(t.pressed.supply, true); assert.equal(t.pressed.transform, undefined);
+});
+test('arena restart remains available while held combat inputs are suppressed', () => {
+  const arena = createGamepadInput(ARENA_GAMEPAD_BINDINGS, ['menu', 'restart']);
+  arena.sample([pad()]); arena.suspend();
+  const s = arena.sample([pad([6, 7, 8])]);
+  assert.equal(s.pressed.restart, true); assert.equal(s.held.guard, undefined); assert.equal(s.held.regenerate, undefined);
 });

@@ -4,7 +4,10 @@ import { createWorld, createCadet, createTitan } from './world.js';
 import { createGamepadInput } from './gamepad-input.js';
 import { createGraphicsQuality } from './graphics-quality.js';
 import { createBladeStrike, beginBladeStrike, stepBladeStrike, bladeStrikePhase, bladeStrikePose } from './blade-strike.js';
-import { stepTrostTitan } from './trost-titan-ai.js';
+import { ArenaAudio } from './arena-audio.js';
+import { titanAudioMix, titanAudioCues } from './titan-audio-cues.js';
+import { applyNapeGuard } from './nape-guard-pose.js';
+import { stepTrostTitan, napeProtected, napeGuardWeight } from './trost-titan-ai.js';
 import { clamp, cableAcceleration, canStrikeNape, insideSupplyRadius, formatTime } from './mechanics.js';
 import { resolveMotion, segmentObstructed } from './collision.js';
 import { stepEscort, escortPosition, escortProgress, ESCORT_ROUTE } from './civilian-escort.js';
@@ -91,6 +94,9 @@ updateGraphicsDescription();
 let checkpoint = loadCheckpoint(checkpointStorage), checkpointPersistent = !!checkpoint;
 let mode = 'menu', yaw = -.5, pitch = 0, elapsed = 0, kills = 0, rescued = false, toastTime = 0, damageTime = 0;
 let sensitivity = 1, dragging = false, jumpQueued = false, soundEnabled = true, audioContext, hookToneTime = 0;
+const titanAudio = new ArenaAudio();
+titanAudio.pause();
+const toneSources = new Set();
 let cameraInitialized = false;
 let assistedAnchors = true, fovEffect = true;
 const keys = new Set(), effects = [];
@@ -111,9 +117,20 @@ function particles(position, kind, count = 8, strength = 5) {
   }
 }
 function sound(freq = 200, duration = .12, type = 'triangle', volume = .06) {
-  if (!soundEnabled || !audioContext) return;
+  if (!soundEnabled || !audioContext || audioContext.state !== 'running' || mode !== 'playing') return;
   const oscillator = audioContext.createOscillator(), gain = audioContext.createGain(); oscillator.type = type; oscillator.frequency.setValueAtTime(freq, audioContext.currentTime); oscillator.frequency.exponentialRampToValueAtTime(Math.max(25, freq * .4), audioContext.currentTime + duration);
-  gain.gain.setValueAtTime(volume, audioContext.currentTime); gain.gain.exponentialRampToValueAtTime(.001, audioContext.currentTime + duration); oscillator.connect(gain); gain.connect(audioContext.destination); oscillator.start(); oscillator.stop(audioContext.currentTime + duration);
+  gain.gain.setValueAtTime(volume, audioContext.currentTime); gain.gain.exponentialRampToValueAtTime(.001, audioContext.currentTime + duration); oscillator.connect(gain); gain.connect(audioContext.destination); toneSources.add(oscillator); oscillator.onended = () => { toneSources.delete(oscillator); oscillator.disconnect(); gain.disconnect(); }; oscillator.start(); oscillator.stop(audioContext.currentTime + duration);
+}
+function silenceAudio() {
+  titanAudio.pause();
+  for (const source of toneSources) { try { source.stop(); } catch { /* Already stopped. */ } }
+  toneSources.clear();
+}
+function playTitanSound(kind, source) {
+  const listener = player.position.clone().add(new THREE.Vector3(0, 1, 0));
+  const blocked = segmentObstructed(source.toArray(), listener.toArray(), world.colliders, .05);
+  const mix = titanAudioMix(source.toArray(), listener.toArray(), yaw, blocked);
+  titanAudio.play(kind, mix.distance, mix.pan, mix.level);
 }
 function toast(message, duration = 3) { $('toast').textContent = message; $('toast').classList.add('visible'); toastTime = duration; }
 function releaseHook(h, reason = 'manual') { h.active = false; h.line.visible = h.tip.visible = false; h.releasedBy = reason; }
@@ -125,21 +142,21 @@ function lockMouse() {
 function start(lock = true) {
   $('landing').hidden = true; $('operation-card').hidden = true; $('landing-footer').hidden = true; $('pause').hidden = true; $('result').hidden = true; $('hud').hidden = false;
   document.body.classList.add('playing'); mode = 'playing'; clearInput();
-  if (!audioContext) { try { audioContext = new AudioContext(); } catch { /* Audio is optional. */ } }
-  audioContext?.resume().catch(() => {}); if (lock) lockMouse(); toast(`${missionObjective(mission).title}. ${missionObjective(mission).detail}`, 6);
+  void titanAudio.start(); audioContext = titanAudio.context; if (lock) lockMouse(); toast(`${missionObjective(mission).title}. ${missionObjective(mission).detail}`, 6);
 }
 function reset(save = true, lock = true) {
+  silenceAudio();
   mission = createMission(); escortStatus = 'idle'; escortHeading = 0; world.civilians.position.copy(world.rescue);
   player.position.set(-25, 17, 65); player.velocity.set(0, 0, 0); Object.assign(player, { health: 100, gas: 100, blades: 100, grounded: true, invincible: 0 });
   elapsed = kills = damageTime = 0; bladeStrike = createBladeStrike(); rescued = false; yaw = -.5; pitch = 0; cameraInitialized = false; world.civilians.visible = true;
-  for (const t of titans) { t.alive = true; t.deathTime = 0; t.root.visible = true; t.root.position.copy(t.spawn); t.root.rotation.set(0, Math.PI, 0); t.yaw = Math.PI; t.attackTimer = 0; t.phase = 'walk'; t.telegraph.visible = false; }
+  for (const t of titans) { t.audioStride = 0; t.arms.forEach(a => a.rotation.set(0, 0, 0)); t.elbows.forEach(a => a.rotation.set(0, 0, 0)); t.alive = true; t.deathTime = 0; t.root.visible = true; t.root.position.copy(t.spawn); t.root.rotation.set(0, Math.PI, 0); t.yaw = Math.PI; t.attackTimer = 0; t.phase = 'walk'; t.lastSeen = null; t.memory = 0; t.awareness = 'idle'; t.telegraph.visible = false; }
   for (const effect of effects) { scene.remove(effect.mesh); effect.mesh.material.dispose(); } effects.length = 0;
   if (save) recordCheckpoint();
   start(lock);
 }
-function pause() { if (mode !== 'playing') return; mode = 'paused'; clearInput(); $('pause').hidden = false; if (document.pointerLockElement) document.exitPointerLock(); }
+function pause() { if (mode !== 'playing') return; mode = 'paused'; silenceAudio(); clearInput(); $('pause').hidden = false; if (document.pointerLockElement) document.exitPointerLock(); }
 function finish(victory) {
-  mode = victory ? 'won' : 'dead'; clearInput(); if (document.pointerLockElement) document.exitPointerLock();
+  mode = victory ? 'won' : 'dead'; silenceAudio(); clearInput(); if (document.pointerLockElement) document.exitPointerLock();
   $('result-label').textContent = victory ? 'OPERAÇÃO CONCLUÍDA' : 'OPERAÇÃO INTERROMPIDA';
   $('result-title').textContent = victory ? 'O distrito respira.' : 'Ainda podemos lutar.';
   $('result-description').textContent = victory ? 'Civis encaminhados, abastecimento recuperado e retirada confirmada. Este ensaio é uma missão original inspirada em Trost, fora da continuidade canônica.' : 'Você foi derrubado. Retome o checkpoint com os objetivos e abates já registrados, ou inicie uma nova operação.';
@@ -162,12 +179,12 @@ function validateCables() {
   }
   if (blocked) toast('Cabo solto: obstáculo no caminho. Escolha outra ancoragem.', 2);
 }
-function strikeAvailable(t, blades = player.blades) {
+function strikeAvailable(t, blades = player.blades, checkGuard = true) {
   if (!t.alive) return false;
   t.root.updateWorldMatrix(true, true); t.nape.getWorldPosition(napePosition);
   const origin = player.position.clone().add(new THREE.Vector3(0, 1, 0));
   const offset = napePosition.clone().sub(origin);
-  return canStrikeNape(origin.toArray(), napePosition.toArray(), [Math.sin(t.yaw), 0, Math.cos(t.yaw)], blades, t.alive)
+  return canStrikeNape(origin.toArray(), napePosition.toArray(), [Math.sin(t.yaw), 0, Math.cos(t.yaw)], blades, t.alive, checkGuard && napeProtected(t))
     && (offset.lengthSq() < 1 || offset.normalize().dot(forward()) > .25)
     && !segmentObstructed(origin.toArray(), napePosition.toArray(), world.colliders, .05);
 }
@@ -191,8 +208,13 @@ function resolveBladeImpact() {
   let struck = false;
   for (const t of titans) {
     if (!t.alive) continue;
+    if (napeProtected(t) && strikeAvailable(t, 1, false)) {
+      particles(napePosition, 'spark', 8, 6); playTitanSound('block', napePosition);
+      toast('Nuca protegida! Espere os braços baixarem e ataque na recuperação.', 2);
+      return;
+    }
     if (strikeAvailable(t, 1)) { // This swing was already paid for at preparation.
-      t.alive = false; t.deathTime = 0; kills++; struck = true; particles(napePosition, 'spark', 12, 12); particles(napePosition, 'blood', 14, 7); sound(85, .3, 'triangle', .15);
+      t.alive = false; t.deathTime = 0; kills++; struck = true; particles(napePosition, 'spark', 12, 12); particles(napePosition, 'blood', 14, 7); playTitanSound('defeat', napePosition);
       missionEvent({ type: 'defeat', id: t.index });
       break;
     }
@@ -308,6 +330,10 @@ function updateTitans(dt, time, active) {
         [t.root.position.x, t.height * .55, t.root.position.z],
         [player.position.x, player.position.y + 1, player.position.z], world.colliders, .05);
       const next = stepTrostTitan(t, { position: t.root.position.toArray(), player: player.position.toArray(), height: t.height, index: t.index, visible }, dt);
+      const audioStep = titanAudioCues({ phase: t.phase, position: t.root.position.toArray() }, next, t.height, t.audioStride ?? 0);
+      t.audioStride = audioStep.stride;
+      for (const cue of audioStep.cues) playTitanSound(cue, new THREE.Vector3(next.position[0], cue === 'step' ? 1 : t.height * .55, next.position[2]));
+      t.lastSeen = next.lastSeen; t.memory = next.memory; t.awareness = next.awareness;
       t.phase = next.phase; t.attackTimer = next.attackTimer; t.yaw = next.yaw; walking = next.moving;
       t.root.position.fromArray(next.position);
       if (next.hit) damage(35, new THREE.Vector3(Math.sin(t.yaw), 0, Math.cos(t.yaw)));
@@ -317,7 +343,9 @@ function updateTitans(dt, time, active) {
     t.telegraph.position.set(t.root.position.x, .12, t.root.position.z); t.telegraph.rotation.y = t.yaw;
     t.telegraph.children[0].material.opacity = .18 + .25 * (1 - t.attackTimer / .9);
     t.legs.forEach((leg, i) => { leg.rotation.x = walking ? Math.sin(time * 2.5 + i * Math.PI) * .22 : Math.sin(time + i * 2) * .025; });
-    t.arms.forEach((arm, i) => { const pose = t.phase === 'windup' ? -1.9 : t.phase === 'recover' ? -.5 : Math.sin(time * 2.5 + i * Math.PI) * .12; arm.rotation.x = THREE.MathUtils.damp(arm.rotation.x, pose, 7, dt); arm.rotation.z = (i === 0 ? .08 : -.08); });
+    t.arms.forEach((arm, i) => { arm.rotation.y = 0; const pose = t.phase === 'windup' ? -1.9 : t.phase === 'recover' ? -.5 : Math.sin(time * 2.5 + i * Math.PI) * .12; arm.rotation.x = THREE.MathUtils.damp(arm.rotation.x, pose, 7, dt); arm.rotation.z = (i === 0 ? .08 : -.08); });
+    t.elbows.forEach(elbow => elbow.rotation.set(0, 0, 0));
+    applyNapeGuard(t, napeGuardWeight(t));
   }
 }
 function updateCamera(dt, menu = false) {
@@ -343,12 +371,16 @@ function updateHUD() {
   const objective = missionObjective(mission);
   const bladeLabels = { ready: player.blades > 0 ? 'LÂMINAS PRONTAS' : 'LÂMINAS ESGOTADAS · Reabasteça com R', prepare: 'PREPARANDO CORTE', cut: 'CORTE', recover: 'RECUPERANDO LÂMINAS' };
   $('blade-action').textContent = bladeLabels[bladeStrikePhase(bladeStrike)];
-  const threat = titans.filter(t => t.alive && t.phase !== 'walk' && t.root.position.distanceTo(player.position) < 25)
-    .sort((a, b) => a.root.position.distanceToSquared(player.position) - b.root.position.distanceToSquared(player.position))[0];
+  const threat = titans.filter(t => t.alive && (t.phase !== 'walk' || t.awareness === 'searching') && t.root.position.distanceTo(player.position) < 25)
+    .sort((a, b) => (a.phase === 'walk') - (b.phase === 'walk') || a.root.position.distanceToSquared(player.position) - b.root.position.distanceToSquared(player.position))[0];
   $('combat-warning').hidden = !threat;
   if (threat) $('combat-warning').textContent = threat.phase === 'windup'
     ? `GOLPE EM ${Math.max(0, threat.attackTimer).toFixed(1)} s · Saia do setor ou ganhe altura`
-    : 'TITÃ EM RECUPERAÇÃO · Contorne e alcance a nuca';
+    : threat.phase === 'guardPrepare' ? 'TITÃ ERGUENDO OS BRAÇOS · Nuca ainda exposta'
+      : threat.phase === 'guard' ? 'NUCA PROTEGIDA · Espere os braços baixarem'
+      : threat.phase === 'guardRecover' ? 'NUCA EXPOSTA · Aproveite a recuperação'
+      : threat.phase === 'recover' ? 'TITÃ EM RECUPERAÇÃO · Contorne e alcance a nuca'
+      : 'TITÃ PROCURANDO · Mantenha-se fora da vista';
   $('objective').textContent = objective.title; $('rescue-status').textContent = objective.detail;
   $('mission-phase').textContent = `ETAPA ${objective.order} / 4 · ${missionStage(mission) === 'complete' ? 'CONCLUÍDA' : 'ROTA DE RETIRADA'}`;
   updateMissionGuide(objective);
@@ -390,7 +422,7 @@ $('close-settings').addEventListener('click', () => { $('settings').hidden = tru
 $('sensitivity').addEventListener('input', e => { sensitivity = Number(e.target.value); });
 $('anchor-assist').addEventListener('change', e => { assistedAnchors = e.target.checked; });
 $('fov-effect').addEventListener('change', e => { fovEffect = e.target.checked; });
-$('audio-enabled').addEventListener('change', e => { soundEnabled = e.target.checked; });
+$('audio-enabled').addEventListener('change', e => { soundEnabled = e.target.checked; titanAudio.setEnabled(soundEnabled); if (!soundEnabled) silenceAudio(); else if (mode === 'playing') { void titanAudio.start(); audioContext = titanAudio.context; } });
 $('quality').addEventListener('change', e => { graphics.apply(e.target.value); updateGraphicsDescription(); });
 addEventListener('keydown', event => {
   if (event.code === 'Escape') { if (!$('settings').hidden) { $('settings').hidden = true; return; } pause(); return; }
@@ -488,4 +520,4 @@ function animate(now) {
 requestAnimationFrame(animate);
 
 // Read-only diagnostics are available for smoke tests; no teleport or combat cheats ship.
-window.__TROST__ = Object.freeze({ snapshot: () => ({ mode, controller: { connected: padFrame.connected, armed: padFrame.armed }, graphics: graphics.snapshot(), bladeStrike: { ...bladeStrike }, bladePhase: bladeStrikePhase(bladeStrike), elapsed, kills, rescued, mission: structuredClone(mission), stage: missionStage(mission), checkpoint: checkpoint ? structuredClone(checkpoint) : null, checkpointPersistent, escortStatus, civilianPosition: world.civilians.position.toArray(), grounded: player.grounded, yaw, pitch, assistedAnchors, fovEffect, health: player.health, gas: player.gas, blades: player.blades, position: player.position.toArray(), velocity: player.velocity.toArray(), hooks: hooks.map(h => ({ active: h.active, point: h.point.toArray(), releasedBy: h.releasedBy })), titans: titans.map(t => ({ alive: t.alive, phase: t.phase, attackTimer: t.attackTimer, yaw: t.yaw, telegraphVisible: t.telegraph.visible, position: t.root.position.toArray() })), drawCalls: renderer.info.render.calls, triangles: renderer.info.render.triangles }) });
+window.__TROST__ = Object.freeze({ snapshot: () => ({ mode, audio: { ...titanAudio.snapshot(), activeTones: toneSources.size }, controller: { connected: padFrame.connected, armed: padFrame.armed }, graphics: graphics.snapshot(), bladeStrike: { ...bladeStrike }, bladePhase: bladeStrikePhase(bladeStrike), elapsed, kills, rescued, mission: structuredClone(mission), stage: missionStage(mission), checkpoint: checkpoint ? structuredClone(checkpoint) : null, checkpointPersistent, escortStatus, civilianPosition: world.civilians.position.toArray(), grounded: player.grounded, yaw, pitch, assistedAnchors, fovEffect, health: player.health, gas: player.gas, blades: player.blades, position: player.position.toArray(), velocity: player.velocity.toArray(), hooks: hooks.map(h => ({ active: h.active, point: h.point.toArray(), releasedBy: h.releasedBy })), titans: titans.map(t => ({ alive: t.alive, napeProtected: napeProtected(t), guardWeight: napeGuardWeight(t), awareness: t.awareness ?? 'idle', memory: t.memory ?? 0, lastSeen: t.lastSeen ? [...t.lastSeen] : null, phase: t.phase, attackTimer: t.attackTimer, yaw: t.yaw, telegraphVisible: t.telegraph.visible, position: t.root.position.toArray() })), drawCalls: renderer.info.render.calls, triangles: renderer.info.render.triangles }) });

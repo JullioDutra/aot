@@ -1,14 +1,40 @@
 const clamp = (n, min, max) => Math.max(min, Math.min(max, n));
+export const TITAN_MEMORY_SECONDS = 5;
+export const napeProtected = state => state.phase === 'guard';
+export function napeGuardWeight(state) {
+  if (state.phase === 'guardPrepare') return clamp(1 - state.attackTimer / .75, 0, 1);
+  if (state.phase === 'guard') return 1;
+  if (state.phase === 'guardRecover') return clamp((state.attackTimer - .95) / .45, 0, 1);
+  return 0;
+}
 
-// Pure encounter rules; visibility is supplied by the world's collision query.
-// Windup and recovery finish even when the player leaves detection range.
+// Only observed positions enter memory. Search stays on the authored avenue;
+// it is not pathfinding through buildings or knowledge of an occluded player.
 export function stepTrostTitan(state, input, dt) {
-  const next = { ...state, position: [...input.position], moving: false, hit: false };
+  const next = { ...state, position: [...input.position], moving: false, hit: false,
+    lastSeen: state.lastSeen ? [...state.lastSeen] : null, memory: state.memory ?? 0, awareness: state.awareness ?? 'idle' };
   if (!Number.isFinite(dt) || dt <= 0) return next;
   const { player, position, height, index, visible } = input;
   const dx = player[0] - position[0], dz = player[2] - position[2];
   const distance = Math.hypot(dx, dz), altitude = player[1] - position[1];
+  const detected = visible && distance < 42 && altitude < height + 9 && altitude >= -2;
+  if (detected) {
+    next.lastSeen = [...player]; next.memory = TITAN_MEMORY_SECONDS; next.awareness = 'tracking';
+  } else {
+    next.memory = Math.max(0, next.memory - dt);
+    if (!next.memory) next.lastSeen = null;
+    next.awareness = next.lastSeen ? 'searching' : 'idle';
+  }
   const facing = () => distance < .001 ? 1 : (dx * Math.sin(next.yaw) + dz * Math.cos(next.yaw)) / distance;
+  if (['guardPrepare', 'guard', 'guardRecover'].includes(next.phase)) {
+    next.attackTimer = Math.max(0, next.attackTimer - dt);
+    if (next.attackTimer === 0) {
+      if (next.phase === 'guardPrepare') { next.phase = 'guard'; next.attackTimer = 1.2; }
+      else if (next.phase === 'guard') { next.phase = 'guardRecover'; next.attackTimer = 1.4; }
+      else next.phase = 'walk';
+    }
+    return next;
+  }
   if (next.phase === 'windup') {
     next.attackTimer = Math.max(0, next.attackTimer - dt);
     if (next.attackTimer === 0) {
@@ -22,17 +48,32 @@ export function stepTrostTitan(state, input, dt) {
     if (next.attackTimer === 0) next.phase = 'walk';
     return next;
   }
-  if (!visible || distance >= 42 || altitude >= height + 9 || altitude < -2) return next;
-  const targetYaw = Math.atan2(dx, dz);
+  // Only the larger encounter uses this defensive response. Preparation is
+  // vulnerable and cannot interrupt an attack or recovery already in progress.
+  if (index === 1 && detected && distance < 12 && altitude > height * .55 && facing() < -.2) {
+    next.phase = 'guardPrepare'; next.attackTimer = .75;
+    return next;
+  }
+  if (!next.lastSeen) return next;
+  // Hidden targets contribute no current position, distance or heading here.
+  const target = detected ? player : [clamp(next.lastSeen[0], -9, 9), position[1], clamp(next.lastSeen[2], -125, 68)];
+  const tx = target[0] - position[0], tz = target[2] - position[2];
+  const targetDistance = Math.hypot(tx, tz);
+  if (targetDistance < .001 && !detected) return next;
+  const targetYaw = targetDistance < .001 ? next.yaw : Math.atan2(tx, tz);
   const difference = Math.atan2(Math.sin(targetYaw - next.yaw), Math.cos(targetYaw - next.yaw));
   next.yaw += clamp(difference, -dt * .55, dt * .55);
-  if (distance < 8 && altitude < height * .8 && facing() > .6) {
+  const alignment = (tx * Math.sin(next.yaw) + tz * Math.cos(next.yaw)) / targetDistance;
+  if (detected && distance < 8 && altitude < height * .8 && facing() > .6) {
     next.phase = 'windup'; next.attackTimer = .9;
-  } else if (distance > 7 && facing() > .2) {
-    const travel = Math.min(distance - 7, dt * (index === 2 ? 3.3 : 2));
-    next.position[0] = clamp(position[0] + dx / distance * travel, -9, 9);
-    next.position[2] = clamp(position[2] + dz / distance * travel, -125, 68);
-    next.moving = next.position[0] !== position[0] || next.position[2] !== position[2];
+  } else {
+    const stopDistance = detected ? 7 : .5;
+    if (targetDistance > stopDistance && alignment > .2) {
+      const travel = Math.min(targetDistance - stopDistance, dt * (index === 2 ? 3.3 : 2));
+      next.position[0] = clamp(position[0] + tx / targetDistance * travel, -9, 9);
+      next.position[2] = clamp(position[2] + tz / targetDistance * travel, -125, 68);
+      next.moving = next.position[0] !== position[0] || next.position[2] !== position[2];
+    }
   }
   return next;
 }

@@ -4,6 +4,7 @@ import { createTitan, createCadet, box, material } from './world.js';
 import { createArenaState, arenaCommand, stepArena } from './titan-combat.js';
 import { clamp, formatTime } from './mechanics.js';
 import { combatPose, applyCombatPose } from './titan-animation.js';
+import { createGamepadInput, ARENA_GAMEPAD_BINDINGS } from './gamepad-input.js';
 import { ArenaAudio } from './arena-audio.js';
 
 const $ = id => document.getElementById(id), canvas = $('arena-canvas');
@@ -61,19 +62,21 @@ let state = createArenaState(), mode = 'intro', yaw = 0, pitch = .12, locked = t
 let noticeTime = 0, ringTime = 0, flashTime = 0, enemyHit = 0, heroHit = 0, steamTimer = 0, lastStrike = 0;
 const keys = new Set(), reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const audio = new ArenaAudio();
+const gamepadInput = createGamepadInput(ARENA_GAMEPAD_BINDINGS, ['menu', 'restart']);
+let padFrame = gamepadInput.sample();
 let shakeEnabled = !reducedMotion, impactTime = 0, impactPosition = new THREE.Vector3(), hitStop = 0;
 const lastFootsteps = [-1, -1];
 $('arena-shake').checked = shakeEnabled;
-function notice(message, seconds = 3) { $('arena-notice').textContent = message; $('arena-notice').classList.add('visible'); noticeTime = seconds; }
-function clearInput() { keys.clear(); dragging = false; state.guarding = false; state.regenerating = false; }
+function notice(message, seconds = 3) { $('arena-notice').textContent = padFrame.connected ? message.replace('Pressione T', 'Pressione RB/R1') : message; $('arena-notice').classList.add('visible'); noticeTime = seconds; }
+function clearInput() { gamepadInput.suspend(); padFrame = { ...padFrame, armed: false, move: [0, 0], look: [0, 0], held: {}, pressed: {} }; keys.clear(); dragging = false; state.guarding = false; state.regenerating = false; }
 function pointer() { try { canvas.requestPointerLock?.()?.catch(() => notice('Arraste a cena para controlar a câmera.')); } catch { notice('Arraste a cena para controlar a câmera.'); } }
-function begin() { mode = 'playing'; $('arena-intro').hidden = true; $('arena-hud').hidden = false; $('arena-pause').hidden = true; $('arena-result').hidden = true; document.body.classList.add('arena-playing'); clearInput(); void audio.start(); pointer(); notice(state.form === 'human' ? 'T · Prepare a transformação. O rival aguardará a mudança de forma.' : 'Observe os braços do adversário e ataque durante a recuperação.', 5); }
-function reset() {
+function begin(lock = true) { mode = 'playing'; $('arena-intro').hidden = true; $('arena-hud').hidden = false; $('arena-pause').hidden = true; $('arena-result').hidden = true; document.body.classList.add('arena-playing'); clearInput(); void audio.start(); if (lock) pointer(); notice(state.form === 'human' ? `${padFrame.connected ? 'RB/R1' : 'T'} · Prepare a transformação. O rival aguardará a mudança de forma.` : 'Observe os braços do adversário e ataque durante a recuperação.', 5); }
+function reset(lock = true) {
   audio.silence(); hitStop = impactTime = 0; lastFootsteps.fill(-1);
   state = createArenaState(); yaw = 0; pitch = .12; locked = true; readyCamera = false; ringTime = flashTime = enemyHit = heroHit = steamTimer = lastStrike = 0;
   for (const p of particles) { scene.remove(p.mesh); p.mesh.material.dispose(); } particles.length = 0;
   enemy.root.rotation.set(0, 0, 0); hero.root.rotation.set(0, Math.PI, 0); enemy.root.visible = true;
-  begin();
+  begin(lock);
 }
 function pause() { if (mode !== 'playing') return; mode = 'paused'; audio.pause(); clearInput(); $('arena-pause').hidden = false; if (document.pointerLockElement) document.exitPointerLock(); }
 function finish(won, exhausted = false) {
@@ -83,7 +86,7 @@ function finish(won, exhausted = false) {
   $('arena-result-stats').textContent = `${formatTime(state.time)} · ${state.stats.hits} acertos · ${state.stats.blocked} defesas · ${state.transforms} transformação(ões)`;
 }
 function movement() {
-  const x = Number(keys.has('KeyD')) - Number(keys.has('KeyA')), z = Number(keys.has('KeyW')) - Number(keys.has('KeyS'));
+  const x = Number(keys.has('KeyD')) - Number(keys.has('KeyA')) + padFrame.move[0], z = Number(keys.has('KeyW')) - Number(keys.has('KeyS')) - padFrame.move[1];
   return [Math.cos(yaw) * x + Math.sin(yaw) * z, Math.sin(yaw) * x - Math.cos(yaw) * z];
 }
 function command(action) {
@@ -97,7 +100,7 @@ function command(action) {
 }
 function events(list) {
   for (const event of list) {
-    if (event.kind === 'transformed') { burst(state.player.x, state.player.z, 10, 20); notice('Forma titã · clique para soco, Q para golpe forte, botão direito para defesa.', 5); }
+    if (event.kind === 'transformed') { burst(state.player.x, state.player.z, 10, 20); notice(padFrame.connected ? 'Forma titã · X/□ soco, Y/△ golpe forte, LT/L2 defesa.' : 'Forma titã · clique para soco, Q para golpe forte, botão direito para defesa.', 5); }
     if (event.kind === 'hit') {
       const target = event.target === 'enemy' ? state.enemy : state.player;
       burst(target.x, target.z, 10, 9, event.target === 'enemy' ? '#dfc092' : '#bd896f');
@@ -170,8 +173,8 @@ function hud() {
   $('enemy-hp').textContent = `${Math.ceil(state.enemy.health)} / 160`; $('enemy-bar').style.width = `${state.enemy.health / 1.6}%`;
   const labels = { human: 'HUMANO', transforming: 'TRANSFORMANDO', titan: 'TITÃ · 15 METROS', exiting: 'RETORNO À FORMA HUMANA', won: 'CONCLUÍDO', lost: 'DERROTADO' };
   $('arena-form').textContent = labels[state.form]; $('arena-transform-count').textContent = `${state.transforms} / 2 transformações${state.fatigue > 0 ? ` · fadiga ${Math.ceil(state.fatigue)} s` : ''}`;
-  $('arena-objective').textContent = state.form === 'human' ? 'T · Assuma a forma titã para enfrentar o rival.' : 'Derrote o adversário antes de esgotar suas reservas.';
-  const intent = state.form !== 'titan' ? 'Aguardando transformação' : state.enemy.action === 'windup' ? 'ATAQUE IMINENTE · DEFENDA OU ESQUIVE' : state.enemy.action === 'recovery' ? 'VULNERÁVEL · F PARA AGARRAR DE PERTO' : 'O adversário está se aproximando';
+  $('arena-objective').textContent = state.form === 'human' ? `${padFrame.connected ? 'RB/R1' : 'T'} · Assuma a forma titã para enfrentar o rival.` : 'Derrote o adversário antes de esgotar suas reservas.';
+  const intent = state.form !== 'titan' ? 'Aguardando transformação' : state.enemy.action === 'windup' ? 'ATAQUE IMINENTE · DEFENDA OU ESQUIVE' : state.enemy.action === 'recovery' ? `VULNERÁVEL · ${padFrame.connected ? 'LB/L1' : 'F'} PARA AGARRAR DE PERTO` : 'O adversário está se aproximando';
   $('enemy-intent').textContent = intent; $('enemy-status').classList.toggle('danger', state.enemy.action === 'windup'); $('enemy-status').classList.toggle('open', state.enemy.action === 'recovery');
   $('arena-action').textContent = state.guarding ? 'DEFENDENDO' : state.regenerating ? 'REGENERANDO' : state.dodge ? 'ESQUIVA' : state.action ? ({ light: 'SOCO', heavy: 'GOLPE FORTE', grab: 'AGARRÃO', stun: 'ATORDOADO' }[state.action.kind]) : labels[state.form];
   $('arena-distance').textContent = `${Math.round(Math.hypot(state.player.x - state.enemy.x, state.player.z - state.enemy.z))} m · ${locked ? 'ALVO FIXADO' : 'MIRA LIVRE'}`;
@@ -198,12 +201,42 @@ document.addEventListener('pointerlockchange', () => { if (!document.pointerLock
 addEventListener('blur', pause); document.addEventListener('visibilitychange', () => { if (document.hidden) pause(); });
 addEventListener('resize', () => { camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix(); renderer.setSize(innerWidth, innerHeight); });
 canvas.addEventListener('webglcontextlost', event => { event.preventDefault(); pause(); $('arena-error').hidden = false; });
+function pollGamepad(dt) {
+  let pads = [];
+  try { pads = navigator.getGamepads?.() ?? []; } catch { /* Mouse and keyboard remain available. */ }
+  const connectedBefore = padFrame.connected;
+  padFrame = gamepadInput.sample(pads);
+  if (connectedBefore !== padFrame.connected) {
+    $('arena-keyboard-controls').hidden = padFrame.connected;
+    $('arena-gamepad-controls').hidden = !padFrame.connected;
+    $('arena-keyboard-help').hidden = padFrame.connected;
+    $('arena-gamepad-help').hidden = !padFrame.connected;
+    $('arena-controller-status').textContent = padFrame.connected ? 'CONTROLE CONECTADO · START ENTRA NA ARENA' : 'CONTROLE PADRÃO · PRESSIONE UM BOTÃO PARA DETECTAR';
+    hud();
+  }
+  if (padFrame.lost && mode === 'playing') { pause(); return; }
+  if (document.hidden) { gamepadInput.suspend(); return; }
+  if (padFrame.pressed.menu) {
+    if (mode === 'playing') pause();
+    else if (mode === 'finished') reset(false);
+    else begin(false);
+    return;
+  }
+  if (padFrame.pressed.restart && (mode === 'paused' || mode === 'finished')) { reset(false); return; }
+  if (mode !== 'playing') return;
+  yaw += padFrame.look[0] * dt * 2;
+  pitch = clamp(pitch + padFrame.look[1] * dt * 1.5, -.35, .65);
+  if (!padFrame.held.guard && !keys.has('Guard')) state.guarding = false;
+  for (const action of ['transform', 'exit', 'dodge', 'light', 'heavy', 'grab']) if (padFrame.pressed[action]) command(action);
+  if (padFrame.pressed.lock) { locked = !locked; notice(locked ? 'Alvo fixado.' : 'Mira livre: direcione com o analógico direito.', 2); }
+}
 let previous = performance.now(), uiClock = 0;
 function animate(now) {
   requestAnimationFrame(animate); const dt = Math.min(.05, (now - previous) / 1000); previous = now;
+  pollGamepad(dt);
   if (mode === 'playing') {
     const count = Math.max(1, Math.ceil(dt * 60));
-    for (let i = 0; i < count && mode === 'playing' && hitStop <= 0; i++) events(stepArena(state, dt / count, { move: movement(), guard: keys.has('Guard'), regenerate: keys.has('KeyR'), lock: locked, yaw: Math.PI - yaw }));
+    for (let i = 0; i < count && mode === 'playing' && hitStop <= 0; i++) events(stepArena(state, dt / count, { move: movement(), guard: keys.has('Guard') || !!padFrame.held.guard, regenerate: keys.has('KeyR') || !!padFrame.held.regenerate, lock: locked, yaw: Math.PI - yaw }));
     if (state.form === 'human' && state.transforms > 0 && (state.energy < 25 || (state.transforms >= 2 && state.fatigue <= 0))) finish(false, true);
     hitStop = Math.max(0, hitStop - dt); impactTime = Math.max(0, impactTime - dt);
     noticeTime -= dt; if (noticeTime <= 0) $('arena-notice').classList.remove('visible');
@@ -224,4 +257,4 @@ function animate(now) {
   renderer.render(scene, camera);
 }
 requestAnimationFrame(animate);
-window.__TITAN_ARENA__ = Object.freeze({ snapshot: () => ({ mode, ...structuredClone(state), lock: locked, audio: audio.snapshot(), shakeEnabled, hitStop, heroRig: { elbows: hero.elbows.map(e => e.rotation.x), torso: hero.body.rotation.toArray().slice(0, 3) }, drawCalls: renderer.info.render.calls }) });
+window.__TITAN_ARENA__ = Object.freeze({ snapshot: () => ({ mode, controller: { connected: padFrame.connected, armed: padFrame.armed }, yaw, pitch, ...structuredClone(state), lock: locked, audio: audio.snapshot(), shakeEnabled, hitStop, heroRig: { elbows: hero.elbows.map(e => e.rotation.x), torso: hero.body.rotation.toArray().slice(0, 3) }, drawCalls: renderer.info.render.calls }) });
