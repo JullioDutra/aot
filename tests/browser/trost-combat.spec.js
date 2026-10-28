@@ -19,10 +19,16 @@ test('Trost warns before a strike, freezes its timer on pause and resolves one h
   await page.waitForFunction(() => window.__TROST__.snapshot().titans[0].phase === 'windup', null, { timeout: 90000 });
   await page.keyboard.up('w'); await page.keyboard.press('Escape');
   const paused = await page.evaluate(() => window.__TROST__.snapshot());
+  expect(paused.titans[0].awareness).toBe('tracking');
+  expect(paused.titans[0].memory).toBe(5);
+  expect(paused.titans[0].lastSeen).not.toBeNull();
   expect(paused.health).toBe(100); expect(paused.titans[0].telegraphVisible).toBe(true);
   await expect(page.locator('#combat-warning')).toContainText('GOLPE EM');
   await page.waitForTimeout(250);
-  expect((await page.evaluate(() => window.__TROST__.snapshot())).titans[0].attackTimer).toBe(paused.titans[0].attackTimer);
+  const frozen = (await page.evaluate(() => window.__TROST__.snapshot())).titans[0];
+  expect(frozen.attackTimer).toBe(paused.titans[0].attackTimer);
+  expect(frozen.memory).toBe(paused.titans[0].memory);
+  expect(frozen.lastSeen).toEqual(paused.titans[0].lastSeen);
   await page.screenshot({ path: testInfo.outputPath('titan-windup.png') });
   await page.click('#resume-button');
   await page.waitForFunction(() => window.__TROST__.snapshot().titans[0].phase === 'recover');

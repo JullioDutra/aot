@@ -132,7 +132,7 @@ function reset(save = true, lock = true) {
   mission = createMission(); escortStatus = 'idle'; escortHeading = 0; world.civilians.position.copy(world.rescue);
   player.position.set(-25, 17, 65); player.velocity.set(0, 0, 0); Object.assign(player, { health: 100, gas: 100, blades: 100, grounded: true, invincible: 0 });
   elapsed = kills = damageTime = 0; bladeStrike = createBladeStrike(); rescued = false; yaw = -.5; pitch = 0; cameraInitialized = false; world.civilians.visible = true;
-  for (const t of titans) { t.alive = true; t.deathTime = 0; t.root.visible = true; t.root.position.copy(t.spawn); t.root.rotation.set(0, Math.PI, 0); t.yaw = Math.PI; t.attackTimer = 0; t.phase = 'walk'; t.telegraph.visible = false; }
+  for (const t of titans) { t.alive = true; t.deathTime = 0; t.root.visible = true; t.root.position.copy(t.spawn); t.root.rotation.set(0, Math.PI, 0); t.yaw = Math.PI; t.attackTimer = 0; t.phase = 'walk'; t.lastSeen = null; t.memory = 0; t.awareness = 'idle'; t.telegraph.visible = false; }
   for (const effect of effects) { scene.remove(effect.mesh); effect.mesh.material.dispose(); } effects.length = 0;
   if (save) recordCheckpoint();
   start(lock);
@@ -308,6 +308,7 @@ function updateTitans(dt, time, active) {
         [t.root.position.x, t.height * .55, t.root.position.z],
         [player.position.x, player.position.y + 1, player.position.z], world.colliders, .05);
       const next = stepTrostTitan(t, { position: t.root.position.toArray(), player: player.position.toArray(), height: t.height, index: t.index, visible }, dt);
+      t.lastSeen = next.lastSeen; t.memory = next.memory; t.awareness = next.awareness;
       t.phase = next.phase; t.attackTimer = next.attackTimer; t.yaw = next.yaw; walking = next.moving;
       t.root.position.fromArray(next.position);
       if (next.hit) damage(35, new THREE.Vector3(Math.sin(t.yaw), 0, Math.cos(t.yaw)));
@@ -343,12 +344,13 @@ function updateHUD() {
   const objective = missionObjective(mission);
   const bladeLabels = { ready: player.blades > 0 ? 'LÂMINAS PRONTAS' : 'LÂMINAS ESGOTADAS · Reabasteça com R', prepare: 'PREPARANDO CORTE', cut: 'CORTE', recover: 'RECUPERANDO LÂMINAS' };
   $('blade-action').textContent = bladeLabels[bladeStrikePhase(bladeStrike)];
-  const threat = titans.filter(t => t.alive && t.phase !== 'walk' && t.root.position.distanceTo(player.position) < 25)
+  const threat = titans.filter(t => t.alive && (t.phase !== 'walk' || t.awareness === 'searching') && t.root.position.distanceTo(player.position) < 25)
     .sort((a, b) => a.root.position.distanceToSquared(player.position) - b.root.position.distanceToSquared(player.position))[0];
   $('combat-warning').hidden = !threat;
   if (threat) $('combat-warning').textContent = threat.phase === 'windup'
     ? `GOLPE EM ${Math.max(0, threat.attackTimer).toFixed(1)} s · Saia do setor ou ganhe altura`
-    : 'TITÃ EM RECUPERAÇÃO · Contorne e alcance a nuca';
+    : threat.phase === 'recover' ? 'TITÃ EM RECUPERAÇÃO · Contorne e alcance a nuca'
+      : 'TITÃ PROCURANDO · Mantenha-se fora da vista';
   $('objective').textContent = objective.title; $('rescue-status').textContent = objective.detail;
   $('mission-phase').textContent = `ETAPA ${objective.order} / 4 · ${missionStage(mission) === 'complete' ? 'CONCLUÍDA' : 'ROTA DE RETIRADA'}`;
   updateMissionGuide(objective);
@@ -488,4 +490,4 @@ function animate(now) {
 requestAnimationFrame(animate);
 
 // Read-only diagnostics are available for smoke tests; no teleport or combat cheats ship.
-window.__TROST__ = Object.freeze({ snapshot: () => ({ mode, controller: { connected: padFrame.connected, armed: padFrame.armed }, graphics: graphics.snapshot(), bladeStrike: { ...bladeStrike }, bladePhase: bladeStrikePhase(bladeStrike), elapsed, kills, rescued, mission: structuredClone(mission), stage: missionStage(mission), checkpoint: checkpoint ? structuredClone(checkpoint) : null, checkpointPersistent, escortStatus, civilianPosition: world.civilians.position.toArray(), grounded: player.grounded, yaw, pitch, assistedAnchors, fovEffect, health: player.health, gas: player.gas, blades: player.blades, position: player.position.toArray(), velocity: player.velocity.toArray(), hooks: hooks.map(h => ({ active: h.active, point: h.point.toArray(), releasedBy: h.releasedBy })), titans: titans.map(t => ({ alive: t.alive, phase: t.phase, attackTimer: t.attackTimer, yaw: t.yaw, telegraphVisible: t.telegraph.visible, position: t.root.position.toArray() })), drawCalls: renderer.info.render.calls, triangles: renderer.info.render.triangles }) });
+window.__TROST__ = Object.freeze({ snapshot: () => ({ mode, controller: { connected: padFrame.connected, armed: padFrame.armed }, graphics: graphics.snapshot(), bladeStrike: { ...bladeStrike }, bladePhase: bladeStrikePhase(bladeStrike), elapsed, kills, rescued, mission: structuredClone(mission), stage: missionStage(mission), checkpoint: checkpoint ? structuredClone(checkpoint) : null, checkpointPersistent, escortStatus, civilianPosition: world.civilians.position.toArray(), grounded: player.grounded, yaw, pitch, assistedAnchors, fovEffect, health: player.health, gas: player.gas, blades: player.blades, position: player.position.toArray(), velocity: player.velocity.toArray(), hooks: hooks.map(h => ({ active: h.active, point: h.point.toArray(), releasedBy: h.releasedBy })), titans: titans.map(t => ({ alive: t.alive, awareness: t.awareness ?? 'idle', memory: t.memory ?? 0, lastSeen: t.lastSeen ? [...t.lastSeen] : null, phase: t.phase, attackTimer: t.attackTimer, yaw: t.yaw, telegraphVisible: t.telegraph.visible, position: t.root.position.toArray() })), drawCalls: renderer.info.render.calls, triangles: renderer.info.render.triangles }) });

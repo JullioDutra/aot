@@ -90,7 +90,7 @@ Esta é uma melhoria da arquitetura procedural do protótipo. O distrito não fo
 
 ## Leitura dos ataques de Trost — fase 8
 
-Os titãs perseguem alvos a menos de 42 m e abaixo de sua altura mais 9 m, desde que a linha entre o tronco e o jogador não atravesse construções. Giram antes de avançar e só iniciam golpes contra alvos à frente. A perseguição continua restrita à avenida central; ainda não há busca, memória do último avistamento ou navegação pelas ruas laterais.
+Os titãs perseguem alvos a menos de 42 m e abaixo de sua altura mais 9 m, desde que a linha entre o tronco e o jogador não atravesse construções. Giram antes de avançar e só iniciam golpes contra alvos à frente. A perseguição continua restrita à avenida central; a fase 13 acrescenta memória do último avistamento, mas ainda não há navegação pelas ruas laterais.
 
 O ataque tem 0,9 segundo de preparação, com direção travada, seguido de 1,4 segundo de recuperação. O setor alaranjado no chão mostra o alcance horizontal de 9 m e a abertura frontal do golpe; o texto informa o tempo restante. Sair desse setor, passar para trás, subir acima de 85% da altura do titã ou colocar uma construção na linha de visão evita o dano no instante de impacto. A área é um auxílio de combate, não uma colisão precisa com cada dedo. Receber um golpe causa 35 pontos de dano, como antes.
 
@@ -161,6 +161,14 @@ Desconectar ou substituir o controle pausa e interrompe defesa/regeneração. Ao
 
 Testes automatizados usam a Gamepad API simulada. Avaliação com controles físicos e ergonomia ainda está pendente.
 
+## Busca dos titãs — fase 13
+
+Ao perder a linha de visão, o titã procura durante até 5 segundos na última posição observada, limitada à avenida central. Ele não acompanha a posição atual de um jogador escondido. Ao chegar perto desse ponto, aguarda até a memória expirar; um novo avistamento válido renova a busca. Sair do alcance ou subir além da altura de detecção também deixa apenas a última observação na memória.
+
+O HUD avisa quando um titã próximo está procurando. Use construções para interromper a visão e mudar de posição. A busca não inicia golpes sem detectar o jogador; golpes já preparados continuam seu ciclo e só causam dano se houver visão e alcance no impacto. Pausa congela a memória e reinício/checkpoint limpa as observações. Os 5 segundos são um parâmetro de jogo, não uma regra canônica.
+
+Não há patrulha, audição ou navegação pelas ruas laterais. A busca usa a projeção da última posição na avenida, sem calcular um caminho até telhados ou interiores. O comportamento foi verificado por testes determinísticos; equilíbrio e sensação de despistar ainda precisam de avaliação humana.
+
 ## Validação
 
 ```sh
@@ -203,4 +211,4 @@ Uma produção pública/comercial com a propriedade intelectual de Attack on Tit
 
 ## Entregas por fase
 
-Cada fase concluída recebe uma branch, validação, commit, push e PR no GitHub. As fases 1–2 estão no [PR #1](https://github.com/JullioDutra/aot/pull/1), já integrado pelo fluxo externo a esta implementação. A fase 3 está no [PR #2](https://github.com/JullioDutra/aot/pull/2). A fase 4 está no [PR #3](https://github.com/JullioDutra/aot/pull/3). A fase 5 foi integrada pelo [PR #4](https://github.com/JullioDutra/aot/pull/4). A fase 6 foi integrada pelo [PR #5](https://github.com/JullioDutra/aot/pull/5). As fases 7 a 11 foram integradas juntas pelo [PR #6](https://github.com/JullioDutra/aot/pull/6). A fase 12 usa `feat/phase-12-arena-gamepad`, com base em `main`. A base de revisão acompanha a versão integrada mais recente ou a branch predecessora quando necessário. Abertura de PR não implica autorização para merge automático; consulte AGENTS.md.
+Cada fase concluída recebe uma branch, validação, commit, push e PR no GitHub. As fases 1–2 estão no [PR #1](https://github.com/JullioDutra/aot/pull/1), já integrado pelo fluxo externo a esta implementação. A fase 3 está no [PR #2](https://github.com/JullioDutra/aot/pull/2). A fase 4 está no [PR #3](https://github.com/JullioDutra/aot/pull/3). A fase 5 foi integrada pelo [PR #4](https://github.com/JullioDutra/aot/pull/4). A fase 6 foi integrada pelo [PR #5](https://github.com/JullioDutra/aot/pull/5). As fases 7 a 11 foram integradas juntas pelo [PR #6](https://github.com/JullioDutra/aot/pull/6). A fase 12 usa `feat/phase-12-arena-gamepad`, com base em `main`. A fase 13 usa `feat/phase-13-titan-search`, baseada na fase 12 enquanto ela aguarda integração. A base de revisão acompanha a versão integrada mais recente ou a branch predecessora quando necessário. Abertura de PR não implica autorização para merge automático; consulte AGENTS.md.

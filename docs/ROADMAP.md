@@ -62,7 +62,7 @@ A geometria de detalhe é ornamental e não acrescenta ancoragens ou colisões i
 
 Implementado: percepção condicionada à linha de visão contra construções, giro antes da perseguição e preparação apenas contra alvos à frente. Direção travada durante 0,9 s de preparação, setor de alcance no chão e aviso textual. Recuperação de 1,4 s não é cancelada quando o jogador sai da detecção; pausa congela os temporizadores. Regras isoladas da renderização e teste de navegador para antecipação, pausa e impacto.
 
-Limites: detecção por segmento a partir do tronco, sem memória ou patrulha; navegação continua limitada à avenida. Setor representa o teste abstrato de alcance/direção, sem colisão de dedos. Não acrescenta agarrões, defesa da nuca, dano localizado ou animações finais. A arena não muda nesta entrega.
+Limites: detecção por segmento a partir do tronco, sem patrulha; a fase 13 abaixo acrescenta memória; navegação continua limitada à avenida. Setor representa o teste abstrato de alcance/direção, sem colisão de dedos. Não acrescenta agarrões, defesa da nuca, dano localizado ou animações finais. A arena não muda nesta entrega.
 
 ## Entrega intermediária 9 — golpe de lâminas com preparação
 
@@ -87,6 +87,12 @@ Limites da entrega 11: primeiro controle padrão, sem vibração, remapeamento o
 Implementado: mapeamento próprio para transformação, soco, golpe forte, agarrão, defesa, esquiva, regeneração, saída e fixação de alvo; movimento e câmera analógicos. Start entra/pausa/retoma e Back reinicia durante pausa/resultado. HUD, avisos e ajuda da pausa reconhecem o controle. A leitura reutiliza o módulo de Trost, com mapeamentos isolados.
 
 Desconexão pausa e limpa ações contínuas; retomada exige controles neutros. Custos e regras da simulação não mudam. Testes cobrem mapeamentos independentes e um encontro no navegador com API simulada. Sem vibração, remapeamento, navegação completa dos menus ou homologação de controles físicos.
+
+## Entrega intermediária 13 — busca após perder o jogador
+
+Implementado: memória de 5 segundos da última observação válida, aproximação desse ponto projetado na avenida e espera até expirar. Posição oculta do jogador não alimenta movimento nem direção da busca. Reavistamento renova a memória; pausa congela, reinício/checkpoint limpa. Aviso contextual informa busca próxima. Preparação/recuperação dos golpes continuam mesmo ao perder a memória, mantendo verificação de visão no impacto.
+
+Limites: sem patrulha, audição ou navegação fora da avenida. Não é uma simulação de inteligência canônica. Testes cobrem perda de visão, expiração, reavistamento, ausência de rastreamento através das paredes e pausa; diversão e equilíbrio ainda exigem avaliação humana.
 
 ## Marco 4 — demonstração de produção
 
