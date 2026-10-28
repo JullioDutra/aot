@@ -4,7 +4,7 @@ Primeiro protótipo independente de um jogo 3D inspirado em Attack on Titan. **N
 
 ## Executar
 
-Requer Node.js 22.12+ (validado com 24), npm e um navegador com WebGL 2. Teclado e mouse são necessários. Não há serviços externos, banco de dados, variáveis secretas ou downloads de recursos durante o jogo.
+Requer Node.js 22.12+ (validado com 24), npm e um navegador com WebGL 2. Trost aceita teclado/mouse ou controle com mapeamento padrão do navegador. Configurações e arena ainda exigem teclado/mouse. Não há serviços externos, banco de dados, variáveis secretas ou downloads de recursos durante o jogo.
 
 ```sh
 cd /workspace/aot
@@ -116,6 +116,29 @@ A escala efetiva também respeita a densidade da tela e a filtragem respeita o s
 
 Esses perfis reduzem trabalho gráfico de formas específicas; não garantem uma taxa de quadros. Ainda é necessário medir conforto e desempenho em hardware real. Não há ajuste automático por FPS nesta etapa.
 
+## Controle em Trost — fase 11
+
+Conecte um controle compatível com o mapeamento `standard` da Gamepad API e pressione um botão para o navegador detectá-lo. O primeiro controle padrão disponível é usado; modelos com mapeamento proprietário são ignorados. Se o navegador não disponibilizar a API, teclado/mouse continuam funcionando.
+
+| Controle padrão | Ação |
+| --- | --- |
+| Analógico esquerdo | Movimento com intensidade gradual |
+| Analógico direito | Câmera; respeita a sensibilidade configurada |
+| LT/L2 e RT/R2 | Segurar cabo esquerdo/direito; soltar libera o cabo |
+| A/× | Salto; segurar para gás com cabo preso |
+| X/□ | Ataque de lâminas |
+| Y/△ | Reunir civis / confirmar retirada |
+| RB/R1 | Reabastecer |
+| B/○ | Soltar os dois cabos |
+| Start/Menu/Options | Iniciar ou continuar a operação; pausar/retomar; nova operação após o resultado |
+| Back/View/Share | Retomar checkpoint durante pausa ou derrota |
+
+Start no menu retoma um checkpoint disponível; sem checkpoint, inicia uma operação nova. Para escolher explicitamente uma operação nova com um save existente, use o botão do menu com mouse. As configurações, links e arena de transformação ainda usam teclado/mouse; não há navegação geral de menus com o direcional.
+
+Após pausa, reconexão ou troca de controle, solte botões e centralize os analógicos antes de jogar. Desconectar o controle durante a operação pausa e solta os cabos. Zona morta radial de 18% reduz deriva; os gatilhos são tratados como comandos digitais. Não há vibração, remapeamento ou suporte simultâneo a vários jogadores. O HUD mostra os atalhos do controle quando conectado. Áudio pode exigir um clique/tecla inicial conforme a política do navegador.
+
+A integração foi testada com Gamepad API simulada e controles lógicos; compatibilidade, conforto e latência com hardware físico continuam pendentes.
+
 ## Validação
 
 ```sh
@@ -133,6 +156,7 @@ O teste de navegador usa Chromium em `/usr/bin/chromium`; defina `CHROMIUM_PATH`
 - `src/architecture.js`: detalhes instanciados de fachada e ornamentação do portão.
 - `src/blade-strike.js`: ciclo, custo e poses do golpe de lâminas.
 - `src/graphics-quality.js`: perfis gráficos, restauração de materiais e persistência da preferência.
+- `src/gamepad-input.js`: leitura de controle padrão, zona morta, bordas de botão e retorno ao neutro.
 - `src/mechanics.js`: regras independentes de renderização, cobertas por testes.
 - `src/collision.js`: contato com telhados inclinados e obstrução de segmentos.
 - `src/targeting.js`: seleção independente das ancoragens e assistência.
@@ -149,7 +173,7 @@ O teste de navegador usa Chromium em `/usr/bin/chromium`; defina `CHROMIUM_PATH`
 
 ## Limites atuais
 
-Esta é uma missão de treino não canônica em um distrito inspirado em Trost. O mapa ainda não é uma reconstrução conferida com episódios. O personagem é um cadete genérico. A transformação jogável existe somente no ensaio separado, não na missão de Trost. Não há cinematografia da história, dublagem, desmembramento, titãs devorando pessoas, cavalos ou suporte a controle. O salvamento local está restrito à operação de Trost; a arena não persiste o combate. A violência implementada se limita a impactos e partículas estilizadas.
+Esta é uma missão de treino não canônica em um distrito inspirado em Trost. O mapa ainda não é uma reconstrução conferida com episódios. O personagem é um cadete genérico. A transformação jogável existe somente no ensaio separado, não na missão de Trost. Não há cinematografia da história, dublagem, desmembramento, titãs devorando pessoas, cavalos ou suporte a controle na arena. O salvamento local está restrito à operação de Trost; a arena não persiste o combate. A violência implementada se limita a impactos e partículas estilizadas.
 
 As colisões dos telhados seguem os dois planos de inclinação, mas o corpo do jogador ainda usa um volume simplificado. A IA dos titãs fica na avenida central. Cabos se soltam nas obstruções; ainda não contornam quinas nem se enrolam nas estruturas. O protótipo não implementa ainda simulação completa do ODM. A arte procedural deve ser substituída por modelos e animações de produção depois que movimentação e combate forem aprovados.
 
@@ -157,4 +181,4 @@ Uma produção pública/comercial com a propriedade intelectual de Attack on Tit
 
 ## Entregas por fase
 
-Cada fase concluída recebe uma branch, validação, commit, push e PR no GitHub. As fases 1–2 estão no [PR #1](https://github.com/JullioDutra/aot/pull/1), já integrado pelo fluxo externo a esta implementação. A fase 3 está no [PR #2](https://github.com/JullioDutra/aot/pull/2). A fase 4 está no [PR #3](https://github.com/JullioDutra/aot/pull/3). A fase 5 foi integrada pelo [PR #4](https://github.com/JullioDutra/aot/pull/4). A fase 6 foi integrada pelo [PR #5](https://github.com/JullioDutra/aot/pull/5). A fase 7 usa `feat/phase-07-district-architecture`, com base em `main`. A fase 8 usa `feat/phase-08-titan-telegraphs`, inicialmente baseada na branch da fase 7. A fase 9 usa `feat/phase-09-blade-strikes`, inicialmente baseada na fase 8. A fase 10 usa `feat/phase-10-graphics-profiles`, inicialmente baseada na fase 9. A base de revisão acompanha a versão integrada mais recente ou a branch predecessora quando necessário. Abertura de PR não implica autorização para merge automático; consulte AGENTS.md.
+Cada fase concluída recebe uma branch, validação, commit, push e PR no GitHub. As fases 1–2 estão no [PR #1](https://github.com/JullioDutra/aot/pull/1), já integrado pelo fluxo externo a esta implementação. A fase 3 está no [PR #2](https://github.com/JullioDutra/aot/pull/2). A fase 4 está no [PR #3](https://github.com/JullioDutra/aot/pull/3). A fase 5 foi integrada pelo [PR #4](https://github.com/JullioDutra/aot/pull/4). A fase 6 foi integrada pelo [PR #5](https://github.com/JullioDutra/aot/pull/5). A fase 7 usa `feat/phase-07-district-architecture`, com base em `main`. A fase 8 usa `feat/phase-08-titan-telegraphs`, inicialmente baseada na branch da fase 7. A fase 9 usa `feat/phase-09-blade-strikes`, inicialmente baseada na fase 8. A fase 10 usa `feat/phase-10-graphics-profiles`, inicialmente baseada na fase 9. A fase 11 usa `feat/phase-11-gamepad-controls`, inicialmente baseada na fase 10. A base de revisão acompanha a versão integrada mais recente ou a branch predecessora quando necessário. Abertura de PR não implica autorização para merge automático; consulte AGENTS.md.

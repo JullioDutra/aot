@@ -11,3 +11,5 @@
 #combat-warning { margin-top: 12px; padding: 8px 10px; border-left: 3px solid #ef9b53; background: #30271ed9; color: #ffe4bb; font-size: 12px; line-height: 1.5; }
 
 #blade-action { margin-top: 12px; font-size: 10px; letter-spacing: 1px; color: #e3d5ad; }
+
+#settings #close-settings { position: sticky; bottom: 0; z-index: 1; box-shadow: 0 -10px 14px #17282c; }

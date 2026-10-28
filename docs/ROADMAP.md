@@ -76,6 +76,12 @@ Implementado: Alta, Equilibrada e Desempenho controlam escala de renderização,
 
 Testes cobrem restauração, liberação de recursos, persistência, armazenamento indisponível e alternância real no navegador. Geometria e regras de jogo permanecem iguais. Não há qualidade adaptativa por FPS, redução automática de geometria ou medição em GPU real; não afirmar meta de 60 fps a partir dos testes por software.
 
+## Entrega intermediária 11 — controle na operação de Trost
+
+Implementado: Gamepad API padrão com movimento analógico, câmera, gatilhos independentes para cabos, salto/gás, ataque, interação, abastecimento e soltura. Start inicia/retoma/pausa; Back retoma checkpoint na pausa/derrota. Atalhos no HUD, pausa ao desconectar e exigência de controles neutros após interrupções. Teclado/mouse continuam disponíveis.
+
+Limites: primeiro controle padrão, sem vibração, remapeamento, navegação geral dos menus ou suporte na arena. Testes usam API simulada; hardware físico e ergonomia ainda não foram avaliados. Não confundir compatibilidade da API padrão com homologação de modelos específicos.
+
 ## Marco 4 — demonstração de produção
 
 Uma operação de 15–20 minutos com arte e animação próprias de produção, referências verificadas, missão legível, resgate, abastecimento, destruição controlada e conclusão narrativa. Não será construída a campanha completa antes da aprovação desse marco.

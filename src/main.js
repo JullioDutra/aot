@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import './style.css';
 import { createWorld, createCadet, createTitan } from './world.js';
+import { createGamepadInput } from './gamepad-input.js';
 import { createGraphicsQuality } from './graphics-quality.js';
 import { createBladeStrike, beginBladeStrike, stepBladeStrike, bladeStrikePhase, bladeStrikePose } from './blade-strike.js';
 import { stepTrostTitan } from './trost-titan-ai.js';
@@ -93,6 +94,9 @@ let sensitivity = 1, dragging = false, jumpQueued = false, soundEnabled = true, 
 let cameraInitialized = false;
 let assistedAnchors = true, fovEffect = true;
 const keys = new Set(), effects = [];
+const gamepadInput = createGamepadInput();
+let padFrame = gamepadInput.sample();
+const boosting = () => keys.has('Space') || !!padFrame.held.jump;
 const hooks = [-1, 1].map(side => {
   const line = new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(), new THREE.Vector3()]), new THREE.LineBasicMaterial({ color: '#e5ddbf' })); line.visible = false; line.frustumCulled = false; scene.add(line);
   const tip = new THREE.Mesh(new THREE.OctahedronGeometry(.16), new THREE.MeshBasicMaterial({ color: '#ead5a5' })); tip.visible = false; scene.add(tip);
@@ -114,24 +118,24 @@ function sound(freq = 200, duration = .12, type = 'triangle', volume = .06) {
 function toast(message, duration = 3) { $('toast').textContent = message; $('toast').classList.add('visible'); toastTime = duration; }
 function releaseHook(h, reason = 'manual') { h.active = false; h.line.visible = h.tip.visible = false; h.releasedBy = reason; }
 function clearHooks() { hooks.forEach(h => releaseHook(h)); }
-function clearInput() { keys.clear(); dragging = false; jumpQueued = false; clearHooks(); }
+function clearInput() { gamepadInput.suspend(); padFrame = { ...padFrame, move: [0, 0], look: [0, 0], held: {}, pressed: {} }; keys.clear(); dragging = false; jumpQueued = false; clearHooks(); }
 function lockMouse() {
   try { const result = canvas.requestPointerLock?.(); result?.catch(() => toast('Arraste a cena para olhar; Q/E continuam prendendo os cabos.')); } catch { toast('Arraste a cena para controlar a câmera.'); }
 }
-function start() {
+function start(lock = true) {
   $('landing').hidden = true; $('operation-card').hidden = true; $('landing-footer').hidden = true; $('pause').hidden = true; $('result').hidden = true; $('hud').hidden = false;
   document.body.classList.add('playing'); mode = 'playing'; clearInput();
   if (!audioContext) { try { audioContext = new AudioContext(); } catch { /* Audio is optional. */ } }
-  audioContext?.resume().catch(() => {}); lockMouse(); toast(`${missionObjective(mission).title}. ${missionObjective(mission).detail}`, 6);
+  audioContext?.resume().catch(() => {}); if (lock) lockMouse(); toast(`${missionObjective(mission).title}. ${missionObjective(mission).detail}`, 6);
 }
-function reset(save = true) {
+function reset(save = true, lock = true) {
   mission = createMission(); escortStatus = 'idle'; escortHeading = 0; world.civilians.position.copy(world.rescue);
   player.position.set(-25, 17, 65); player.velocity.set(0, 0, 0); Object.assign(player, { health: 100, gas: 100, blades: 100, grounded: true, invincible: 0 });
   elapsed = kills = damageTime = 0; bladeStrike = createBladeStrike(); rescued = false; yaw = -.5; pitch = 0; cameraInitialized = false; world.civilians.visible = true;
   for (const t of titans) { t.alive = true; t.deathTime = 0; t.root.visible = true; t.root.position.copy(t.spawn); t.root.rotation.set(0, Math.PI, 0); t.yaw = Math.PI; t.attackTimer = 0; t.phase = 'walk'; t.telegraph.visible = false; }
   for (const effect of effects) { scene.remove(effect.mesh); effect.mesh.material.dispose(); } effects.length = 0;
   if (save) recordCheckpoint();
-  start();
+  start(lock);
 }
 function pause() { if (mode !== 'playing') return; mode = 'paused'; clearInput(); $('pause').hidden = false; if (document.pointerLockElement) document.exitPointerLock(); }
 function finish(victory) {
@@ -214,10 +218,10 @@ function recordCheckpoint() {
   checkpointPersistent = saveCheckpoint(checkpointStorage, checkpoint);
   refreshCheckpointButtons();
 }
-function restoreCheckpoint() {
+function restoreCheckpoint(lock = true) {
   if (!checkpoint || checkpoint.mission.extracted) return;
   const saved = structuredClone(checkpoint);
-  reset(false);
+  reset(false, lock);
   mission = saved.mission; elapsed = saved.elapsed;
   rescued = mission.rescued; kills = mission.defeated.length;
   player.position.fromArray(checkpointSpawn(mission)); player.velocity.set(0, 0, 0); player.grounded = true; player.invincible = 2;
@@ -268,8 +272,8 @@ function integratePlayer(dt) {
   const wasGrounded = player.grounded;
   const dir = new THREE.Vector3(Math.sin(yaw), 0, -Math.cos(yaw)); const right = new THREE.Vector3(Math.cos(yaw), 0, Math.sin(yaw));
   const move = new THREE.Vector3();
-  if (keys.has('KeyW')) move.add(dir); if (keys.has('KeyS')) move.sub(dir); if (keys.has('KeyD')) move.add(right); if (keys.has('KeyA')) move.sub(right); if (move.lengthSq() > 0) move.normalize();
-  const attached = hooks.some(h => h.active), boost = keys.has('Space') && attached && player.gas > 0;
+  if (keys.has('KeyW')) move.add(dir); if (keys.has('KeyS')) move.sub(dir); if (keys.has('KeyD')) move.add(right); if (keys.has('KeyA')) move.sub(right); move.addScaledVector(right, padFrame.move[0]); move.addScaledVector(dir, -padFrame.move[1]); if (move.lengthSq() > 1) move.normalize();
+  const attached = hooks.some(h => h.active), boost = boosting() && attached && player.gas > 0;
   const acc = new THREE.Vector3(0, -22, 0); acc.addScaledVector(move, wasGrounded ? 55 : 16);
   if (jumpQueued && wasGrounded) { player.velocity.y = 10; player.grounded = false; } jumpQueued = false;
   for (const hook of hooks) {
@@ -396,7 +400,7 @@ addEventListener('keydown', event => {
   if (event.code === 'Space') jumpQueued = true;
   if (event.code === 'KeyQ') attach(0); if (event.code === 'KeyE') attach(1); if (event.code === 'KeyR') interact('supply'); if (event.code === 'KeyG') interact('rescue');
 });
-addEventListener('keyup', event => { keys.delete(event.code); const index = event.code === 'KeyQ' ? 0 : event.code === 'KeyE' ? 1 : -1; if (index >= 0) releaseHook(hooks[index]); });
+addEventListener('keyup', event => { keys.delete(event.code); const index = event.code === 'KeyQ' ? 0 : event.code === 'KeyE' ? 1 : -1; if (index >= 0 && !padFrame.held[index === 0 ? 'left' : 'right']) releaseHook(hooks[index]); });
 canvas.addEventListener('mousedown', event => { if (mode !== 'playing') return; if (event.button === 0) attack(); dragging = true; });
 addEventListener('mouseup', () => { dragging = false; });
 addEventListener('mousemove', event => { if (mode !== 'playing' || (!dragging && document.pointerLockElement !== canvas)) return; yaw += event.movementX * .0022 * sensitivity; pitch = clamp(pitch - event.movementY * .0022 * sensitivity, -.9, 1.1); });
@@ -406,9 +410,43 @@ addEventListener('blur', pause); document.addEventListener('visibilitychange', (
 addEventListener('resize', () => { camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix(); graphics.apply(graphics.snapshot().quality, false); renderer.setSize(innerWidth, innerHeight); });
 canvas.addEventListener('webglcontextlost', event => { event.preventDefault(); pause(); $('fatal-message').textContent = 'O contexto gráfico foi perdido. Recarregue a página e tente a qualidade Desempenho.'; $('fatal').hidden = false; });
 
+function updateGamepad(dt) {
+  const previous = padFrame;
+  let pads = [];
+  try { pads = navigator.getGamepads?.() ?? []; } catch { /* Keyboard/mouse remain available. */ }
+  padFrame = gamepadInput.sample(pads);
+  $('controller-status').textContent = padFrame.connected ? 'Controle padrão conectado. Start/Menu inicia ou pausa Trost.' : 'Controle: conecte um modelo padrão e pressione um botão para detectar.';
+  $('keyboard-controls').hidden = padFrame.connected;
+  $('gamepad-controls').hidden = !padFrame.connected;
+  if (padFrame.lost && mode === 'playing') { pause(); return; }
+  if (document.hidden) { gamepadInput.suspend(); return; }
+  if (!$('settings').hidden) return;
+  if (padFrame.pressed.menu) {
+    if (mode === 'playing') pause();
+    else if (mode === 'paused') start(false);
+    else if (mode === 'menu' && checkpoint && !checkpoint.mission.extracted) restoreCheckpoint(false);
+    else reset(true, false);
+    return;
+  }
+  if (padFrame.pressed.checkpoint && (mode === 'paused' || mode === 'dead')) { restoreCheckpoint(false); return; }
+  if (mode !== 'playing') return;
+  yaw += padFrame.look[0] * dt * 2.2 * sensitivity;
+  pitch = clamp(pitch - padFrame.look[1] * dt * 1.7 * sensitivity, -.9, 1.1);
+  if (padFrame.pressed.jump) jumpQueued = true;
+  if (padFrame.pressed.attack) attack();
+  if (padFrame.pressed.interact) interact('rescue');
+  if (padFrame.pressed.supply) interact('supply');
+  for (const [i, name, key] of [[0, 'left', 'KeyQ'], [1, 'right', 'KeyE']]) {
+    if (padFrame.pressed[name]) attach(i);
+    if (previous.held[name] && !padFrame.held[name] && !keys.has(key)) releaseHook(hooks[i]);
+  }
+  if (padFrame.pressed.release) clearHooks();
+}
+
 let previousTime = performance.now(), uiTimer = 0;
 function animate(now) {
   requestAnimationFrame(animate); const dt = Math.min((now - previousTime) / 1000, .05); previousTime = now; const time = now / 1000;
+  updateGamepad(dt);
   waypoint.rotation.y = time * .7; world.extractionBeacon.visible = missionStage(mission) === 'extraction';
   world.marker.position.y = 5 + Math.sin(time * 2) * .3; world.marker.rotation.y = time;
   for (const flag of world.flags) { const p = flag.geometry.attributes.position; for (let i = 0; i < p.count; i++) p.setZ(i, Math.sin(p.getX(i) * 2 + time * 3) * .13 * (p.getX(i) + 1)); p.needsUpdate = true; }
@@ -436,7 +474,7 @@ function animate(now) {
     for (const hook of hooks) if (hook.active) {
       const positions = hook.line.geometry.attributes.position; const origin = hookOrigin(hook.side); positions.setXYZ(0, origin.x, origin.y, origin.z); positions.setXYZ(1, hook.point.x, hook.point.y, hook.point.z); positions.needsUpdate = true;
     }
-    if (attached && keys.has('Space')) { hookToneTime -= dt; if (hookToneTime <= 0) { particles(player.position.clone().add(new THREE.Vector3(0, 1, 0)), 'steam', 2, 1); hookToneTime = .09; } }
+    if (attached && boosting()) { hookToneTime -= dt; if (hookToneTime <= 0) { particles(player.position.clone().add(new THREE.Vector3(0, 1, 0)), 'steam', 2, 1); hookToneTime = .09; } }
     toastTime -= dt; if (toastTime <= 0) $('toast').classList.remove('visible'); $('damage-flash').style.opacity = damageTime > 0 ? String(damageTime) : '0';
     uiTimer -= dt; if (uiTimer <= 0) { updateHUD(); uiTimer = .08; }
   }
@@ -450,4 +488,4 @@ function animate(now) {
 requestAnimationFrame(animate);
 
 // Read-only diagnostics are available for smoke tests; no teleport or combat cheats ship.
-window.__TROST__ = Object.freeze({ snapshot: () => ({ mode, graphics: graphics.snapshot(), bladeStrike: { ...bladeStrike }, bladePhase: bladeStrikePhase(bladeStrike), elapsed, kills, rescued, mission: structuredClone(mission), stage: missionStage(mission), checkpoint: checkpoint ? structuredClone(checkpoint) : null, checkpointPersistent, escortStatus, civilianPosition: world.civilians.position.toArray(), grounded: player.grounded, yaw, pitch, assistedAnchors, fovEffect, health: player.health, gas: player.gas, blades: player.blades, position: player.position.toArray(), velocity: player.velocity.toArray(), hooks: hooks.map(h => ({ active: h.active, point: h.point.toArray(), releasedBy: h.releasedBy })), titans: titans.map(t => ({ alive: t.alive, phase: t.phase, attackTimer: t.attackTimer, yaw: t.yaw, telegraphVisible: t.telegraph.visible, position: t.root.position.toArray() })), drawCalls: renderer.info.render.calls, triangles: renderer.info.render.triangles }) });
+window.__TROST__ = Object.freeze({ snapshot: () => ({ mode, controller: { connected: padFrame.connected, armed: padFrame.armed }, graphics: graphics.snapshot(), bladeStrike: { ...bladeStrike }, bladePhase: bladeStrikePhase(bladeStrike), elapsed, kills, rescued, mission: structuredClone(mission), stage: missionStage(mission), checkpoint: checkpoint ? structuredClone(checkpoint) : null, checkpointPersistent, escortStatus, civilianPosition: world.civilians.position.toArray(), grounded: player.grounded, yaw, pitch, assistedAnchors, fovEffect, health: player.health, gas: player.gas, blades: player.blades, position: player.position.toArray(), velocity: player.velocity.toArray(), hooks: hooks.map(h => ({ active: h.active, point: h.point.toArray(), releasedBy: h.releasedBy })), titans: titans.map(t => ({ alive: t.alive, phase: t.phase, attackTimer: t.attackTimer, yaw: t.yaw, telegraphVisible: t.telegraph.visible, position: t.root.position.toArray() })), drawCalls: renderer.info.render.calls, triangles: renderer.info.render.triangles }) });
