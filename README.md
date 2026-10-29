@@ -7,8 +7,7 @@ Primeiro protótipo independente de um jogo 3D inspirado em Attack on Titan. **N
 Requer Node.js 22.12+ (validado com 24), npm e um navegador com WebGL 2. Trost aceita teclado/mouse ou controle com mapeamento padrão do navegador. Configurações e links ainda exigem teclado/mouse; a arena também aceita controle padrão. Não há serviços externos, banco de dados, variáveis secretas ou downloads de recursos durante o jogo.
 
 ```sh
-cd /workspace/aot
-npm ci --cache /workspace/.npm-cache
+npm ci
 npm run dev -- --port 5173
 ```
 
@@ -193,7 +192,7 @@ npm run build
 npm run test:browser
 ```
 
-O teste de navegador usa Chromium em `/usr/bin/chromium`; defina `CHROMIUM_PATH` se necessário. Também é possível instalar o navegador do Playwright com `npx playwright install chromium` e usar a configuração adaptada ao ambiente. Capturas e relatórios são gravados em `test-results/` e ignorados pelo Git. Testes headless com renderização por software não medem desempenho em GPU real.
+Antes do primeiro teste de navegador, instale o Chromium correspondente à versão do Playwright com `npx playwright install chromium` (Windows, macOS ou Linux). Em Linux, um Chromium em `/usr/bin/chromium` é usado automaticamente; defina `CHROMIUM_PATH` para outro executável. A CI do GitHub (`.github/workflows/ci.yml`) roda os três comandos em cada push para `main` e em cada PR. Capturas e relatórios são gravados em `test-results/` e ignorados pelo Git. Testes headless com renderização por software não medem desempenho em GPU real.
 
 ## Organização
 
@@ -218,6 +217,7 @@ O teste de navegador usa Chromium em `/usr/bin/chromium`; defina `CHROMIUM_PATH`
 - `src/arena-audio.js`: sintetizador compartilhado, posição estéreo, limite de fontes, mute e pausa.
 - `src/titan-audio-cues.js`: distância, direção, abafamento e eventos sonoros dos titãs de Trost.
 - `docs/ROADMAP.md`: escopo, limites e próximos marcos.
+- `CLAUDE.md`: notas para sessões do Claude Code; importa `AGENTS.md`.
 
 ## Limites atuais
 
