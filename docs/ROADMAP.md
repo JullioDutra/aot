@@ -106,6 +106,14 @@ Implementado: passos pelo deslocamento, preparação/impacto por transição de 
 
 Limites: sons sintetizados, sem áudio oficial, reverberação, HRTF ou filtragem acústica. Mixagem amostrada no início de cada efeito. Testes de regras e navegador não substituem escuta humana; não afirmar qualidade sonora final. O som não altera a percepção da IA.
 
+## Entrega intermediária 16 — ferramentas de desenvolvimento
+
+CI no GitHub Actions com testes unitários, build e Playwright; `CLAUDE.md` com regras para sessões assistidas; chunk próprio do three.js. Sem mudança de jogabilidade.
+
+## Entrega intermediária 17 — perfis de plataforma
+
+Teclado/mouse, controle e toque com troca automática pelo último uso, controles de toque em Trost e na arena, HUD compacto para celular em paisagem, qualidade Desempenho como padrão no toque e tela cheia. Limites: sem vibração, remapeamento ou validação em aparelhos físicos.
+
 ## Marco 4 — demonstração de produção
 
 Uma operação de 15–20 minutos com arte e animação próprias de produção, referências verificadas, missão legível, resgate, abastecimento, destruição controlada e conclusão narrativa. Não será construída a campanha completa antes da aprovação desse marco.
