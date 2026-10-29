@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#11191d" />
+  <title>Galeria · Asas da Liberdade</title>
+  <link rel="icon" href="data:," />
+</head>
+<body class="gallery-page">
+  <header class="gallery-top">
+    <a class="brand" href="./historia.html">⟪ GALERIA</a>
+    <div class="gallery-tabs"><button type="button" data-mode="cast">PERSONAGENS</button><button type="button" data-mode="titans">TITÃS</button></div>
+    <label>POSE <select id="gallery-pose"></select></label>
+    <span class="spacer"></span>
+    <a href="./historia.html">Modo História</a><a href="./">Trost</a>
+    <button id="gallery-fullscreen" type="button" aria-label="Tela cheia">⛶</button>
+  </header>
+  <canvas id="gallery-canvas" aria-label="Modelos tridimensionais dos personagens e titãs"></canvas>
+  <aside class="gallery-side"><div id="gallery-list"></div></aside>
+  <footer class="gallery-foot"><span id="gallery-caption"></span><small>Modelos procedurais originais com sombreamento em estilo de anime, feitos a partir das referências do projeto. Não são arte oficial.</small></footer>
+  <div id="gallery-error" hidden>WebGL indisponível.</div>
+  <script type="module" src="/src/gallery-main.js"></script>
+</body>
+</html>

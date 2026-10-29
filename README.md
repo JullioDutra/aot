@@ -200,6 +200,25 @@ A fidelidade é verificada por código. `src/campaign/canon.js` rejeita personag
 
 Sinopses e falas são escritas para o projeto, em paráfrase; não há roteiro do anime. As fases aparecem como **planejadas** até ganharem implementação jogável; as referências de episódio (T1E01…T4E30) ainda precisam de conferência humana com fontes oficiais.
 
+## Personagens, titãs e galeria — fases 19 e 20
+
+`galeria.html` mostra o elenco em escala real (Levi, 1,60 m, ao lado de Erwin, 1,88 m), a infância em Shiganshina, cada personagem em giro de 360° com poses (parado, andar, correr, voo de ODM, golpe, carregado, luto, cavalgar, saudação, queda) e os titãs com Levi como referência de escala.
+
+Os personagens usam sombreamento em estilo de anime (toon de três faixas e contorno por casco invertido). Os rostos são desenhados em canvas: olhos com íris, brilho e pálpebra pesada, sobrancelhas por expressão e marcas como sardas, olheiras, barba e bigode. Os cabelos são feitos de mechas que primeiro abraçam o crânio e depois caem com a gravidade: o cabelo bagunçado de Eren, o chanel de Mikasa, a "tigela" de Armin, a cortina com laterais raspadas de Levi, a risca lateral de Erwin, o rabo de Hange com óculos e o coque de Annie. Os uniformes trazem jaqueta curta aberta, arnês no peito e nas coxas, botas, cachecol, gravata e emblemas originais desenhados em canvas (asas, espadas, rosas), além do equipamento 3D com caixas de lâmina e cilindros de gás.
+
+Os titãs puros saem de parâmetros que reproduzem a linguagem perturbadora do anime: a sorridente que devorou Carla, o barbudo de Trost, o anormal de membros longos, o do nariz, o de cabelo longo, o corpulento e o de 4 m. Os Nove têm detalhes próprios:
+
+- **Ataque:** mandíbula sem lábios e cabelo longo.
+- **Colossal:** 60 m, sem pele, com fibras e tendões.
+- **Blindado:** placas e capacete.
+- **Fêmea:** pele sobre a musculatura exposta.
+- **Bestial:** pelagem e braços longos.
+- **Carroça:** quadrúpede.
+- **Mandíbula:** mandíbula endurecida.
+- **Martelo de Guerra:** corpo claro, com as linhas de endurecimento.
+
+Limites: modelos procedurais aproximados a partir das referências; não são arte de produção nem traçados de imagens oficiais. O Fundador e os Colossais do Estrondo ainda não têm modelo. Não há esqueleto com skinning: as articulações são rígidas e as roupas não simulam tecido.
+
 ## Validação
 
 ```sh
@@ -220,6 +239,9 @@ Antes do primeiro teste de navegador, instale o Chromium correspondente à vers�
 - `src/gamepad-input.js`: leitura de controle padrão, zona morta, bordas de botão e retorno ao neutro.
 - `src/campaign/`: elenco com linha do tempo de poderes e mortes, 47 fases, validador canônico e progresso.
 - `src/story-hub.js` / `historia.html`: seleção de capítulos e detalhes de cada fase.
+- `src/character-specs.js`, `src/character-model.js`, `src/character-animation.js`: elenco, modelo toon e poses.
+- `src/titan-forms.js`: titãs puros paramétricos e os Nove.
+- `src/gallery-main.js` / `galeria.html`: galeria de modelos.
 - `src/platform.js`: perfis de entrada, mescla de frames, rótulos por perfil e tela cheia.
 - `src/touch-controls.js` / `src/touch-controls.css`: analógico flutuante, câmera por arraste e botões de toque.
 - `src/mechanics.js`: regras independentes de renderização, cobertas por testes.

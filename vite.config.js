@@ -8,6 +8,7 @@ export default defineConfig({
       trost: fileURLToPath(new URL('./index.html', import.meta.url)),
       arena: fileURLToPath(new URL('./arena.html', import.meta.url)),
       historia: fileURLToPath(new URL('./historia.html', import.meta.url)),
+      galeria: fileURLToPath(new URL('./galeria.html', import.meta.url)),
     },
     // Three.js is shared by both pages; give it a stable, honest chunk name.
     output: { manualChunks: { three: ['three'] } },
