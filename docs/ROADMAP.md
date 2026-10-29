@@ -122,6 +122,10 @@ Campanha completa (47 fases) como dados validados: elenco, linha do tempo de pod
 
 Personagens toon com rostos desenhados, cabelos por mechas, uniformes, emblemas e equipamento; titãs puros paramétricos e os Nove detalhados; galeria com escala e poses. Faltam o Fundador, os Colossais do Estrondo, skinning e tecido.
 
+## Entrega intermediária 21 — transformação com raios
+
+Regras de quem pode se transformar e quando, linha do tempo ferimento → raio → clarão → corpo, raios ramificados determinísticos com vapor, anel de choque e marca no chão; integrado à arena.
+
 ## Marco 4 — demonstração de produção
 
 Uma operação de 15–20 minutos com arte e animação próprias de produção, referências verificadas, missão legível, resgate, abastecimento, destruição controlada e conclusão narrativa. Não será construída a campanha completa antes da aprovação desse marco.

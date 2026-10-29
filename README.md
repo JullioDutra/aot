@@ -219,6 +219,27 @@ Os titãs puros saem de parâmetros que reproduzem a linguagem perturbadora do a
 
 Limites: modelos procedurais aproximados a partir das referências; não são arte de produção nem traçados de imagens oficiais. O Fundador e os Colossais do Estrondo ainda não têm modelo. Não há esqueleto com skinning: as articulações são rígidas e as roupas não simulam tecido.
 
+## Transformação com raios — fase 21
+
+`src/transformation.js` define quando um titã-transformante pode se transformar:
+
+- o poder precisa existir naquela fase da história (Eren só a partir da 10, Armin com o Colossal só a partir da 34, Mikasa nunca);
+- é preciso intenção e ferimento, exceto em cenas roteirizadas;
+- a fadiga e o limite de transformações da missão bloqueiam novas tentativas;
+- espaços fechados impedem a transformação.
+
+A linha do tempo segue a obra: ferimento, faíscas, raio, clarão, corpo formando no vapor. O raio é gerado de forma determinística por deslocamento de ponto médio, com ramificações descendentes.
+
+`src/transformation-fx.js` desenha:
+
+- um raio principal e um secundário, em segmentos retos, com núcleo branco e halo amarelo que pisca;
+- uma luz pontual e um anel de choque;
+- uma marca queimada no chão e uma coluna de vapor.
+
+Na arena, o efeito substitui a antiga linha de 1 px, acompanha a pausa e o reinício e some depois que o corpo se forma. O mesmo efeito, em escala de 60 m, anuncia o Colossal na fase 2 do Modo História.
+
+Limites: o modelo do titã da arena ainda é o anterior às fases 19–20; os raios não iluminam sombras dinâmicas.
+
 ## Validação
 
 ```sh
@@ -242,6 +263,7 @@ Antes do primeiro teste de navegador, instale o Chromium correspondente à vers�
 - `src/character-specs.js`, `src/character-model.js`, `src/character-animation.js`: elenco, modelo toon e poses.
 - `src/titan-forms.js`: titãs puros paramétricos e os Nove.
 - `src/gallery-main.js` / `galeria.html`: galeria de modelos.
+- `src/transformation.js` / `src/transformation-fx.js`: regras, linha do tempo e efeitos da transformação.
 - `src/platform.js`: perfis de entrada, mescla de frames, rótulos por perfil e tela cheia.
 - `src/touch-controls.js` / `src/touch-controls.css`: analógico flutuante, câmera por arraste e botões de toque.
 - `src/mechanics.js`: regras independentes de renderização, cobertas por testes.

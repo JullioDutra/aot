@@ -6,6 +6,7 @@ import { clamp, formatTime } from './mechanics.js';
 import { combatPose, applyCombatPose } from './titan-animation.js';
 import { createGamepadInput, ARENA_GAMEPAD_BINDINGS } from './gamepad-input.js';
 import { ArenaAudio } from './arena-audio.js';
+import { createTransformationFx } from './transformation-fx.js';
 import { initialProfile, nextProfile, mergeFrames, toggleFullscreen, fullscreenState, prompt } from './platform.js';
 import { createTouchControls } from './touch-controls.js';
 import './touch-controls.css';
@@ -50,9 +51,9 @@ for (const x of [-17, 17]) { const flag = new THREE.Mesh(new THREE.PlaneGeometry
 const human = createCadet(scene), hero = createTitan(scene, 0, 24, 15, 0, { variant: 'attack' }), enemy = createTitan(scene, 0, -10, 16, 2);
 hero.root.visible = false;
 const ring = new THREE.Mesh(new THREE.RingGeometry(.8, 1, 64), new THREE.MeshBasicMaterial({ color: '#edcc8e', side: THREE.DoubleSide, transparent: true, opacity: 0, depthWrite: false })); ring.rotation.x = -Math.PI / 2; ring.position.y = .12; scene.add(ring);
-const lightningPoints = [];
-for (let i = 0; i < 12; i++) lightningPoints.push(new THREE.Vector3(i % 2 ? 1.7 : -.8, 28 - i * 2.4, i % 3 * .5));
-const lightning = new THREE.Line(new THREE.BufferGeometry().setFromPoints(lightningPoints), new THREE.LineBasicMaterial({ color: '#fff0b5', transparent: true, opacity: 0 })); scene.add(lightning);
+// Branching bolts, flash, shock ring and steam column for the transformation.
+const transformFx = createTransformationFx(scene, { height: 15, duration: 2.2 });
+let transformClock = null;
 const particles = [], particleGeometry = new THREE.IcosahedronGeometry(1, 0);
 function burst(x, z, y = 8, count = 12, color = '#ddd6bc') {
   for (let i = 0; i < count && particles.length < 90; i++) {
@@ -92,6 +93,7 @@ function reset(lock = true) {
   audio.silence(); hitStop = impactTime = 0; lastFootsteps.fill(-1);
   state = createArenaState(); yaw = 0; pitch = .12; locked = true; readyCamera = false; ringTime = flashTime = enemyHit = heroHit = steamTimer = lastStrike = 0;
   for (const p of particles) { scene.remove(p.mesh); p.mesh.material.dispose(); } particles.length = 0;
+  transformFx.stop(); transformClock = null;
   enemy.root.rotation.set(0, 0, 0); hero.root.rotation.set(0, Math.PI, 0); enemy.root.visible = true;
   begin(lock);
 }
@@ -112,7 +114,7 @@ function command(action) {
   if (!result.accepted) { notice(result.reason, 2); return; }
   if (['light', 'heavy', 'grab'].includes(action)) lastStrike = 1 - lastStrike;
   if (action === 'dodge') audio.play('dodge');
-  if (action === 'transform') { audio.play('transform'); ringTime = 1.5; flashTime = .22; lightning.position.set(state.player.x, 0, state.player.z); burst(state.player.x, state.player.z, 1, 24); notice('Objetivo definido. Transformação em curso.', 2.4); }
+  if (action === 'transform') { audio.play('transform'); ringTime = 1.5; flashTime = .22; transformFx.start(new THREE.Vector3(state.player.x, 0, state.player.z)); transformClock = 0; burst(state.player.x, state.player.z, 1, 24); notice('Objetivo definido. Transformação em curso.', 2.4); }
   if (action === 'exit') notice('Saindo da nuca. Recupere o fôlego antes de transformar novamente.');
 }
 function events(list) {
@@ -268,7 +270,8 @@ function animate(now) {
     for (let i = particles.length - 1; i >= 0; i--) { const p = particles[i]; p.life -= dt; p.mesh.position.addScaledVector(p.velocity, dt); p.mesh.scale.multiplyScalar(1 + dt * .6); p.mesh.material.opacity = Math.max(0, p.life / 1.2) * .45; if (p.life <= 0) { scene.remove(p.mesh); p.mesh.material.dispose(); particles.splice(i, 1); } }
   }
   ring.position.set(state.player.x, .12, state.player.z); ring.scale.setScalar(1 + (1.5 - ringTime) * 17); ring.material.opacity = ringTime > 0 ? ringTime / 3 : 0;
-  lightning.material.opacity = state.form === 'transforming' ? Math.max(0, state.formClock - 1.5) : 0;
+  // The effect clock only advances while playing, so pause freezes the bolts.
+  if (transformClock !== null) { if (mode === 'playing') transformClock += dt; transformFx.update(transformClock); if (transformClock > 5) { transformFx.stop(); transformClock = null; } }
   $('arena-flash').style.opacity = reducedMotion ? '0' : String(Math.min(.45, flashTime * 2));
   const impactScreen = impactPosition.clone().project(camera);
   $('arena-impact').hidden = impactTime <= 0 || Math.abs(impactScreen.x) > 1 || Math.abs(impactScreen.y) > 1 || impactScreen.z < -1 || impactScreen.z > 1;
@@ -277,4 +280,4 @@ function animate(now) {
   renderer.render(scene, camera);
 }
 requestAnimationFrame(animate);
-window.__TITAN_ARENA__ = Object.freeze({ snapshot: () => ({ mode, controller: { connected: padFrame.connected, armed: padFrame.armed }, inputProfile, touchVisible: !touch.element.hidden, yaw, pitch, ...structuredClone(state), lock: locked, audio: audio.snapshot(), shakeEnabled, hitStop, heroRig: { elbows: hero.elbows.map(e => e.rotation.x), torso: hero.body.rotation.toArray().slice(0, 3) }, drawCalls: renderer.info.render.calls }) });
+window.__TITAN_ARENA__ = Object.freeze({ snapshot: () => ({ mode, controller: { connected: padFrame.connected, armed: padFrame.armed }, inputProfile, touchVisible: !touch.element.hidden, transformFx: { visible: transformFx.group.visible, clock: transformClock }, yaw, pitch, ...structuredClone(state), lock: locked, audio: audio.snapshot(), shakeEnabled, hitStop, heroRig: { elbows: hero.elbows.map(e => e.rotation.x), torso: hero.body.rotation.toArray().slice(0, 3) }, drawCalls: renderer.info.render.calls }) });
