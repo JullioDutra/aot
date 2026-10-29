@@ -192,6 +192,14 @@ No toque, o polegar esquerdo usa um analógico flutuante (nasce onde o dedo enco
 
 Limites: sem vibração, sem remapeamento e sem layout personalizável dos botões. O toque foi validado com eventos simulados e emulação de celular no Chromium; ergonomia e desempenho em aparelhos reais ainda precisam de teste humano. Safari no iPhone não oferece tela cheia para páginas comuns; nesse caso o jogo continua em janela.
 
+## Modo História — fase 18
+
+`historia.html` (link **MODO HISTÓRIA** no menu de Trost) apresenta a campanha inteira como plano de produção navegável: 8 atos, 47 fases, 138 sub-fases, 50 desafios opcionais, 15 decisões e 32 mortes canônicas encenadas. Cada fase mostra sinopse, jogabilidade, sub-fases, desafios, acontecimentos fixos, decisões e as referências de episódio a conferir. As cenas dos 11 vídeos de referência estão associadas às fases correspondentes (Levi x Bestial e o discurso de Erwin na fase 32, por exemplo).
+
+A fidelidade é verificada por código. `src/campaign/canon.js` rejeita personagens mortos fora de flashback, poderes antes de obtidos (endurecimento antes da fase 27, Colossal de Armin antes da 34, voo de Falco fora da 46), mortes fora da fase canônica ou sem encenação e opções de decisão que prometam evitar uma morte fixa. Toda decisão converge para um único desfecho (`resolves`): a escolha muda reflexão, diálogo e sobreviventes locais, nunca o rumo da história. O progresso (melhor nota S/A/B/C, decisões, desafios) fica neste navegador, na chave `aot.story.v1`.
+
+Sinopses e falas são escritas para o projeto, em paráfrase; não há roteiro do anime. As fases aparecem como **planejadas** até ganharem implementação jogável; as referências de episódio (T1E01…T4E30) ainda precisam de conferência humana com fontes oficiais.
+
 ## Validação
 
 ```sh
@@ -210,6 +218,8 @@ Antes do primeiro teste de navegador, instale o Chromium correspondente à vers�
 - `src/blade-strike.js`: ciclo, custo e poses do golpe de lâminas.
 - `src/graphics-quality.js`: perfis gráficos, restauração de materiais e persistência da preferência.
 - `src/gamepad-input.js`: leitura de controle padrão, zona morta, bordas de botão e retorno ao neutro.
+- `src/campaign/`: elenco com linha do tempo de poderes e mortes, 47 fases, validador canônico e progresso.
+- `src/story-hub.js` / `historia.html`: seleção de capítulos e detalhes de cada fase.
 - `src/platform.js`: perfis de entrada, mescla de frames, rótulos por perfil e tela cheia.
 - `src/touch-controls.js` / `src/touch-controls.css`: analógico flutuante, câmera por arraste e botões de toque.
 - `src/mechanics.js`: regras independentes de renderização, cobertas por testes.

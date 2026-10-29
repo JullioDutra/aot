@@ -19,3 +19,4 @@ body[data-input=touch] .mission{top:60px;left:max(16px,env(safe-area-inset-left)
 body[data-input=touch] .resources{top:14px;bottom:auto;left:50%;transform:translateX(-50%);width:190px}body[data-input=touch] .resources label{margin:4px 0 2px;font-size:7px}
 body[data-input=touch] .mission-nav{top:auto;bottom:max(14px,env(safe-area-inset-bottom));left:42%;right:auto;max-width:200px;font-size:9px;padding:6px 10px}
 body[data-input=touch] .touch-button.menu{right:auto;left:calc(50% + 110px)}
+.story-entry{display:flex;align-items:center;justify-content:space-between;gap:12px;max-width:290px;margin-top:15px;color:#f0d9a6;font-size:8px;font-weight:700;text-decoration:none;letter-spacing:1.4px;padding:11px 0;border-bottom:1px solid #d2ac6c88}.story-entry:hover{color:#ffe2a6}.story-entry span{font-size:15px}.has-checkpoint .story-entry{margin-top:8px}

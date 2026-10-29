@@ -114,6 +114,10 @@ CI no GitHub Actions com testes unitários, build e Playwright; `CLAUDE.md` com 
 
 Teclado/mouse, controle e toque com troca automática pelo último uso, controles de toque em Trost e na arena, HUD compacto para celular em paisagem, qualidade Desempenho como padrão no toque e tela cheia. Limites: sem vibração, remapeamento ou validação em aparelhos físicos.
 
+## Entrega intermediária 18 — plano da campanha
+
+Campanha completa (47 fases) como dados validados: elenco, linha do tempo de poderes e mortes, sub-fases, desafios, acontecimentos fixos e decisões convergentes, com hub de seleção. Nenhuma fase nova jogável nesta entrega; as referências de episódio precisam de conferência humana.
+
 ## Marco 4 — demonstração de produção
 
 Uma operação de 15–20 minutos com arte e animação próprias de produção, referências verificadas, missão legível, resgate, abastecimento, destruição controlada e conclusão narrativa. Não será construída a campanha completa antes da aprovação desse marco.
