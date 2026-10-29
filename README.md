@@ -184,6 +184,113 @@ Os passos são acionados pelo deslocamento real, a cada 16% da altura do titã p
 
 Os sons são originais e procedurais, sem gravações do anime. O navegador pode exigir clique/tecla para liberar áudio; falha ou ausência da API não impede jogar. Sem StereoPanner, os efeitos permanecem centralizados. A mixagem fica fixa durante cada efeito curto, sem HRTF, propagação física ou atualização contínua quando a câmera gira. Testes verificam as regras e o ciclo de áudio; clareza, conforto e qualidade sonora ainda precisam de escuta humana com fones e caixas.
 
+## Plataformas, toque e tela cheia — fase 17
+
+O jogo identifica três perfis de entrada — teclado/mouse, controle padrão e toque — e segue sempre o último usado: tocar a tela, mover um analógico ou apertar uma tecla troca os avisos, a ajuda da pausa e os rótulos dos marcadores na hora. Celulares e tablets (ponteiro grosso sem hover) começam no perfil de toque e na qualidade Desempenho enquanto o jogador não escolhe outra.
+
+No toque, o polegar esquerdo usa um analógico flutuante (nasce onde o dedo encosta, com zona morta) e arrastar na metade direita gira a câmera. Em Trost, os botões são ◀ CABO e CABO ▶ (segurar prende, soltar libera), GÁS, LÂMINA, AGIR, ABASTECER e SOLTAR. Na arena: TITÃ, SOCO, FORTE, DEFESA, ESQUIVA, AGARRAR, REGENERAR, SAIR e ALVO. O HUD se compacta, os textos do tipo "pressione G" viram o nome do botão e em retrato aparece um pedido para girar o aparelho. Iniciar pelo toque pede tela cheia; o botão ⛶ (e a tecla F em Trost) alterna tela cheia em qualquer perfil, quando o navegador permitir.
+
+Limites: sem vibração, sem remapeamento e sem layout personalizável dos botões. O toque foi validado com eventos simulados e emulação de celular no Chromium; ergonomia e desempenho em aparelhos reais ainda precisam de teste humano. Safari no iPhone não oferece tela cheia para páginas comuns; nesse caso o jogo continua em janela.
+
+## Modo História — fase 18
+
+`historia.html` (link **MODO HISTÓRIA** no menu de Trost) apresenta a campanha inteira como plano de produção navegável: 8 atos, 47 fases, 138 sub-fases, 50 desafios opcionais, 15 decisões e 32 mortes canônicas encenadas. Cada fase mostra sinopse, jogabilidade, sub-fases, desafios, acontecimentos fixos, decisões e as referências de episódio a conferir. As cenas dos 11 vídeos de referência estão associadas às fases correspondentes (Levi x Bestial e o discurso de Erwin na fase 32, por exemplo).
+
+A fidelidade é verificada por código. `src/campaign/canon.js` rejeita personagens mortos fora de flashback, poderes antes de obtidos (endurecimento antes da fase 27, Colossal de Armin antes da 34, voo de Falco fora da 46), mortes fora da fase canônica ou sem encenação e opções de decisão que prometam evitar uma morte fixa. Toda decisão converge para um único desfecho (`resolves`): a escolha muda reflexão, diálogo e sobreviventes locais, nunca o rumo da história. O progresso (melhor nota S/A/B/C, decisões, desafios) fica neste navegador, na chave `aot.story.v1`.
+
+Sinopses e falas são escritas para o projeto, em paráfrase; não há roteiro do anime. As fases aparecem como **planejadas** até ganharem implementação jogável; as referências de episódio (T1E01…T4E30) ainda precisam de conferência humana com fontes oficiais.
+
+## Personagens, titãs e galeria — fases 19 e 20
+
+`galeria.html` mostra o elenco em escala real (Levi, 1,60 m, ao lado de Erwin, 1,88 m), a infância em Shiganshina, cada personagem em giro de 360° com poses (parado, andar, correr, voo de ODM, golpe, carregado, luto, cavalgar, saudação, queda) e os titãs com Levi como referência de escala.
+
+Os personagens usam sombreamento em estilo de anime (toon de três faixas e contorno por casco invertido). Os rostos são desenhados em canvas: olhos com íris, brilho e pálpebra pesada, sobrancelhas por expressão e marcas como sardas, olheiras, barba e bigode. Os cabelos são feitos de mechas que primeiro abraçam o crânio e depois caem com a gravidade: o cabelo bagunçado de Eren, o chanel de Mikasa, a "tigela" de Armin, a cortina com laterais raspadas de Levi, a risca lateral de Erwin, o rabo de Hange com óculos e o coque de Annie. Os uniformes trazem jaqueta curta aberta, arnês no peito e nas coxas, botas, cachecol, gravata e emblemas originais desenhados em canvas (asas, espadas, rosas), além do equipamento 3D com caixas de lâmina e cilindros de gás.
+
+Os titãs puros saem de parâmetros que reproduzem a linguagem perturbadora do anime: a sorridente que devorou Carla, o barbudo de Trost, o anormal de membros longos, o do nariz, o de cabelo longo, o corpulento e o de 4 m. Os Nove têm detalhes próprios:
+
+- **Ataque:** mandíbula sem lábios e cabelo longo.
+- **Colossal:** 60 m, sem pele, com fibras e tendões.
+- **Blindado:** placas e capacete.
+- **Fêmea:** pele sobre a musculatura exposta.
+- **Bestial:** pelagem e braços longos.
+- **Carroça:** quadrúpede.
+- **Mandíbula:** mandíbula endurecida.
+- **Martelo de Guerra:** corpo claro, com as linhas de endurecimento.
+
+Limites: modelos procedurais aproximados a partir das referências; não são arte de produção nem traçados de imagens oficiais. O Fundador e os Colossais do Estrondo ainda não têm modelo. Não há esqueleto com skinning: as articulações são rígidas e as roupas não simulam tecido.
+
+## Transformação com raios — fase 21
+
+`src/transformation.js` define quando um titã-transformante pode se transformar:
+
+- o poder precisa existir naquela fase da história (Eren só a partir da 10, Armin com o Colossal só a partir da 34, Mikasa nunca);
+- é preciso intenção e ferimento, exceto em cenas roteirizadas;
+- a fadiga e o limite de transformações da missão bloqueiam novas tentativas;
+- espaços fechados impedem a transformação.
+
+A linha do tempo segue a obra: ferimento, faíscas, raio, clarão, corpo formando no vapor. O raio é gerado de forma determinística por deslocamento de ponto médio, com ramificações descendentes.
+
+`src/transformation-fx.js` desenha:
+
+- um raio principal e um secundário, em segmentos retos, com núcleo branco e halo amarelo que pisca;
+- uma luz pontual e um anel de choque;
+- uma marca queimada no chão e uma coluna de vapor.
+
+Na arena, o efeito substitui a antiga linha de 1 px, acompanha a pausa e o reinício e some depois que o corpo se forma. O mesmo efeito, em escala de 60 m, anuncia o Colossal na fase 2 do Modo História.
+
+Limites: o modelo do titã da arena ainda é o anterior às fases 19–20; os raios não iluminam sombras dinâmicas.
+
+## Modo História jogável — fases 22 e 23
+
+`story.html?fase=N` roda as fases implementadas com um casco comum: diálogo (Espaço/clique, A ou toque), escolhas (1/2/3, direcional + A ou toque), objetivos com marcador na tela, faixas de sub-fase, pausa, tela cheia, falha com retorno rápido ao início da sub-fase e tela final. A tela final mostra a reflexão das escolhas e os desafios. Ela não exibe nota nem medalha quando a fase tem morte canônica. Os roteiros são passos puros (`src/story/engine.js`) validados em testes: toda escolha converge, toda morte fixa é encenada, todo roteiro termina.
+
+**Fase 1 — Um dia em Shiganshina:** começa como o anime, com Eren acordando sob a árvore na colina com lágrimas no rosto e Mikasa com a lenha. Sub-fases: o portão interno com Hannes bebendo em serviço, o sino e o retorno da Tropa de Exploração (a mãe de Moses e o comandante), a escolha diante dos curiosos, a casa com Carla e a promessa do porão de Grisha, e Armin no canal falando do mar. O distrito tem muralhas de 50 m, portões, canal, ponte, praça com sino, barco e casas com estrutura de madeira. Desafios: encontrar os três marcos da infância (que voltam na fase 29) e terminar sem correr.
+
+**Fase 2 — O dia em que a muralha caiu:** o raio sobre a muralha (o mesmo efeito da transformação, em escala de 60 m), o Colossal erguendo a cabeça acima dela e o chute no portão. Os destroços caem em arco e derrubam casas, inclusive a dos Yeager. Titãs entram e devoram quem corre. A fuga é contra a corrente: um titã ao alcance agarra Eren e faz você voltar ao início da sub-fase. Depois vêm a viga que não sobe, Carla presa, a chegada de Hannes e a escolha dele (lutar ou recuar; as duas acabam no mesmo lugar), Eren carregado olhando para trás e a titã sorridente erguendo e devorando Carla, com sangue e corte para o preto. Desafios: soltar quatro civis presos no caminho e não perder Mikasa de vista.
+
+**Fase 32 — A última carga:** a conversa de Erwin e Levi sobre o sonho e o discurso aos recrutas (falas originais em paráfrase). Depois a carga a cavalo sob a chuva de pedras do Bestial: sombras no chão marcam os impactos, sinalizadores disparados durante o arremesso o cegam e espalham as pedras, e recrutas e cavalos caem à sua volta. Erwin cai à frente da carga e o recruta do jogador (Marlo) é atingido; os dois eventos são fixos. Levi usa os titãs enfileirados como ancoragens móveis (o cabo acompanha o titã) e corta nucas no caminho. O Bestial é desmontado por partes: braços, olhos e tendões. Enquanto tiver os braços, ele dá golpes telegrafados; com as pernas cortadas, ajoelha. Só então a nuca expõe Zeke, e a Carroça o resgata. Desafios: chegar ao Bestial com mais de 60% de gás, desmontá-lo em menos de 20 s e disparar sinalizadores em três arremessos.
+
+Controles do Modo História: WASD e mouse; Espaço avança e dá gás; G/R age; Shift corre; Q/E seguram os cabos; clique corta ou dispara o sinalizador. No controle: A avança/gás, X lâmina/sinalizador, Y age, B corre, gatilhos para os cabos. No toque: CONTINUAR, AGIR, CORRER e, nas fases de combate, ◀ CABO, CABO ▶, GÁS e LÂMINA.
+
+Limites: as fases 1–9 e 32 são jogáveis; as demais seguem planejadas no hub. Falas são paráfrases originais, sem dublagem. Os mapas são aproximações e não plantas conferidas episódio a episódio. Não há cinemáticas animadas à mão nem captura de movimento. A violência é estilizada (partículas, cortes de câmera). Testes de navegador usam ganchos de depuração para pular deslocamentos longos; o equilíbrio da carga e do duelo precisa de teste humano.
+
+## Ato I completo — fase 25 (fases 3, 4 e 5 da história)
+
+As fases 3–5 usam um kit comum (`src/story/kit.js`): atores com rotas, câmera com planos fixos, jogador a pé, ODM com lâminas, titãs puros que caçam a presa mais próxima (anormais vão atrás da multidão) e um titã controlável. As regras ficam em `src/story/story-rules.js`, com testes.
+
+**Fase 3 — A retirada:** o último barco no portão interno de Shiganshina. Chame os civis com G, leve-os até o cais e fuja dos titãs antes da sineta; um titã que agarra Eren faz a sub-fase recomeçar, e um civil agarrado é perdido diante de você. Do barco, o Blindado atravessa o distrito em disparada e arrebenta o portão interno (a Muralha Maria cai). No armazém de Rose: a fila do pão, o soldado que deseja mais mortos, o chute de Eren, Armin pedindo desculpas e o pão dividido. Desafio: embarcar os seis civis.
+
+**Fase 4 — O 104º Corpo de Treinamento:** a cerimônia de Shadis (a batata de Sasha), o aparelho de equilíbrio com o cinto quebrado (a falha é da peça, não dos controles: nenhuma direção segura o corpo), o conselho de Reiner e Bertholdt à noite e a segunda tentativa com o cinto de Thomas. Depois, o circuito de cabos com quatro arcos e o treino de desarme: G no fim do aviso de Reiner desarma, cedo demais abre a guarda. Annie derruba Eren de qualquer jeito. Desafios: equilíbrio sem passar de 50% de inclinação e desarmar Reiner sem receber golpes.
+
+**Fase 5 — Exercício na floresta:** floresta de árvores gigantes (todas servem de ancoragem) com 20 alvos de madeira, quatro escondidos. Só corte por trás vale ponto, e velocidade dá bônus. Jean voa a rota e pontua no próprio ritmo; quem tiver menos pontos quando o sino tocar repete a sub-fase. Na noite da formatura, os dez primeiros e a escolha da mesa (Jean e Marco, Sasha e Connie, Reiner e Bertholdt), cada uma com conversas próprias. Desafios: pontuação de top 10 e todos os alvos escondidos.
+
+Limites: o refeitório, o armazém e a cabana são cenários simples; o duelo e o equilíbrio precisam de teste humano para calibrar o tempo de reação.
+
+## Batalha de Trost, parte 1 — fase 26 (fases 6 a 9 da história)
+
+Trost é uma cidade inteira (`src/story/trost-world.js`): muralha externa com o portão, muralha interna com a fila de evacuação, quartel de abastecimento, praça da pedra e quarteirões altos o bastante para o ODM. As construções são mescladas por material, o que deixa a cidade em poucas chamadas de desenho, e toda fachada serve de ancoragem. As fases 6–12 compartilham um adaptador (`src/story/trost-chapter.js`) e cada uma traz o próprio plano.
+
+**Fase 6 — O retorno do Colossal:** manutenção dos canhões no alto da muralha (a carne roubada de Sasha), o raio, o Colossal erguendo a cabeça ao lado do esquadrão e o chute que abre o portão. O jato de vapor arranca todos do alto: prenda um cabo na face interna da muralha antes de cair (pegar Samuel no ar é o desafio). Depois, suba e corte a nuca enquanto o braço do Colossal varre o alto da muralha com aviso; o golpe acerta e ele some no vapor. Desafios: segurar Samuel e chegar à nuca em menos de 25 s.
+
+**Fase 7 — A primeira missão:** o esquadrão 34 voa pelos telhados atrás de Thomas. Ficar longe da formação por 6 s faz a sub-fase recomeçar. O anormal salta da rua e engole Thomas no ar; a escolha de Eren (perseguir ou manter a formação) termina igual: um titã arranca a perna dele. Mina bate numa fachada e é puxada; Nack e Milieus são devorados. Eren rasteja até a boca do titã barbudo, arranca Armin e é engolido.
+
+**Fase 8 — As asas de Mikasa:** o anormal desce a avenida em direção à fila do portão interno e precisa morrer antes de chegar. Mikasa ameaça o mercador da carroça. Na cabana nas montanhas, os pais são mortos pelos traficantes; Eren mata dois, o terceiro o estrangula e Mikasa pega a faca. De volta a Trost, ela abre caminho sozinha com o gás acabando duas vezes e meia mais rápido, cai num beco e escolhe viver; o titã desconhecido derruba o titã que vinha atrás dela. Desafios: cinco titãs com até cinco cortes e chegar ao beco com mais de 10% de gás.
+
+**Fase 9 — Sem combustível:** visão tática sobre a cidade com três rotas até o quartel (telhados perto do titã desconhecido, avenida, canal), cada uma com titãs, cobertura e risco. A rota escolhida decide quais titãs ficam no caminho, e os titãs da rota dos telhados vão atrás do desconhecido. Jean lidera com 42% de gás; três cadetes comuns voam atrás dele e podem ser agarrados se você não limpar o caminho. No meio, um cadete fica preso: voltar salva ele e custa outro; seguir deixa ele para trás. Desafio: chegar sem perder nenhum cadete além do da escolha.
+
+Limites: os prédios de Trost são blocos com telhado de quatro águas; a câmera do ODM ainda atravessa telhados vizinhos em ângulos fechados. Os titãs andam através das casas.
+
+## Co-op local — fase 24
+
+`coop.html` (no Modo História, em "Fora da continuidade") é um modo em tela dividida para dois jogadores, fora da história canônica. A dupla escolhe personagens do elenco e precisa limpar um campo de 12 titãs em 4 minutos usando ODM.
+
+- **Golpe combinado:** quando um titã persegue seu parceiro e você corta a nuca dele, o abate devolve 8 s ao relógio (a lógica de distração e corte do anime).
+- **Agarrado:** o parceiro só se solta se você matar o titã que o segura.
+- **Caído:** levanta quando você segura o botão de ação perto dele; soltar o botão faz a barra cair aos poucos.
+- **Controles:** com dois controles, um para cada jogador. Com um controle, o J1 usa teclado e mouse e o J2 o controle. Sem controle, os dois dividem o teclado (WASD/Q/E/Espaço/clique e IJKL/U/O/Shift direito/Enter).
+
+Limites: só local, sem rede. Sem tela dividida no celular (o toque continua para um jogador). Os titãs usam uma perseguição simples. Não há progresso salvo.
+
 ## Validação
 
 ```sh
@@ -202,6 +309,16 @@ Antes do primeiro teste de navegador, instale o Chromium correspondente à vers�
 - `src/blade-strike.js`: ciclo, custo e poses do golpe de lâminas.
 - `src/graphics-quality.js`: perfis gráficos, restauração de materiais e persistência da preferência.
 - `src/gamepad-input.js`: leitura de controle padrão, zona morta, bordas de botão e retorno ao neutro.
+- `src/campaign/`: elenco com linha do tempo de poderes e mortes, 47 fases, validador canônico e progresso.
+- `src/story-hub.js` / `historia.html`: seleção de capítulos e detalhes de cada fase.
+- `src/character-specs.js`, `src/character-model.js`, `src/character-animation.js`: elenco, modelo toon e poses.
+- `src/titan-forms.js`: titãs puros paramétricos e os Nove.
+- `src/gallery-main.js` / `galeria.html`: galeria de modelos.
+- `src/transformation.js` / `src/transformation-fx.js`: regras, linha do tempo e efeitos da transformação.
+- `src/story-main.js` / `story.html`: casco das fases jogáveis; `src/story/`: motor de roteiro, Shiganshina (mundo, roteiro, adaptador), A última carga (roteiro, regras, adaptador), controlador de ODM e adereços.
+- `src/coop-main.js` / `src/coop-rules.js` / `coop.html`: co-op local em tela dividida.
+- `src/platform.js`: perfis de entrada, mescla de frames, rótulos por perfil e tela cheia.
+- `src/touch-controls.js` / `src/touch-controls.css`: analógico flutuante, câmera por arraste e botões de toque.
 - `src/mechanics.js`: regras independentes de renderização, cobertas por testes.
 - `src/collision.js`: contato com telhados inclinados e obstrução de segmentos.
 - `src/targeting.js`: seleção independente das ancoragens e assistência.

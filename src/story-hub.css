@@ -1,0 +1,71 @@
+:root{--hub-bg:#11191d;--hub-panel:#172429;--hub-line:#b2c3bd2e;--hub-text:#eff0e8;--hub-muted:#a9b8b5;--hub-accent:#d2ac6c;--hub-danger:#c7614f}
+*{box-sizing:border-box}
+body.hub-page{margin:0;background:radial-gradient(ellipse at 20% -10%,#2a3f45 0,transparent 55%),var(--hub-bg);color:var(--hub-text);font-family:Arial,Helvetica,sans-serif;min-height:100vh}
+[hidden]{display:none!important}
+a{color:inherit}
+button{font:inherit;cursor:pointer}
+button:focus-visible,a:focus-visible{outline:2px solid var(--hub-accent);outline-offset:4px}
+.hub-top{display:flex;align-items:center;justify-content:space-between;padding:24px 4%;gap:16px}
+.hub-brand{text-decoration:none;display:flex;gap:12px;align-items:center;font-size:12px;letter-spacing:2px;font-weight:700}
+.hub-brand small{display:block;font-size:7px;letter-spacing:2px;font-weight:400;margin-top:6px;color:var(--hub-muted)}
+.hub-links{display:flex;gap:18px;align-items:center;font-size:11px;letter-spacing:1px}
+.hub-links a{text-decoration:none;color:var(--hub-muted)}
+.hub-links a:hover{color:var(--hub-text)}
+.hub-links button{border:1px solid var(--hub-line);background:transparent;color:var(--hub-text);width:34px;height:34px}
+.hub{display:grid;grid-template-columns:240px minmax(0,1fr) minmax(300px,420px);grid-template-areas:'intro intro intro' 'acts chapters detail' 'extras extras extras' 'disc disc disc';gap:28px;padding:8px 4% 48px}
+.hub-intro{grid-area:intro;max-width:760px}
+.hub-eyebrow{font-size:8px;letter-spacing:2px;color:#cbb889}
+.hub-intro h1{font-size:clamp(44px,6vw,92px);letter-spacing:-3px;line-height:.95;margin:14px 0;font-weight:900}
+.hub-intro h1 em{font-style:normal;color:transparent;-webkit-text-stroke:1px #d7ded4}
+.hub-intro p{color:#c1ccc9;line-height:1.8;font-size:14px;max-width:620px}
+.hub-stats{display:flex;flex-wrap:wrap;gap:22px;margin-top:18px}
+.hub-stats div{display:flex;flex-direction:column;gap:4px}
+.hub-stats b{font-family:Georgia,serif;font-size:28px;font-weight:400}
+.hub-stats span{font-size:8px;letter-spacing:1.5px;color:var(--hub-muted);text-transform:uppercase}
+.hub-acts{grid-area:acts;display:flex;flex-direction:column;gap:6px;align-self:start;position:sticky;top:16px}
+.hub-act{display:flex;flex-direction:column;align-items:flex-start;gap:5px;text-align:left;padding:12px 14px;border:1px solid transparent;border-left:2px solid var(--hub-line);background:transparent;color:var(--hub-muted)}
+.hub-act span{font-size:8px;letter-spacing:2px}
+.hub-act b{font-family:Georgia,serif;font-weight:400;font-size:15px;color:var(--hub-text)}
+.hub-act:hover{background:#ffffff08}
+.hub-act.active{border-left-color:var(--hub-accent);background:#d2ac6c14}
+.hub-act.active span{color:var(--hub-accent)}
+.hub-chapters{grid-area:chapters;display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:14px;align-content:start}
+.hub-act-goal{grid-column:1/-1}
+.hub-act-goal h2{font-family:Georgia,serif;font-weight:400;font-size:32px;margin:8px 0}
+.hub-act-goal p{color:var(--hub-muted);font-size:13px;line-height:1.7;margin:0 0 6px}
+.hub-card{position:relative;text-align:left;padding:16px;background:linear-gradient(160deg,#1b2c32,#152126);border:1px solid var(--hub-line);color:var(--hub-text);min-height:150px;display:flex;flex-direction:column;gap:6px;transition:transform .15s,border-color .15s}
+.hub-card:hover{transform:translateY(-2px);border-color:#d2ac6c66}
+.hub-card.open{border-top:2px solid var(--hub-accent)}
+.hub-card.prototype{border-top:2px solid #7f9f97}
+.hub-card.locked{opacity:.82}
+.hub-card h3{font-family:Georgia,serif;font-weight:400;font-size:19px;margin:4px 0}
+.hub-card p{margin:0;font-size:11px;color:#c1ccc9}
+.hub-card small{margin-top:auto;font-size:9px;color:var(--hub-muted);letter-spacing:.4px}
+.hub-card-top{display:flex;justify-content:space-between;align-items:center}
+.hub-number{font-family:Georgia,serif;font-size:22px;color:#c8d0c8}
+.hub-status{font-size:7px;letter-spacing:1.5px;color:var(--hub-muted)}
+.hub-card.open .hub-status{color:var(--hub-accent)}
+.hub-rating{position:absolute;right:14px;bottom:12px;font-family:Georgia,serif;font-size:22px;color:var(--hub-accent)}
+.hub-detail{grid-area:detail;align-self:start;position:sticky;top:16px;max-height:calc(100vh - 32px);overflow:auto;padding:26px;background:var(--hub-panel);border:1px solid var(--hub-line);border-top:2px solid var(--hub-accent)}
+.hub-close{position:absolute;right:14px;top:10px;background:none;border:0;color:var(--hub-muted);font-size:24px}
+.hub-detail h2{font-family:Georgia,serif;font-weight:400;font-size:28px;margin:10px 0}
+.hub-synopsis{font-size:13px;line-height:1.75;color:#d3dbd7}
+.hub-gameplay{font-size:12px;line-height:1.7;color:var(--hub-muted);border-left:2px solid var(--hub-line);padding-left:12px}
+.hub-play{display:block;margin:16px 0;padding:14px 16px;font-size:10px;font-weight:800;letter-spacing:2px;text-decoration:none;text-align:center;border:1px solid var(--hub-line);color:var(--hub-muted)}
+.hub-play.open{background:#d5b77f;border-color:#eed3a3;color:#152025}
+.hub-detail h4{font-size:9px;letter-spacing:2px;color:#cbb889;margin:20px 0 8px;text-transform:uppercase}
+.hub-detail ul{margin:0;padding-left:16px;display:flex;flex-direction:column;gap:7px}
+.hub-detail li{font-size:12px;line-height:1.55;color:#c8d2ce}
+.hub-detail li b{color:var(--hub-text);font-weight:600}
+.hub-detail li.death b{color:#e58f7d}
+.hub-refs{font-size:10px;color:var(--hub-muted);margin-top:18px;line-height:1.6}
+.hub-extras{grid-area:extras}
+#hub-extras{display:flex;flex-wrap:wrap;gap:12px;margin-top:12px}
+.hub-extra{display:flex;flex-direction:column;gap:5px;padding:14px 18px;border:1px solid var(--hub-line);text-decoration:none;min-width:190px}
+.hub-extra b{font-size:13px}
+.hub-extra span{font-size:9px;color:var(--hub-muted);letter-spacing:.5px}
+a.hub-extra:hover{border-color:#d2ac6c88}
+.hub-extra.locked{opacity:.6}
+.hub-disclaimer{grid-area:disc;font-size:10px;color:#87999b;max-width:760px;line-height:1.6}
+@media(max-width:1100px){.hub{grid-template-columns:200px minmax(0,1fr);grid-template-areas:'intro intro' 'acts chapters' 'detail detail' 'extras extras' 'disc disc'}.hub-detail{position:static;max-height:none}}
+@media(max-width:700px){.hub{grid-template-columns:1fr;grid-template-areas:'intro' 'acts' 'chapters' 'detail' 'extras' 'disc';padding:0 16px 40px}.hub-top{padding:18px 16px}.hub-links a{display:none}.hub-acts{position:static;flex-direction:row;overflow-x:auto;padding-bottom:4px}.hub-act{min-width:150px}.hub-chapters{grid-template-columns:1fr}}

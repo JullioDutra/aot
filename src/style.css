@@ -13,3 +13,10 @@
 #blade-action { margin-top: 12px; font-size: 10px; letter-spacing: 1px; color: #e3d5ad; }
 
 #settings #close-settings { position: sticky; bottom: 0; z-index: 1; box-shadow: 0 -10px 14px #17282c; }
+@media(max-height:500px){.topbar{padding:12px 4%}#landing{top:64px}#landing h1{font-size:48px;letter-spacing:-2px;margin:10px 0}p.intro{font-size:11px;line-height:1.5;margin-bottom:10px}.chapter-tag,.chapter-line,.landing-details,.operation-card,footer{display:none}.primary-button{padding:11px 18px}.save-status{margin:6px 0}}
+body[data-input=touch] .controls,body[data-input=touch] .velocity,body[data-input=touch] .pilot,body[data-input=touch] .compass{display:none}
+body[data-input=touch] .mission{top:60px;left:max(16px,env(safe-area-inset-left));max-width:36%}body[data-input=touch] .mission h2{font-size:16px;margin:4px 0 6px}body[data-input=touch] .mission #rescue-status{font-size:9px;margin-top:4px}
+body[data-input=touch] .resources{top:14px;bottom:auto;left:50%;transform:translateX(-50%);width:190px}body[data-input=touch] .resources label{margin:4px 0 2px;font-size:7px}
+body[data-input=touch] .mission-nav{top:auto;bottom:max(14px,env(safe-area-inset-bottom));left:42%;right:auto;max-width:200px;font-size:9px;padding:6px 10px}
+body[data-input=touch] .touch-button.menu{right:auto;left:calc(50% + 110px)}
+.story-entry{display:flex;align-items:center;justify-content:space-between;gap:12px;max-width:290px;margin-top:15px;color:#f0d9a6;font-size:8px;font-weight:700;text-decoration:none;letter-spacing:1.4px;padding:11px 0;border-bottom:1px solid #d2ac6c88}.story-entry:hover{color:#ffe2a6}.story-entry span{font-size:15px}.has-checkpoint .story-entry{margin-top:8px}

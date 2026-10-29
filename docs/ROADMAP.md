@@ -106,6 +106,42 @@ Implementado: passos pelo deslocamento, preparação/impacto por transição de 
 
 Limites: sons sintetizados, sem áudio oficial, reverberação, HRTF ou filtragem acústica. Mixagem amostrada no início de cada efeito. Testes de regras e navegador não substituem escuta humana; não afirmar qualidade sonora final. O som não altera a percepção da IA.
 
+## Entrega intermediária 16 — ferramentas de desenvolvimento
+
+CI no GitHub Actions com testes unitários, build e Playwright; `CLAUDE.md` com regras para sessões assistidas; chunk próprio do three.js. Sem mudança de jogabilidade.
+
+## Entrega intermediária 17 — perfis de plataforma
+
+Teclado/mouse, controle e toque com troca automática pelo último uso, controles de toque em Trost e na arena, HUD compacto para celular em paisagem, qualidade Desempenho como padrão no toque e tela cheia. Limites: sem vibração, remapeamento ou validação em aparelhos físicos.
+
+## Entrega intermediária 18 — plano da campanha
+
+Campanha completa (47 fases) como dados validados: elenco, linha do tempo de poderes e mortes, sub-fases, desafios, acontecimentos fixos e decisões convergentes, com hub de seleção. Nenhuma fase nova jogável nesta entrega; as referências de episódio precisam de conferência humana.
+
+## Entregas intermediárias 19 e 20 — elenco e titãs
+
+Personagens toon com rostos desenhados, cabelos por mechas, uniformes, emblemas e equipamento; titãs puros paramétricos e os Nove detalhados; galeria com escala e poses. Faltam o Fundador, os Colossais do Estrondo, skinning e tecido.
+
+## Entrega intermediária 21 — transformação com raios
+
+Regras de quem pode se transformar e quando, linha do tempo ferimento → raio → clarão → corpo, raios ramificados determinísticos com vapor, anel de choque e marca no chão; integrado à arena.
+
+## Entregas intermediárias 22 e 23 — primeiras fases jogáveis
+
+Motor de roteiro com falas, objetivos, escolhas convergentes, eventos, metas e falha com checkpoint. Fases 1 e 2 (Shiganshina, da árvore à morte de Carla) e fase 32 (a carga de Erwin e Levi contra o Bestial) jogáveis em teclado/mouse, controle e toque. Pendentes: as outras 44 fases, dublagem, cinemáticas autorais e teste humano de equilíbrio.
+
+## Entrega intermediária 24 — co-op local
+
+Tela dividida para dois jogadores com ODM, golpe combinado por distração, resgate de parceiro agarrado e reanimação; atribuição automática de controles e teclado compartilhado. Sem rede, sem celular e fora da continuidade.
+
+## Entrega intermediária 25 — Ato I jogável
+
+Fases 3 (a retirada e o Blindado), 4 (cerimônia, equilíbrio com o cinto quebrado, cabos e desarme) e 5 (floresta contra Jean e formatura). Kit compartilhado de história (atores, câmera, ODM, horda de titãs puros, titã controlável) e regras puras testadas. Os testes de navegador rodam a simulação 4× por quadro para caber no tempo com renderização por software.
+
+## Entrega intermediária 26 — Trost, parte 1
+
+Cidade de Trost compartilhada (muralhas, portões, quartel, praça da pedra, quarteirões mesclados por material) e as fases 6 (Colossal na muralha), 7 (esquadrão 34), 8 (Mikasa, cabana e o anormal no portão) e 9 (rotas táticas e o comando de Jean). Os pontos de retorno passam a guardar a sub-fase que começa.
+
 ## Marco 4 — demonstração de produção
 
 Uma operação de 15–20 minutos com arte e animação próprias de produção, referências verificadas, missão legível, resgate, abastecimento, destruição controlada e conclusão narrativa. Não será construída a campanha completa antes da aprovação desse marco.

@@ -2,6 +2,9 @@ import * as THREE from 'three';
 import './style.css';
 import { createWorld, createCadet, createTitan } from './world.js';
 import { createGamepadInput } from './gamepad-input.js';
+import { initialProfile, nextProfile, mergeFrames, defaultQuality, toggleFullscreen, fullscreenState, localizeKeys } from './platform.js';
+import { createTouchControls } from './touch-controls.js';
+import './touch-controls.css';
 import { createGraphicsQuality } from './graphics-quality.js';
 import { createBladeStrike, beginBladeStrike, stepBladeStrike, bladeStrikePhase, bladeStrikePose } from './blade-strike.js';
 import { ArenaAudio } from './arena-audio.js';
@@ -85,6 +88,8 @@ let bladeStrike = createBladeStrike();
 let escortStatus = 'idle', escortHeading = 0;
 try { checkpointStorage = window.localStorage; } catch { /* Session-only checkpoints remain available. */ }
 const graphics = createGraphicsQuality({ renderer, scene, light: sun, storage: checkpointStorage, pixelRatio: () => devicePixelRatio });
+// Phones and tablets start on the performance profile until the player picks one.
+if (!graphics.snapshot().persisted) graphics.apply(defaultQuality(initialProfile({ coarsePointer: matchMedia('(pointer: coarse)').matches, hover: matchMedia('(hover: hover)').matches, maxTouchPoints: navigator.maxTouchPoints }), null), false);
 function updateGraphicsDescription() {
   const s = graphics.snapshot(); $('quality').value = s.quality;
   const descriptions = { high: 'Alta: sombras detalhadas e relevo nos materiais.', medium: 'Equilibrada: sombras mais leves e relevo nos materiais.', low: 'Desempenho: resolução reduzida, sem sombras dinâmicas ou relevo nos materiais.' };
@@ -102,6 +107,19 @@ let assistedAnchors = true, fovEffect = true;
 const keys = new Set(), effects = [];
 const gamepadInput = createGamepadInput();
 let padFrame = gamepadInput.sample();
+let inputProfile = initialProfile({ coarsePointer: matchMedia('(pointer: coarse)').matches, hover: matchMedia('(hover: hover)').matches, maxTouchPoints: navigator.maxTouchPoints }), syncedMode = null;
+const touch = createTouchControls({ root: document.body, buttons: [
+  { action: 'left', label: '◀ CABO', className: 'cable-left' }, { action: 'right', label: 'CABO ▶', className: 'cable-right' },
+  { action: 'jump', label: 'GÁS', className: 'primary' }, { action: 'attack', label: 'LÂMINA', className: 'primary' },
+  { action: 'interact', label: 'AGIR' }, { action: 'supply', label: 'ABASTECER' }, { action: 'release', label: 'SOLTAR' }, { action: 'menu', label: 'Ⅱ', className: 'menu' }] });
+const landingInput = { keyboard: 'TECLADO + MOUSE', gamepad: 'CONTROLE PADRÃO', touch: 'TOQUE · TELA CHEIA' };
+function syncInputProfile() {
+  document.body.dataset.input = inputProfile; document.body.dataset.playing = mode === 'playing'; syncedMode = mode;
+  touch.setVisible(inputProfile === 'touch' && mode === 'playing');
+  $('keyboard-controls').hidden = inputProfile !== 'keyboard'; $('gamepad-controls').hidden = inputProfile !== 'gamepad';
+  $('touch-pause-help').hidden = inputProfile !== 'touch'; $('landing-input').textContent = landingInput[inputProfile];
+}
+function setInputProfile(event) { const next = nextProfile(inputProfile, event); if (next !== inputProfile) { inputProfile = next; syncInputProfile(); } }
 const boosting = () => keys.has('Space') || !!padFrame.held.jump;
 const hooks = [-1, 1].map(side => {
   const line = new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(), new THREE.Vector3()]), new THREE.LineBasicMaterial({ color: '#e5ddbf' })); line.visible = false; line.frustumCulled = false; scene.add(line);
@@ -132,17 +150,18 @@ function playTitanSound(kind, source) {
   const mix = titanAudioMix(source.toArray(), listener.toArray(), yaw, blocked);
   titanAudio.play(kind, mix.distance, mix.pan, mix.level);
 }
-function toast(message, duration = 3) { $('toast').textContent = message; $('toast').classList.add('visible'); toastTime = duration; }
+function toast(message, duration = 3) { $('toast').textContent = localizeKeys(message, inputProfile); $('toast').classList.add('visible'); toastTime = duration; }
 function releaseHook(h, reason = 'manual') { h.active = false; h.line.visible = h.tip.visible = false; h.releasedBy = reason; }
 function clearHooks() { hooks.forEach(h => releaseHook(h)); }
-function clearInput() { gamepadInput.suspend(); padFrame = { ...padFrame, move: [0, 0], look: [0, 0], held: {}, pressed: {} }; keys.clear(); dragging = false; jumpQueued = false; clearHooks(); }
+function clearInput() { gamepadInput.suspend(); touch.suspend(); padFrame = { ...padFrame, move: [0, 0], look: [0, 0], held: {}, pressed: {} }; keys.clear(); dragging = false; jumpQueued = false; clearHooks(); }
 function lockMouse() {
   try { const result = canvas.requestPointerLock?.(); result?.catch(() => toast('Arraste a cena para olhar; Q/E continuam prendendo os cabos.')); } catch { toast('Arraste a cena para controlar a câmera.'); }
 }
 function start(lock = true) {
   $('landing').hidden = true; $('operation-card').hidden = true; $('landing-footer').hidden = true; $('pause').hidden = true; $('result').hidden = true; $('hud').hidden = false;
   document.body.classList.add('playing'); mode = 'playing'; clearInput();
-  void titanAudio.start(); audioContext = titanAudio.context; if (lock) lockMouse(); toast(`${missionObjective(mission).title}. ${missionObjective(mission).detail}`, 6);
+  void titanAudio.start(); audioContext = titanAudio.context; syncInputProfile();
+  if (inputProfile === 'touch') { if (!fullscreenState(document).active) void toggleFullscreen(document, document.documentElement); } else if (lock) lockMouse(); toast(`${missionObjective(mission).title}. ${missionObjective(mission).detail}`, 6);
 }
 function reset(save = true, lock = true) {
   silenceAudio();
@@ -154,7 +173,7 @@ function reset(save = true, lock = true) {
   if (save) recordCheckpoint();
   start(lock);
 }
-function pause() { if (mode !== 'playing') return; mode = 'paused'; silenceAudio(); clearInput(); $('pause').hidden = false; if (document.pointerLockElement) document.exitPointerLock(); }
+function pause() { if (mode !== 'playing') return; mode = 'paused'; silenceAudio(); clearInput(); syncInputProfile(); $('pause').hidden = false; if (document.pointerLockElement) document.exitPointerLock(); }
 function finish(victory) {
   mode = victory ? 'won' : 'dead'; silenceAudio(); clearInput(); if (document.pointerLockElement) document.exitPointerLock();
   $('result-label').textContent = victory ? 'OPERAÇÃO CONCLUÍDA' : 'OPERAÇÃO INTERROMPIDA';
@@ -381,7 +400,7 @@ function updateHUD() {
       : threat.phase === 'guardRecover' ? 'NUCA EXPOSTA · Aproveite a recuperação'
       : threat.phase === 'recover' ? 'TITÃ EM RECUPERAÇÃO · Contorne e alcance a nuca'
       : 'TITÃ PROCURANDO · Mantenha-se fora da vista';
-  $('objective').textContent = objective.title; $('rescue-status').textContent = objective.detail;
+  $('objective').textContent = objective.title; $('rescue-status').textContent = localizeKeys(objective.detail, inputProfile);
   $('mission-phase').textContent = `ETAPA ${objective.order} / 4 · ${missionStage(mission) === 'complete' ? 'CONCLUÍDA' : 'ROTA DE RETIRADA'}`;
   updateMissionGuide(objective);
   $('escort-status').hidden = !mission.escort && !mission.rescued;
@@ -389,7 +408,7 @@ function updateHUD() {
   $('escort-status').textContent = `${escortLabels[escortStatus]}${mission.rescued ? '' : ` · ${Math.round(escortProgress(mission.escort) * 100)}% da rota`}`;
   const hits = hooks.map((h, i) => h.active ? { point: h.point, distance: h.point.distanceTo(hookOrigin(h.side)) } : aimHit(i));
   $('reticle').classList.toggle('valid', hits.some(Boolean));
-  let hint = hits.some(Boolean) ? 'Q / E · ANCORAGENS INDEPENDENTES' : 'SEM ANCORAGEM';
+  let hint = hits.some(Boolean) ? `${inputProfile === 'keyboard' ? 'Q / E' : 'CABOS'} · ANCORAGENS INDEPENDENTES` : 'SEM ANCORAGEM';
   hits.forEach((hit, i) => {
     const marker = $(i === 0 ? 'anchor-left' : 'anchor-right');
     marker.hidden = !hit;
@@ -397,7 +416,7 @@ function updateHUD() {
     const screen = hit.point.clone().project(camera);
     marker.hidden = screen.z < -1 || screen.z > 1 || Math.abs(screen.x) > 1 || Math.abs(screen.y) > 1;
     marker.style.left = `${(screen.x + 1) * 50}%`; marker.style.top = `${(1 - screen.y) * 50}%`;
-    marker.classList.toggle('attached', hooks[i].active); marker.textContent = `${i === 0 ? 'Q' : 'E'} · ${Math.round(hit.distance)} m`;
+    marker.classList.toggle('attached', hooks[i].active); marker.textContent = `${inputProfile === 'keyboard' ? (i === 0 ? 'Q' : 'E') : (i === 0 ? '◀' : '▶')} · ${Math.round(hit.distance)} m`;
   });
   $('nape-marker').hidden = true;
   for (const t of titans) {
@@ -425,6 +444,8 @@ $('fov-effect').addEventListener('change', e => { fovEffect = e.target.checked; 
 $('audio-enabled').addEventListener('change', e => { soundEnabled = e.target.checked; titanAudio.setEnabled(soundEnabled); if (!soundEnabled) silenceAudio(); else if (mode === 'playing') { void titanAudio.start(); audioContext = titanAudio.context; } });
 $('quality').addEventListener('change', e => { graphics.apply(e.target.value); updateGraphicsDescription(); });
 addEventListener('keydown', event => {
+  setInputProfile('keyboard');
+  if (event.code === 'KeyF' && !event.repeat) { void toggleFullscreen(document, document.documentElement); return; }
   if (event.code === 'Escape') { if (!$('settings').hidden) { $('settings').hidden = true; return; } pause(); return; }
   if (mode !== 'playing') return;
   if (['Space', 'KeyW', 'KeyA', 'KeyS', 'KeyD', 'KeyQ', 'KeyE', 'KeyR', 'KeyG'].includes(event.code)) event.preventDefault();
@@ -437,6 +458,9 @@ canvas.addEventListener('mousedown', event => { if (mode !== 'playing') return; 
 addEventListener('mouseup', () => { dragging = false; });
 addEventListener('mousemove', event => { if (mode !== 'playing' || (!dragging && document.pointerLockElement !== canvas)) return; yaw += event.movementX * .0022 * sensitivity; pitch = clamp(pitch - event.movementY * .0022 * sensitivity, -.9, 1.1); });
 canvas.addEventListener('contextmenu', event => event.preventDefault());
+addEventListener('pointerdown', event => setInputProfile(event.pointerType === 'touch' ? 'touch' : 'mouse'), true);
+for (const id of ['fullscreen-button', 'pause-fullscreen']) $(id).addEventListener('click', () => void toggleFullscreen(document, document.documentElement));
+document.addEventListener('fullscreenchange', () => { $('fullscreen-button').classList.toggle('active', fullscreenState(document).active); });
 document.addEventListener('pointerlockchange', () => { if (!document.pointerLockElement && mode === 'playing') pause(); });
 addEventListener('blur', pause); document.addEventListener('visibilitychange', () => { if (document.hidden) pause(); });
 addEventListener('resize', () => { camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix(); graphics.apply(graphics.snapshot().quality, false); renderer.setSize(innerWidth, innerHeight); });
@@ -446,10 +470,11 @@ function updateGamepad(dt) {
   const previous = padFrame;
   let pads = [];
   try { pads = navigator.getGamepads?.() ?? []; } catch { /* Keyboard/mouse remain available. */ }
-  padFrame = gamepadInput.sample(pads);
+  const physical = gamepadInput.sample(pads);
+  if (physical.connected && (Object.values(physical.pressed).some(Boolean) || [...physical.move, ...physical.look].some(Boolean))) setInputProfile('gamepad');
+  padFrame = mergeFrames(physical, touch.sample());
+  if (mode !== syncedMode) syncInputProfile();
   $('controller-status').textContent = padFrame.connected ? 'Controle padrão conectado. Start/Menu inicia ou pausa Trost.' : 'Controle: conecte um modelo padrão e pressione um botão para detectar.';
-  $('keyboard-controls').hidden = padFrame.connected;
-  $('gamepad-controls').hidden = !padFrame.connected;
   if (padFrame.lost && mode === 'playing') { pause(); return; }
   if (document.hidden) { gamepadInput.suspend(); return; }
   if (!$('settings').hidden) return;
@@ -464,6 +489,8 @@ function updateGamepad(dt) {
   if (mode !== 'playing') return;
   yaw += padFrame.look[0] * dt * 2.2 * sensitivity;
   pitch = clamp(pitch - padFrame.look[1] * dt * 1.7 * sensitivity, -.9, 1.1);
+  yaw += padFrame.lookDelta[0] * .005 * sensitivity;
+  pitch = clamp(pitch - padFrame.lookDelta[1] * .005 * sensitivity, -.9, 1.1);
   if (padFrame.pressed.jump) jumpQueued = true;
   if (padFrame.pressed.attack) attack();
   if (padFrame.pressed.interact) interact('rescue');
@@ -520,4 +547,4 @@ function animate(now) {
 requestAnimationFrame(animate);
 
 // Read-only diagnostics are available for smoke tests; no teleport or combat cheats ship.
-window.__TROST__ = Object.freeze({ snapshot: () => ({ mode, audio: { ...titanAudio.snapshot(), activeTones: toneSources.size }, controller: { connected: padFrame.connected, armed: padFrame.armed }, graphics: graphics.snapshot(), bladeStrike: { ...bladeStrike }, bladePhase: bladeStrikePhase(bladeStrike), elapsed, kills, rescued, mission: structuredClone(mission), stage: missionStage(mission), checkpoint: checkpoint ? structuredClone(checkpoint) : null, checkpointPersistent, escortStatus, civilianPosition: world.civilians.position.toArray(), grounded: player.grounded, yaw, pitch, assistedAnchors, fovEffect, health: player.health, gas: player.gas, blades: player.blades, position: player.position.toArray(), velocity: player.velocity.toArray(), hooks: hooks.map(h => ({ active: h.active, point: h.point.toArray(), releasedBy: h.releasedBy })), titans: titans.map(t => ({ alive: t.alive, napeProtected: napeProtected(t), guardWeight: napeGuardWeight(t), awareness: t.awareness ?? 'idle', memory: t.memory ?? 0, lastSeen: t.lastSeen ? [...t.lastSeen] : null, phase: t.phase, attackTimer: t.attackTimer, yaw: t.yaw, telegraphVisible: t.telegraph.visible, position: t.root.position.toArray() })), drawCalls: renderer.info.render.calls, triangles: renderer.info.render.triangles }) });
+window.__TROST__ = Object.freeze({ snapshot: () => ({ mode, audio: { ...titanAudio.snapshot(), activeTones: toneSources.size }, controller: { connected: padFrame.connected, armed: padFrame.armed }, inputProfile, touchVisible: !touch.element.hidden, fullscreen: fullscreenState(document), graphics: graphics.snapshot(), bladeStrike: { ...bladeStrike }, bladePhase: bladeStrikePhase(bladeStrike), elapsed, kills, rescued, mission: structuredClone(mission), stage: missionStage(mission), checkpoint: checkpoint ? structuredClone(checkpoint) : null, checkpointPersistent, escortStatus, civilianPosition: world.civilians.position.toArray(), grounded: player.grounded, yaw, pitch, assistedAnchors, fovEffect, health: player.health, gas: player.gas, blades: player.blades, position: player.position.toArray(), velocity: player.velocity.toArray(), hooks: hooks.map(h => ({ active: h.active, point: h.point.toArray(), releasedBy: h.releasedBy })), titans: titans.map(t => ({ alive: t.alive, napeProtected: napeProtected(t), guardWeight: napeGuardWeight(t), awareness: t.awareness ?? 'idle', memory: t.memory ?? 0, lastSeen: t.lastSeen ? [...t.lastSeen] : null, phase: t.phase, attackTimer: t.attackTimer, yaw: t.yaw, telegraphVisible: t.telegraph.visible, position: t.root.position.toArray() })), drawCalls: renderer.info.render.calls, triangles: renderer.info.render.triangles }) });
