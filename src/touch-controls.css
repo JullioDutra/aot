@@ -1,0 +1,16 @@
+/* Shared on-screen controls for touch devices (Trost, arena and story). */
+.touch-controls{position:fixed;inset:0;z-index:20;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+.touch-look-zone{position:absolute;inset:0 0 0 40%}
+.touch-stick-zone{position:absolute;left:0;bottom:0;width:40%;height:62%}
+.touch-stick{position:absolute;width:112px;height:112px;margin:-56px 0 0 -56px;border-radius:50%;border:1px solid #e8dcc055;background:radial-gradient(circle,#13252c55,#13252c22);pointer-events:none}
+.touch-stick i{position:absolute;left:50%;top:50%;width:46px;height:46px;margin:-23px 0 0 -23px;border-radius:50%;background:#e8d3a1cc;box-shadow:0 0 18px #0008}
+.touch-buttons{position:absolute;right:max(14px,env(safe-area-inset-right));bottom:max(14px,env(safe-area-inset-bottom));display:grid;grid-template-columns:repeat(3,64px);grid-auto-rows:64px;gap:10px;pointer-events:none}
+.touch-button{pointer-events:auto;border:1px solid #e6d3a466;border-radius:50%;background:#13252cbb;color:#f1e6cb;font:700 9px/1.1 Arial,sans-serif;letter-spacing:.6px;padding:4px;touch-action:none;box-shadow:0 4px 18px #0007}
+.touch-button.primary{background:#c9a868dd;color:#152025;border-color:#f2d9a5}
+.touch-button.active{transform:scale(.92);background:#f1d39e;color:#152025}
+.touch-button.menu{position:fixed;top:max(14px,env(safe-area-inset-top));right:max(70px,calc(env(safe-area-inset-right) + 70px));width:44px;height:44px;font-size:16px}
+.touch-button.cable-left,.touch-button.cable-right{border-radius:14px;background:#24413fcc}
+.touch-rotate-hint{display:none}
+@media (orientation:portrait){body[data-input=touch][data-playing=true] .touch-rotate-hint{display:block;position:fixed;top:30%;left:50%;transform:translateX(-50%);z-index:21;background:#13252ce6;border-left:2px solid #d0b17c;padding:12px 18px;font-size:12px;color:#efe6cf;pointer-events:none}}
+.icon-button+.icon-button{margin-left:8px!important}
+.icon-button.active{background:#d5b77f;color:#152025}

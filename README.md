@@ -184,6 +184,14 @@ Os passos são acionados pelo deslocamento real, a cada 16% da altura do titã p
 
 Os sons são originais e procedurais, sem gravações do anime. O navegador pode exigir clique/tecla para liberar áudio; falha ou ausência da API não impede jogar. Sem StereoPanner, os efeitos permanecem centralizados. A mixagem fica fixa durante cada efeito curto, sem HRTF, propagação física ou atualização contínua quando a câmera gira. Testes verificam as regras e o ciclo de áudio; clareza, conforto e qualidade sonora ainda precisam de escuta humana com fones e caixas.
 
+## Plataformas, toque e tela cheia — fase 17
+
+O jogo identifica três perfis de entrada — teclado/mouse, controle padrão e toque — e segue sempre o último usado: tocar a tela, mover um analógico ou apertar uma tecla troca os avisos, a ajuda da pausa e os rótulos dos marcadores na hora. Celulares e tablets (ponteiro grosso sem hover) começam no perfil de toque e na qualidade Desempenho enquanto o jogador não escolhe outra.
+
+No toque, o polegar esquerdo usa um analógico flutuante (nasce onde o dedo encosta, com zona morta) e arrastar na metade direita gira a câmera. Em Trost, os botões são ◀ CABO e CABO ▶ (segurar prende, soltar libera), GÁS, LÂMINA, AGIR, ABASTECER e SOLTAR. Na arena: TITÃ, SOCO, FORTE, DEFESA, ESQUIVA, AGARRAR, REGENERAR, SAIR e ALVO. O HUD se compacta, os textos do tipo "pressione G" viram o nome do botão e em retrato aparece um pedido para girar o aparelho. Iniciar pelo toque pede tela cheia; o botão ⛶ (e a tecla F em Trost) alterna tela cheia em qualquer perfil, quando o navegador permitir.
+
+Limites: sem vibração, sem remapeamento e sem layout personalizável dos botões. O toque foi validado com eventos simulados e emulação de celular no Chromium; ergonomia e desempenho em aparelhos reais ainda precisam de teste humano. Safari no iPhone não oferece tela cheia para páginas comuns; nesse caso o jogo continua em janela.
+
 ## Validação
 
 ```sh
@@ -202,6 +210,8 @@ Antes do primeiro teste de navegador, instale o Chromium correspondente à vers�
 - `src/blade-strike.js`: ciclo, custo e poses do golpe de lâminas.
 - `src/graphics-quality.js`: perfis gráficos, restauração de materiais e persistência da preferência.
 - `src/gamepad-input.js`: leitura de controle padrão, zona morta, bordas de botão e retorno ao neutro.
+- `src/platform.js`: perfis de entrada, mescla de frames, rótulos por perfil e tela cheia.
+- `src/touch-controls.js` / `src/touch-controls.css`: analógico flutuante, câmera por arraste e botões de toque.
 - `src/mechanics.js`: regras independentes de renderização, cobertas por testes.
 - `src/collision.js`: contato com telhados inclinados e obstrução de segmentos.
 - `src/targeting.js`: seleção independente das ancoragens e assistência.

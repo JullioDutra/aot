@@ -19,7 +19,9 @@ async function walkTo(page, target, radius = 5) {
 }
 
 test('rescues civilians, recovers supplies and resumes the persisted operation', async ({ page }, testInfo) => {
-  test.setTimeout(180000);
+  // Walking the whole route takes ~3 min with software rendering on Windows,
+  // because the simulation step is capped when the frame rate drops.
+  test.setTimeout(240000);
   const errors = []; page.on('pageerror', error => errors.push(error.message));
   await ready(page); await page.click('#start-button');
   await page.waitForFunction(() => window.__TROST__.snapshot().elapsed > .2);
