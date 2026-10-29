@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { createStoryState, stepStory, validateScript } from '../src/story/engine.js';
 import { SCRIPTS, PLACES } from '../src/story/shiganshina-script.js';
 import { chapter } from '../src/campaign/chapters.js';
+import { ACT1_SCRIPTS } from '../src/story/act1-scripts.js';
 
 const decisionsOf = n => Object.fromEntries(chapter(n).decisions.map(d => [d.id, d]));
 
@@ -108,4 +109,36 @@ test('flares widen the barrage and the Beast exposes every part Levi must cut', 
   assert.ok(spread(blinded) > spread(aimed) * 1.6, 'a flare makes the Beast miss wider');
   assert.deepEqual(barrageTargets({ seed: 9, player: [1, 2] }), barrageTargets({ seed: 9, player: [1, 2] }));
   assert.deepEqual(BEAST_ORDER, ['braco-esq', 'braco-dir', 'olhos', 'perna-esq', 'perna-dir']);
+});
+
+// Chapters with a script follow their plan: same sub-missions in the same order.
+const SCRIPTED = { ...ACT1_SCRIPTS };
+
+test('scripted chapters validate and play their planned sub-missions in order', () => {
+  for (const [n, script] of Object.entries(SCRIPTED)) {
+    const data = chapter(Number(n));
+    assert.deepEqual(validateScript(script, data), [], `chapter ${n}`);
+    const missions = script.filter(b => b.type === 'mission').map(b => b.id);
+    assert.deepEqual(missions, data.missions.map(m => m.id), `chapter ${n} missions`);
+    for (const f of data.fixed.filter(f => f.kind === 'event')) assert.ok(script.some(b => b.type === 'fixed' && b.id === f.id), `chapter ${n} stages ${f.id}`);
+  }
+});
+
+test('every option of the new chapters reaches the same ending', () => {
+  for (const [n, script] of Object.entries(SCRIPTED)) {
+    const data = chapter(Number(n));
+    const goals = new Set(script.filter(b => b.type === 'goal').map(b => b.id));
+    const runs = (data.decisions[0]?.options ?? [{ id: null }]).map(option => {
+      const state = createStoryState(script); let position = [0, 0];
+      for (let i = 0; i < 6000 && !state.finished; i++) {
+        const ui = stepStory(state, 0, { position, goals }, decisionsOf(Number(n))).ui;
+        if (ui.target) position = [...ui.target];
+        stepStory(state, .5, { position, advance: true, interact: true, goals, choose: ui.kind === 'choice' ? option.id : null }, decisionsOf(Number(n)));
+      }
+      return state;
+    });
+    for (const r of runs) assert.equal(r.finished, true, `chapter ${n} finishes`);
+    const spine = runs.map(r => r.log.filter(e => e.startsWith('mission') || e.startsWith('fixed')));
+    for (const s of spine) assert.deepEqual(s, spine[0], `chapter ${n} diverged`);
+  }
 });

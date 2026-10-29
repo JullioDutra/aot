@@ -6,6 +6,8 @@ import { resolveMotion } from '../collision.js';
 // (pull-only cables, gas boost, drag, collisions) with one addition: a cable
 // can hook a moving object, such as a titan, and follows it every frame.
 const raycaster = new THREE.Raycaster();
+// Hidden parents (a titan off stage) hide their meshes from the cables too.
+const shown = object => { for (let o = object; o; o = o.parent) if (!o.visible) return false; return true; };
 
 export function createOdm({ scene, camera, colliders = [], anchorRoots = [], gas = 100, blades = 100, bounds = 300 }) {
   const player = { position: new THREE.Vector3(), velocity: new THREE.Vector3(), grounded: true, gas, blades, health: 100 };
@@ -24,7 +26,7 @@ export function createOdm({ scene, camera, colliders = [], anchorRoots = [], gas
     const offsets = assisted ? [[0, 0], [0, .04], [side * .04, 0], [0, -.04], [side * .04, .04]] : [[0, 0]];
     for (const [dx, dy] of offsets) {
       raycaster.setFromCamera(new THREE.Vector2(side * .05 + dx, dy), camera); raycaster.far = 95;
-      const hit = raycaster.intersectObjects(anchorRoots, true).find(h => h.object.visible && !h.object.userData.noAnchor);
+      const hit = raycaster.intersectObjects(anchorRoots, true).find(h => shown(h.object) && !h.object.userData.noAnchor);
       if (!hit || hit.point.y < .4) continue;
       const distance = hit.point.distanceTo(player.position);
       if (distance < 2 || distance > 90) continue;

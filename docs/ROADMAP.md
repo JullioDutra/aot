@@ -134,6 +134,10 @@ Motor de roteiro com falas, objetivos, escolhas convergentes, eventos, metas e f
 
 Tela dividida para dois jogadores com ODM, golpe combinado por distração, resgate de parceiro agarrado e reanimação; atribuição automática de controles e teclado compartilhado. Sem rede, sem celular e fora da continuidade.
 
+## Entrega intermediária 25 — Ato I jogável
+
+Fases 3 (a retirada e o Blindado), 4 (cerimônia, equilíbrio com o cinto quebrado, cabos e desarme) e 5 (floresta contra Jean e formatura). Kit compartilhado de história (atores, câmera, ODM, horda de titãs puros, titã controlável) e regras puras testadas. Os testes de navegador rodam a simulação 4× por quadro para caber no tempo com renderização por software.
+
 ## Marco 4 — demonstração de produção
 
 Uma operação de 15–20 minutos com arte e animação próprias de produção, referências verificadas, missão legível, resgate, abastecimento, destruição controlada e conclusão narrativa. Não será construída a campanha completa antes da aprovação desse marco.

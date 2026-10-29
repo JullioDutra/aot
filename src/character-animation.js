@@ -3,7 +3,7 @@
 const clamp01 = x => Math.max(0, Math.min(1, x));
 const smooth = x => { const t = clamp01(x); return t * t * (3 - 2 * t); };
 
-export const POSES = ['idle', 'walk', 'run', 'odm', 'strike', 'carried', 'reach', 'grief', 'ride', 'salute', 'fall'];
+export const POSES = ['idle', 'walk', 'run', 'odm', 'strike', 'carried', 'reach', 'grief', 'ride', 'salute', 'fall', 'guard', 'punch', 'sit', 'bench', 'lie'];
 
 export function characterPose(kind, time = 0, { speed = 1, progress = 0, side = 1 } = {}) {
   const pose = { hips: [0, 0, 0], spine: [0, 0, 0], head: [0, 0, 0], arms: [[0, 0, -.08], [0, 0, .08]], elbows: [0, 0], legs: [0, 0], knees: [0, 0], rise: 0, cloak: 0 };
@@ -59,6 +59,27 @@ export function characterPose(kind, time = 0, { speed = 1, progress = 0, side = 
       break;
     case 'fall':
       pose.spine[0] = -.6 + Math.sin(time * 5) * .1; pose.arms = [[-2.6, 0, -.8], [-2.4, 0, .9]]; pose.legs = [.4, -.3]; pose.knees = [.6, .9]; pose.cloak = 1;
+      break;
+    case 'guard':
+      // Hand-to-hand stance: fists up, knees bent, weight forward.
+      pose.arms = [[-1.2, 0, -.35], [-1.5, 0, .3]]; pose.elbows = [-1.7, -1.5]; pose.legs = [-.35, .2]; pose.knees = [.45, .3]; pose.spine[0] = .18 + breathe; pose.rise = -.06;
+      break;
+    case 'punch': {
+      const hit = Math.sin(Math.min(1, progress) * Math.PI);
+      pose.arms = [[-1.2, 0, -.35], [-1.5 - hit * .2, 0, .3 - hit * .3]]; pose.elbows = [-1.7, -1.5 + hit * 1.4]; pose.legs = [-.5, .3]; pose.knees = [.5, .2]; pose.spine = [.25, -hit * .5, 0]; pose.rise = -.06;
+      break;
+    }
+    case 'sit':
+      // Seated on the floor; benches lift the root instead.
+      pose.rise = -.41; pose.legs = [-1.45, -1.35]; pose.knees = [.35, .5]; pose.arms = [[-.5, 0, -.15], [-.5, 0, .15]]; pose.elbows = [-.9, -.9]; pose.spine[0] = .1 + breathe;
+      break;
+    case 'bench':
+      // Seated on a bench or chair; the caller lifts the root to the seat.
+      pose.rise = -.5; pose.legs = [-1.5, -1.5]; pose.knees = [1.5, 1.5]; pose.arms = [[-.7, 0, -.15], [-.7, 0, .15]]; pose.elbows = [-1, -1]; pose.spine[0] = .08 + breathe;
+      break;
+    case 'lie':
+      // Limp body; the caller lays the root on its back.
+      pose.legs = [.05, -.1]; pose.knees = [.15, .3]; pose.arms = [[.2, 0, -.5], [.1, 0, .6]]; pose.elbows = [-.2, -.5]; pose.head[1] = .4;
       break;
     default:
       pose.spine[0] = breathe; pose.arms = [[breathe, 0, -.1], [breathe, 0, .1]]; pose.elbows = [-.12, -.12];
