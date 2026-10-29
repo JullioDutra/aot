@@ -126,6 +126,10 @@ Personagens toon com rostos desenhados, cabelos por mechas, uniformes, emblemas 
 
 Regras de quem pode se transformar e quando, linha do tempo ferimento → raio → clarão → corpo, raios ramificados determinísticos com vapor, anel de choque e marca no chão; integrado à arena.
 
+## Entregas intermediárias 22 e 23 — primeiras fases jogáveis
+
+Motor de roteiro com falas, objetivos, escolhas convergentes, eventos, metas e falha com checkpoint. Fases 1 e 2 (Shiganshina, da árvore à morte de Carla) e fase 32 (a carga de Erwin e Levi contra o Bestial) jogáveis em teclado/mouse, controle e toque. Pendentes: as outras 44 fases, dublagem, cinemáticas autorais e teste humano de equilíbrio.
+
 ## Marco 4 — demonstração de produção
 
 Uma operação de 15–20 minutos com arte e animação próprias de produção, referências verificadas, missão legível, resgate, abastecimento, destruição controlada e conclusão narrativa. Não será construída a campanha completa antes da aprovação desse marco.

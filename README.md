@@ -240,6 +240,20 @@ Na arena, o efeito substitui a antiga linha de 1 px, acompanha a pausa e o rein�
 
 Limites: o modelo do titã da arena ainda é o anterior às fases 19–20; os raios não iluminam sombras dinâmicas.
 
+## Modo História jogável — fases 22 e 23
+
+`story.html?fase=N` roda as fases implementadas com um casco comum: diálogo (Espaço/clique, A ou toque), escolhas (1/2/3, direcional + A ou toque), objetivos com marcador na tela, faixas de sub-fase, pausa, tela cheia, falha com retorno rápido ao início da sub-fase e tela final. A tela final mostra a reflexão das escolhas e os desafios. Ela não exibe nota nem medalha quando a fase tem morte canônica. Os roteiros são passos puros (`src/story/engine.js`) validados em testes: toda escolha converge, toda morte fixa é encenada, todo roteiro termina.
+
+**Fase 1 — Um dia em Shiganshina:** começa como o anime, com Eren acordando sob a árvore na colina com lágrimas no rosto e Mikasa com a lenha. Sub-fases: o portão interno com Hannes bebendo em serviço, o sino e o retorno da Tropa de Exploração (a mãe de Moses e o comandante), a escolha diante dos curiosos, a casa com Carla e a promessa do porão de Grisha, e Armin no canal falando do mar. O distrito tem muralhas de 50 m, portões, canal, ponte, praça com sino, barco e casas com estrutura de madeira. Desafios: encontrar os três marcos da infância (que voltam na fase 29) e terminar sem correr.
+
+**Fase 2 — O dia em que a muralha caiu:** o raio sobre a muralha (o mesmo efeito da transformação, em escala de 60 m), o Colossal erguendo a cabeça acima dela e o chute no portão. Os destroços caem em arco e derrubam casas, inclusive a dos Yeager. Titãs entram e devoram quem corre. A fuga é contra a corrente: um titã ao alcance agarra Eren e faz você voltar ao início da sub-fase. Depois vêm a viga que não sobe, Carla presa, a chegada de Hannes e a escolha dele (lutar ou recuar; as duas acabam no mesmo lugar), Eren carregado olhando para trás e a titã sorridente erguendo e devorando Carla, com sangue e corte para o preto. Desafios: soltar quatro civis presos no caminho e não perder Mikasa de vista.
+
+**Fase 32 — A última carga:** a conversa de Erwin e Levi sobre o sonho e o discurso aos recrutas (falas originais em paráfrase). Depois a carga a cavalo sob a chuva de pedras do Bestial: sombras no chão marcam os impactos, sinalizadores disparados durante o arremesso o cegam e espalham as pedras, e recrutas e cavalos caem à sua volta. Erwin cai à frente da carga e o recruta do jogador (Marlo) é atingido; os dois eventos são fixos. Levi usa os titãs enfileirados como ancoragens móveis (o cabo acompanha o titã) e corta nucas no caminho. O Bestial é desmontado por partes: braços, olhos e tendões. Enquanto tiver os braços, ele dá golpes telegrafados; com as pernas cortadas, ajoelha. Só então a nuca expõe Zeke, e a Carroça o resgata. Desafios: chegar ao Bestial com mais de 60% de gás, desmontá-lo em menos de 20 s e disparar sinalizadores em três arremessos.
+
+Controles do Modo História: WASD e mouse; Espaço avança e dá gás; G/R age; Shift corre; Q/E seguram os cabos; clique corta ou dispara o sinalizador. No controle: A avança/gás, X lâmina/sinalizador, Y age, B corre, gatilhos para os cabos. No toque: CONTINUAR, AGIR, CORRER e, nas fases de combate, ◀ CABO, CABO ▶, GÁS e LÂMINA.
+
+Limites: só as fases 1, 2 e 32 são jogáveis; as demais seguem planejadas no hub. Falas são paráfrases originais, sem dublagem. Os mapas são aproximações e não plantas conferidas episódio a episódio. Não há cinemáticas animadas à mão nem captura de movimento. A violência é estilizada (partículas, cortes de câmera). Testes de navegador usam ganchos de depuração para pular deslocamentos longos; o equilíbrio da carga e do duelo precisa de teste humano.
+
 ## Validação
 
 ```sh
@@ -264,6 +278,7 @@ Antes do primeiro teste de navegador, instale o Chromium correspondente à vers�
 - `src/titan-forms.js`: titãs puros paramétricos e os Nove.
 - `src/gallery-main.js` / `galeria.html`: galeria de modelos.
 - `src/transformation.js` / `src/transformation-fx.js`: regras, linha do tempo e efeitos da transformação.
+- `src/story-main.js` / `story.html`: casco das fases jogáveis; `src/story/`: motor de roteiro, Shiganshina (mundo, roteiro, adaptador), A última carga (roteiro, regras, adaptador), controlador de ODM e adereços.
 - `src/platform.js`: perfis de entrada, mescla de frames, rótulos por perfil e tela cheia.
 - `src/touch-controls.js` / `src/touch-controls.css`: analógico flutuante, câmera por arraste e botões de toque.
 - `src/mechanics.js`: regras independentes de renderização, cobertas por testes.
