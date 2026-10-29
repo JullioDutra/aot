@@ -34,7 +34,8 @@ export function createStage({ scene, camera, ui, audio, sky = '#c9d6d2', fog = [
     focusLight(x, z) { sunLight.target.position.set(x, 0, z); sunLight.position.set(x + sun[0], sun[1], z + sun[2]); },
     actor(id, spec, x, z, yaw = 0, options = {}) {
       const base = typeof spec === 'string' ? CHARACTER_SPECS[spec] : spec;
-      const rig = createCharacter({ ...base, ...(options.override ?? {}) }, options);
+      const o = options.override ?? {};
+      const rig = createCharacter({ ...base, ...o, hair: { ...base.hair, ...o.hair }, face: { ...base.face, ...o.face } }, options);
       rig.root.position.set(x, options.y ?? stage.ground(x, z), z); rig.root.rotation.y = yaw; scene.add(rig.root);
       const a = { id, rig, pose: options.pose ?? 'idle', speed: 1, path: null, t: Math.random() * 3, progress: 0, onArrive: null, follow: null };
       actors.set(id, a); return a;
@@ -135,7 +136,8 @@ export function createOdmPilot(stage, rig, { colliders = [], anchorRoots = [], b
     },
     view() {
       const P = odm.player.position, d = 6.5, f = forwardOf(pilot.yaw);
-      const position = new THREE.Vector3(P.x - f.x * Math.cos(pilot.pitch) * d, Math.max(.6, P.y + 2.4 - Math.sin(pilot.pitch) * d), P.z - f.z * Math.cos(pilot.pitch) * d);
+      const floor = odm.player.grounded && P.y > 2 ? P.y + 3.4 : .6;
+      const position = new THREE.Vector3(P.x - f.x * Math.cos(pilot.pitch) * d, Math.max(floor, P.y + 2.4 - Math.sin(pilot.pitch) * d), P.z - f.z * Math.cos(pilot.pitch) * d);
       const target = new THREE.Vector3(P.x, P.y + 1.4, P.z).addScaledVector(f, 20).add(new THREE.Vector3(0, Math.sin(pilot.pitch) * 10, 0));
       return { position, target };
     },

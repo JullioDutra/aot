@@ -18,6 +18,7 @@ const ADAPTERS = {
   1: () => import('./story/shiganshina-chapter.js'), 2: () => import('./story/shiganshina-chapter.js'),
   3: () => import('./story/retreat-chapter.js'), 4: () => import('./story/training-chapter.js'), 5: () => import('./story/training-chapter.js'),
   6: () => import('./story/trost-ch06.js'), 7: () => import('./story/trost-ch07.js'), 8: () => import('./story/trost-ch08.js'), 9: () => import('./story/trost-ch09.js'),
+  10: () => import('./story/trost-ch10.js'), 11: () => import('./story/trost-ch11.js'), 12: () => import('./story/trost-ch12.js'),
   32: () => import('./story/last-charge-chapter.js'),
 };
 
