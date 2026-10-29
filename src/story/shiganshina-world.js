@@ -137,15 +137,16 @@ export function createShiganshina(scene, { outline = true } = {}) {
     const beam = new THREE.Mesh(new THREE.BoxGeometry(record.w * .9, .6, .6), mat.timber); beam.position.set(-1, 1.4, record.d / 2 - 1); beam.rotation.z = .25; pile.add(beam); record.beam = beam;
   }
   function breakOuterGate() { outerGate.visible = false; colliders.splice(colliders.indexOf(outerBlock), 1); }
+  function breakInnerGate() { innerGate.visible = false; }
 
   return {
     group, colliders, houses, yeager, tree, bellMesh, innerGate, outerGate, canalZ, wallHeight: WALL_HEIGHT,
-    landmarks: LANDMARKS, groundHeight: hillHeight, collapse, breakOuterGate,
+    landmarks: LANDMARKS, groundHeight: hillHeight, collapse, breakOuterGate, breakInnerGate,
   };
 }
 
 // Circle vs. box push-out for walking characters (y is handled by groundHeight).
-export function moveWithCollisions(position, delta, radius, colliders) {
+export function moveWithCollisions(position, delta, radius, colliders, bounds = BOUNDS) {
   let x = position[0] + delta[0], z = position[1] + delta[1];
   for (const c of colliders) {
     const nx = Math.max(c.minX, Math.min(x, c.maxX)), nz = Math.max(c.minZ, Math.min(z, c.maxZ));
@@ -159,6 +160,6 @@ export function moveWithCollisions(position, delta, radius, colliders) {
       x += ex; z += ez;
     }
   }
-  x = Math.max(BOUNDS.minX, Math.min(BOUNDS.maxX, x)); z = Math.max(BOUNDS.minZ, Math.min(BOUNDS.maxZ, z));
+  x = Math.max(bounds.minX, Math.min(bounds.maxX, x)); z = Math.max(bounds.minZ, Math.min(bounds.maxZ, z));
   return [x, z];
 }

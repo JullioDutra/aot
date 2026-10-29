@@ -27,11 +27,13 @@ async function playThrough(page, { option = 1, goals = true, until = s => s.mode
   throw new Error('chapter did not finish');
 }
 
-async function begin(page, number) {
+async function begin(page, number, timeScale = 1) {
   await page.goto(`/story.html?fase=${number}`);
   await expect(page.locator('#story-start')).toBeEnabled({ timeout: 60000 });
   await page.locator('#story-start').click();
   await expect.poll(async () => (await snap(page)).mode).toBe('playing');
+  // Several simulation steps per rendered frame: software rendering runs at ~5 fps.
+  await page.evaluate(scale => { window.__STORY__.timeScale = scale; }, timeScale);
 }
 
 test('chapter 1 opens under the tree and walks through the five sub-missions', async ({ page }) => {
@@ -94,5 +96,57 @@ test('chapter 32: the charge, Levi on the line of titans and the Beast taken apa
   expect(end.story.log).toEqual(expect.arrayContaining(['goal:bestial', 'event:zeke-pulled', 'event:cart-rescue', 'fixed:morte-marlo']));
   expect(end.adapter.zekePulled).toBe(true);
   await expect(page.locator('#story-end-rating')).toBeHidden();
+  expect(errors).toEqual([]);
+});
+
+test('chapter 3: a titan grab sends you back to the dock, then the Armored breaks the inner gate', async ({ page }) => {
+  test.setTimeout(300000);
+  const errors = []; page.on('pageerror', e => errors.push(e.message));
+  await begin(page, 3, 4);
+  await playThrough(page, { goals: false, until: s => s.story.log.includes('event:dock-arrival') && s.adapter.bell < 100 });
+  // Walk into a titan's reach: the failure screen offers the sub-mission again.
+  await page.evaluate(() => window.__STORY__.debug('teleport', [-20, -27]));
+  await expect(page.locator('#story-fail')).toBeVisible({ timeout: 60000 });
+  await expect(page.locator('#story-fail-reason')).toContainText('titã');
+  await expect(page.locator('#story-fail-retry')).toBeEnabled({ timeout: 30000 });
+  await page.locator('#story-fail-retry').click();
+  await expect.poll(async () => (await snap(page)).adapter.bell).toBeGreaterThan(90);
+  const end = await playThrough(page);
+  expect(end.story.log).toEqual(expect.arrayContaining(['goal:cais', 'event:gate-burst', 'fixed:maria-cai', 'objective:pao', 'interact:dividir']));
+  expect(end.adapter.gateBroken).toBe(true);
+  expect(end.adapter.place).toBe('shelter');
+  await expect(page.locator('#story-end-rating')).toBeVisible();
+  await expect(page.locator('#story-next')).toHaveAttribute('href', './story.html?fase=4');
+  expect(errors).toEqual([]);
+});
+
+test('chapter 4: the broken belt flips Eren on its own and the drills run in order', async ({ page }) => {
+  test.setTimeout(300000);
+  const errors = []; page.on('pageerror', e => errors.push(e.message));
+  await begin(page, 4, 4);
+  // No help from the test hooks: the faulty belt must throw him by itself.
+  await playThrough(page, { goals: false, until: s => s.adapter?.control === 'balance' });
+  await expect.poll(async () => (await snap(page)).story.log, { timeout: 120000 }).toContain('goal:equilibrio-1');
+  const end = await playThrough(page);
+  expect(end.story.log.filter(e => e.startsWith('mission:'))).toEqual(['mission:chegada', 'mission:equilibrio', 'mission:cabos', 'mission:mao']);
+  expect(end.story.log).toEqual(expect.arrayContaining(['fixed:cinto', 'goal:reiner', 'goal:annie', 'event:annie-flip']));
+  await expect(page.locator('#story-end')).toBeVisible();
+  expect(errors).toEqual([]);
+});
+
+test('chapter 5: wooden napes score only from behind, then the graduation table choice', async ({ page }) => {
+  test.setTimeout(300000);
+  const errors = []; page.on('pageerror', e => errors.push(e.message));
+  await begin(page, 5, 4);
+  await playThrough(page, { goals: false, until: s => s.adapter?.control === 'odm' });
+  for (let i = 0; i < 2; i++) {
+    await page.evaluate(() => window.__STORY__.debug('behindTarget'));
+    await expect.poll(async () => (await snap(page)).adapter.cuts, { timeout: 30000 }).toBe(i + 1);
+  }
+  expect((await snap(page)).adapter.score).toBeGreaterThan(0);
+  const end = await playThrough(page, { option: 3 });
+  expect(end.story.choices).toEqual({ formatura: 'reiner' });
+  expect(end.story.log).toEqual(expect.arrayContaining(['goal:rota', 'goal:rival', 'objective:mesa', 'event:eren-speech']));
+  await expect(page.locator('#story-end-reflection')).toContainText('Reiner');
   expect(errors).toEqual([]);
 });

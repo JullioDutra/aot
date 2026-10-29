@@ -14,7 +14,11 @@ import { clamp } from './mechanics.js';
 // controller and touch, dialogue, choices, objectives, pause, failure with a
 // quick checkpoint return and the end card. Chapters plug in an adapter that
 // owns the world, the player and the scripted events.
-const ADAPTERS = { 1: () => import('./story/shiganshina-chapter.js'), 2: () => import('./story/shiganshina-chapter.js'), 32: () => import('./story/last-charge-chapter.js') };
+const ADAPTERS = {
+  1: () => import('./story/shiganshina-chapter.js'), 2: () => import('./story/shiganshina-chapter.js'),
+  3: () => import('./story/retreat-chapter.js'), 4: () => import('./story/training-chapter.js'), 5: () => import('./story/training-chapter.js'),
+  32: () => import('./story/last-charge-chapter.js'),
+};
 
 const $ = id => document.getElementById(id);
 const number = Number(new URLSearchParams(location.search).get('fase')) || 1;
@@ -218,21 +222,26 @@ let last = performance.now();
 renderer.setAnimationLoop(now => {
   const dt = Math.min(.05, (now - last) / 1000); last = now;
   const input = gatherInput(dt);
-  if (adapter && mode === 'playing') {
-    elapsed += dt;
-    const choices = $('story-options').children;
-    let choose = input.choose;
-    if (typeof choose === 'number') choose = choices[choose]?.dataset.option ?? null;
-    const result = stepStory(story, dt, { position: adapter.playerPosition(), advance: input.advance, interact: input.interact, choose, goals: adapter.goals?.() }, Object.fromEntries(data.decisions.map(d => [d.id, d])));
-    for (const event of result.events) {
-      if (event.kind === 'mission') { banner(event.title, `Fase ${number} · ${data.title}`); checkpoint = { index: story.index, mission: story.mission, snapshot: adapter.checkpoint?.() }; }
-      else if (event.kind === 'end') finish();
-      else adapter.onStoryEvent(event);
-    }
-    const outcome = adapter.update(dt, input, story.control, result.ui);
-    if (outcome?.fail) fail(outcome.fail);
-    if (mode === 'playing' || mode === 'finished') renderUI(result.ui);
-  } else if (adapter) adapter.idle?.(dt);
+  // Browser tests raise timeScale to run several fixed steps per rendered
+  // frame; players always get one step per frame.
+  for (let step = 0; step < (mode === 'playing' ? window.__STORY__.timeScale : 1); step++) {
+    const frame = step ? { ...input, look: [0, 0], advance: false, interact: false, choose: null, pressed: {} } : input;
+    if (adapter && mode === 'playing') {
+      elapsed += dt;
+      const choices = $('story-options').children;
+      let choose = frame.choose;
+      if (typeof choose === 'number') choose = choices[choose]?.dataset.option ?? null;
+      const result = stepStory(story, dt, { position: adapter.playerPosition(), advance: frame.advance, interact: frame.interact, choose, goals: adapter.goals?.() }, Object.fromEntries(data.decisions.map(d => [d.id, d])));
+      for (const event of result.events) {
+        if (event.kind === 'mission') { banner(event.title, `Fase ${number} · ${data.title}`); checkpoint = { index: story.index, mission: story.mission, snapshot: adapter.checkpoint?.() }; }
+        else if (event.kind === 'end') finish();
+        else adapter.onStoryEvent(event);
+      }
+      const outcome = adapter.update(dt, frame, story.control, result.ui);
+      if (outcome?.fail) fail(outcome.fail);
+      if (mode === 'playing' || mode === 'finished') renderUI(result.ui);
+    } else if (adapter) adapter.idle?.(dt);
+  }
   if (mode === 'failed') { failTimer -= dt; $('story-fail-retry').disabled = failTimer > 1.4; }
   if (bannerTime > 0 && (bannerTime -= dt) <= 0) $('story-banner').classList.remove('visible');
   if (toastTime > 0 && (toastTime -= dt) <= 0) $('story-toast').classList.remove('visible');
@@ -240,5 +249,5 @@ renderer.setAnimationLoop(now => {
   renderer.render(scene, camera);
 });
 
-window.__STORY__ = { ready: false, debug: (name, ...args) => adapter?.debug?.[name]?.(...args), snapshot: () => ({ number, mode, ready: !!story, inputProfile, elapsed, fade, story: story ? { index: story.index, control: story.control, finished: story.finished, mission: story.mission, choices: { ...story.choices }, log: [...story.log] } : null, adapter: adapter?.snapshot?.() ?? null, progress: structuredClone(progress), drawCalls: renderer.info.render.calls }) };
+window.__STORY__ = { ready: false, timeScale: 1, debug: (name, ...args) => adapter?.debug?.[name]?.(...args), snapshot: () => ({ number, mode, ready: !!story, inputProfile, elapsed, fade, story: story ? { index: story.index, control: story.control, finished: story.finished, mission: story.mission, choices: { ...story.choices }, log: [...story.log] } : null, adapter: adapter?.snapshot?.() ?? null, progress: structuredClone(progress), drawCalls: renderer.info.render.calls, camera: camera.position.toArray().map(v => +v.toFixed(1)) }) };
 boot().catch(error => { console.error(error); $('story-error').hidden = false; });

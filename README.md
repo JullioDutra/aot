@@ -252,7 +252,19 @@ Limites: o modelo do titã da arena ainda é o anterior às fases 19–20; os ra
 
 Controles do Modo História: WASD e mouse; Espaço avança e dá gás; G/R age; Shift corre; Q/E seguram os cabos; clique corta ou dispara o sinalizador. No controle: A avança/gás, X lâmina/sinalizador, Y age, B corre, gatilhos para os cabos. No toque: CONTINUAR, AGIR, CORRER e, nas fases de combate, ◀ CABO, CABO ▶, GÁS e LÂMINA.
 
-Limites: só as fases 1, 2 e 32 são jogáveis; as demais seguem planejadas no hub. Falas são paráfrases originais, sem dublagem. Os mapas são aproximações e não plantas conferidas episódio a episódio. Não há cinemáticas animadas à mão nem captura de movimento. A violência é estilizada (partículas, cortes de câmera). Testes de navegador usam ganchos de depuração para pular deslocamentos longos; o equilíbrio da carga e do duelo precisa de teste humano.
+Limites: as fases 1–5 e 32 são jogáveis; as demais seguem planejadas no hub. Falas são paráfrases originais, sem dublagem. Os mapas são aproximações e não plantas conferidas episódio a episódio. Não há cinemáticas animadas à mão nem captura de movimento. A violência é estilizada (partículas, cortes de câmera). Testes de navegador usam ganchos de depuração para pular deslocamentos longos; o equilíbrio da carga e do duelo precisa de teste humano.
+
+## Ato I completo — fase 25 (fases 3, 4 e 5 da história)
+
+As fases 3–5 usam um kit comum (`src/story/kit.js`): atores com rotas, câmera com planos fixos, jogador a pé, ODM com lâminas, titãs puros que caçam a presa mais próxima (anormais vão atrás da multidão) e um titã controlável. As regras ficam em `src/story/story-rules.js`, com testes.
+
+**Fase 3 — A retirada:** o último barco no portão interno de Shiganshina. Chame os civis com G, leve-os até o cais e fuja dos titãs antes da sineta; um titã que agarra Eren faz a sub-fase recomeçar, e um civil agarrado é perdido diante de você. Do barco, o Blindado atravessa o distrito em disparada e arrebenta o portão interno (a Muralha Maria cai). No armazém de Rose: a fila do pão, o soldado que deseja mais mortos, o chute de Eren, Armin pedindo desculpas e o pão dividido. Desafio: embarcar os seis civis.
+
+**Fase 4 — O 104º Corpo de Treinamento:** a cerimônia de Shadis (a batata de Sasha), o aparelho de equilíbrio com o cinto quebrado (a falha é da peça, não dos controles: nenhuma direção segura o corpo), o conselho de Reiner e Bertholdt à noite e a segunda tentativa com o cinto de Thomas. Depois, o circuito de cabos com quatro arcos e o treino de desarme: G no fim do aviso de Reiner desarma, cedo demais abre a guarda. Annie derruba Eren de qualquer jeito. Desafios: equilíbrio sem passar de 50% de inclinação e desarmar Reiner sem receber golpes.
+
+**Fase 5 — Exercício na floresta:** floresta de árvores gigantes (todas servem de ancoragem) com 20 alvos de madeira, quatro escondidos. Só corte por trás vale ponto, e velocidade dá bônus. Jean voa a rota e pontua no próprio ritmo; quem tiver menos pontos quando o sino tocar repete a sub-fase. Na noite da formatura, os dez primeiros e a escolha da mesa (Jean e Marco, Sasha e Connie, Reiner e Bertholdt), cada uma com conversas próprias. Desafios: pontuação de top 10 e todos os alvos escondidos.
+
+Limites: o refeitório, o armazém e a cabana são cenários simples; o duelo e o equilíbrio precisam de teste humano para calibrar o tempo de reação.
 
 ## Co-op local — fase 24
 
