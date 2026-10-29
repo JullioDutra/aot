@@ -228,7 +228,7 @@ export function createChapter({ scene, camera, number, ui, audio, data }) {
       if (event.kind === 'mission' && event.id === 'rival') rivalClock = 0;
     },
     update,
-    checkpoint: () => ({ mission, hoop, score, cuts, rotaClock }),
+    checkpoint: next => ({ mission: next?.id ?? mission, hoop, score, cuts, rotaClock }),
     restore(snapshot) {
       stage.clearShot(); goals = new Set([...goals].filter(g => !g.startsWith(snapshot?.mission ?? '·')));
       if (control === 'odm' && number === 5) { pilot.place(FOREST_START[0], 0, FOREST_START[1] + 6, 0); pilot.odm.player.gas = 100; score = snapshot?.score ?? 0; cuts = snapshot?.cuts ?? 0; rotaClock = snapshot?.rotaClock ?? 0; rivalClock = 0; }

@@ -138,6 +138,10 @@ Tela dividida para dois jogadores com ODM, golpe combinado por distração, resg
 
 Fases 3 (a retirada e o Blindado), 4 (cerimônia, equilíbrio com o cinto quebrado, cabos e desarme) e 5 (floresta contra Jean e formatura). Kit compartilhado de história (atores, câmera, ODM, horda de titãs puros, titã controlável) e regras puras testadas. Os testes de navegador rodam a simulação 4× por quadro para caber no tempo com renderização por software.
 
+## Entrega intermediária 26 — Trost, parte 1
+
+Cidade de Trost compartilhada (muralhas, portões, quartel, praça da pedra, quarteirões mesclados por material) e as fases 6 (Colossal na muralha), 7 (esquadrão 34), 8 (Mikasa, cabana e o anormal no portão) e 9 (rotas táticas e o comando de Jean). Os pontos de retorno passam a guardar a sub-fase que começa.
+
 ## Marco 4 — demonstração de produção
 
 Uma operação de 15–20 minutos com arte e animação próprias de produção, referências verificadas, missão legível, resgate, abastecimento, destruição controlada e conclusão narrativa. Não será construída a campanha completa antes da aprovação desse marco.

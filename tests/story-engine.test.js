@@ -4,6 +4,7 @@ import { createStoryState, stepStory, validateScript } from '../src/story/engine
 import { SCRIPTS, PLACES } from '../src/story/shiganshina-script.js';
 import { chapter } from '../src/campaign/chapters.js';
 import { ACT1_SCRIPTS } from '../src/story/act1-scripts.js';
+import { TROST_SCRIPTS } from '../src/story/trost-scripts.js';
 
 const decisionsOf = n => Object.fromEntries(chapter(n).decisions.map(d => [d.id, d]));
 
@@ -112,7 +113,7 @@ test('flares widen the barrage and the Beast exposes every part Levi must cut', 
 });
 
 // Chapters with a script follow their plan: same sub-missions in the same order.
-const SCRIPTED = { ...ACT1_SCRIPTS };
+const SCRIPTED = { ...ACT1_SCRIPTS, ...TROST_SCRIPTS };
 
 test('scripted chapters validate and play their planned sub-missions in order', () => {
   for (const [n, script] of Object.entries(SCRIPTED)) {

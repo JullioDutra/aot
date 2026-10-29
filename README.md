@@ -252,7 +252,7 @@ Limites: o modelo do titã da arena ainda é o anterior às fases 19–20; os ra
 
 Controles do Modo História: WASD e mouse; Espaço avança e dá gás; G/R age; Shift corre; Q/E seguram os cabos; clique corta ou dispara o sinalizador. No controle: A avança/gás, X lâmina/sinalizador, Y age, B corre, gatilhos para os cabos. No toque: CONTINUAR, AGIR, CORRER e, nas fases de combate, ◀ CABO, CABO ▶, GÁS e LÂMINA.
 
-Limites: as fases 1–5 e 32 são jogáveis; as demais seguem planejadas no hub. Falas são paráfrases originais, sem dublagem. Os mapas são aproximações e não plantas conferidas episódio a episódio. Não há cinemáticas animadas à mão nem captura de movimento. A violência é estilizada (partículas, cortes de câmera). Testes de navegador usam ganchos de depuração para pular deslocamentos longos; o equilíbrio da carga e do duelo precisa de teste humano.
+Limites: as fases 1–9 e 32 são jogáveis; as demais seguem planejadas no hub. Falas são paráfrases originais, sem dublagem. Os mapas são aproximações e não plantas conferidas episódio a episódio. Não há cinemáticas animadas à mão nem captura de movimento. A violência é estilizada (partículas, cortes de câmera). Testes de navegador usam ganchos de depuração para pular deslocamentos longos; o equilíbrio da carga e do duelo precisa de teste humano.
 
 ## Ato I completo — fase 25 (fases 3, 4 e 5 da história)
 
@@ -265,6 +265,20 @@ As fases 3–5 usam um kit comum (`src/story/kit.js`): atores com rotas, câmera
 **Fase 5 — Exercício na floresta:** floresta de árvores gigantes (todas servem de ancoragem) com 20 alvos de madeira, quatro escondidos. Só corte por trás vale ponto, e velocidade dá bônus. Jean voa a rota e pontua no próprio ritmo; quem tiver menos pontos quando o sino tocar repete a sub-fase. Na noite da formatura, os dez primeiros e a escolha da mesa (Jean e Marco, Sasha e Connie, Reiner e Bertholdt), cada uma com conversas próprias. Desafios: pontuação de top 10 e todos os alvos escondidos.
 
 Limites: o refeitório, o armazém e a cabana são cenários simples; o duelo e o equilíbrio precisam de teste humano para calibrar o tempo de reação.
+
+## Batalha de Trost, parte 1 — fase 26 (fases 6 a 9 da história)
+
+Trost é uma cidade inteira (`src/story/trost-world.js`): muralha externa com o portão, muralha interna com a fila de evacuação, quartel de abastecimento, praça da pedra e quarteirões altos o bastante para o ODM. As construções são mescladas por material, o que deixa a cidade em poucas chamadas de desenho, e toda fachada serve de ancoragem. As fases 6–12 compartilham um adaptador (`src/story/trost-chapter.js`) e cada uma traz o próprio plano.
+
+**Fase 6 — O retorno do Colossal:** manutenção dos canhões no alto da muralha (a carne roubada de Sasha), o raio, o Colossal erguendo a cabeça ao lado do esquadrão e o chute que abre o portão. O jato de vapor arranca todos do alto: prenda um cabo na face interna da muralha antes de cair (pegar Samuel no ar é o desafio). Depois, suba e corte a nuca enquanto o braço do Colossal varre o alto da muralha com aviso; o golpe acerta e ele some no vapor. Desafios: segurar Samuel e chegar à nuca em menos de 25 s.
+
+**Fase 7 — A primeira missão:** o esquadrão 34 voa pelos telhados atrás de Thomas. Ficar longe da formação por 6 s faz a sub-fase recomeçar. O anormal salta da rua e engole Thomas no ar; a escolha de Eren (perseguir ou manter a formação) termina igual: um titã arranca a perna dele. Mina bate numa fachada e é puxada; Nack e Milieus são devorados. Eren rasteja até a boca do titã barbudo, arranca Armin e é engolido.
+
+**Fase 8 — As asas de Mikasa:** o anormal desce a avenida em direção à fila do portão interno e precisa morrer antes de chegar. Mikasa ameaça o mercador da carroça. Na cabana nas montanhas, os pais são mortos pelos traficantes; Eren mata dois, o terceiro o estrangula e Mikasa pega a faca. De volta a Trost, ela abre caminho sozinha com o gás acabando duas vezes e meia mais rápido, cai num beco e escolhe viver; o titã desconhecido derruba o titã que vinha atrás dela. Desafios: cinco titãs com até cinco cortes e chegar ao beco com mais de 10% de gás.
+
+**Fase 9 — Sem combustível:** visão tática sobre a cidade com três rotas até o quartel (telhados perto do titã desconhecido, avenida, canal), cada uma com titãs, cobertura e risco. A rota escolhida decide quais titãs ficam no caminho, e os titãs da rota dos telhados vão atrás do desconhecido. Jean lidera com 42% de gás; três cadetes comuns voam atrás dele e podem ser agarrados se você não limpar o caminho. No meio, um cadete fica preso: voltar salva ele e custa outro; seguir deixa ele para trás. Desafio: chegar sem perder nenhum cadete além do da escolha.
+
+Limites: os prédios de Trost são blocos com telhado de quatro águas; a câmera do ODM ainda atravessa telhados vizinhos em ângulos fechados. Os titãs andam através das casas.
 
 ## Co-op local — fase 24
 

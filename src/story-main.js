@@ -17,6 +17,7 @@ import { clamp } from './mechanics.js';
 const ADAPTERS = {
   1: () => import('./story/shiganshina-chapter.js'), 2: () => import('./story/shiganshina-chapter.js'),
   3: () => import('./story/retreat-chapter.js'), 4: () => import('./story/training-chapter.js'), 5: () => import('./story/training-chapter.js'),
+  6: () => import('./story/trost-ch06.js'), 7: () => import('./story/trost-ch07.js'), 8: () => import('./story/trost-ch08.js'), 9: () => import('./story/trost-ch09.js'),
   32: () => import('./story/last-charge-chapter.js'),
 };
 
@@ -233,7 +234,7 @@ renderer.setAnimationLoop(now => {
       if (typeof choose === 'number') choose = choices[choose]?.dataset.option ?? null;
       const result = stepStory(story, dt, { position: adapter.playerPosition(), advance: frame.advance, interact: frame.interact, choose, goals: adapter.goals?.() }, Object.fromEntries(data.decisions.map(d => [d.id, d])));
       for (const event of result.events) {
-        if (event.kind === 'mission') { banner(event.title, `Fase ${number} · ${data.title}`); checkpoint = { index: story.index, mission: story.mission, snapshot: adapter.checkpoint?.() }; }
+        if (event.kind === 'mission') { banner(event.title, `Fase ${number} · ${data.title}`); checkpoint = { index: story.index, mission: story.mission, snapshot: adapter.checkpoint?.(story.mission) }; }
         else if (event.kind === 'end') finish();
         else adapter.onStoryEvent(event);
       }
