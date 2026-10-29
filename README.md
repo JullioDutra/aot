@@ -252,7 +252,7 @@ Limites: o modelo do titã da arena ainda é o anterior às fases 19–20; os ra
 
 Controles do Modo História: WASD e mouse; Espaço avança e dá gás; G/R age; Shift corre; Q/E seguram os cabos; clique corta ou dispara o sinalizador. No controle: A avança/gás, X lâmina/sinalizador, Y age, B corre, gatilhos para os cabos. No toque: CONTINUAR, AGIR, CORRER e, nas fases de combate, ◀ CABO, CABO ▶, GÁS e LÂMINA.
 
-Limites: as fases 1–12 e 32 são jogáveis; as demais seguem planejadas no hub. Falas são paráfrases originais, sem dublagem. Os mapas são aproximações e não plantas conferidas episódio a episódio. Não há cinemáticas animadas à mão nem captura de movimento. A violência é estilizada (partículas, cortes de câmera). Testes de navegador usam ganchos de depuração para pular deslocamentos longos; o equilíbrio da carga e do duelo precisa de teste humano.
+Limites: as fases 1–15 e 32 são jogáveis; as demais seguem planejadas no hub. Falas são paráfrases originais, sem dublagem. Os mapas são aproximações e não plantas conferidas episódio a episódio. Não há cinemáticas animadas à mão nem captura de movimento. A violência é estilizada (partículas, cortes de câmera). Testes de navegador usam ganchos de depuração para pular deslocamentos longos; o equilíbrio da carga e do duelo precisa de teste humano.
 
 ## Ato I completo — fase 25 (fases 3, 4 e 5 da história)
 
@@ -289,6 +289,18 @@ Limites: os prédios de Trost são blocos com telhado de quatro águas; a câmer
 **Fase 12 — A pedra de Trost:** o discurso de Pyxis no alto da muralha, o desertor e a ordem a Ian. Eren se transforma com o raio ao lado da pedra e perde o controle: como Mikasa, aguente 15 s de socos telegrafados sem ficar onde ele mira. O sinal vermelho sobe, Armin crava a lâmina na nuca e fala do mar até Eren voltar. Como o titã de Eren, carregue a pedra (o peso e o cansaço reduzem a velocidade) enquanto a guarda de elite segura os titãs. A escolha de Ian (ficar ou recuar) termina igual: Ian e Mitabi são agarrados e devorados. Como Mikasa, mate os titãs que vão para cima de Eren até a pedra tapar o portão; o sinal amarelo sobe, Levi chega cortando dois titãs e a fase termina no tribunal: Zackly, Nile, Erwin e Levi chutando Eren. Desafio: nenhum titã encostar em Eren.
 
 Limites: o titã de Eren usa o modelo da galeria; carregar a pedra não tem colisão com prédios; o tribunal é um cenário simples.
+
+## A Titã Fêmea, parte 1 — fase 28 (fases 13 a 15 da história)
+
+Fora das muralhas há um mundo próprio (`src/story/field-world.js`): a planície com árvores isoladas e uma aldeia abandonada (poucas ancoragens), a floresta de árvores gigantes com uma trilha no meio e uma clareira, e o castelo do esquadrão de Levi. As fases de campo compartilham `src/story/field-chapter.js`, que acrescenta cavalgar (controle `ride`: WASD vira e esporeia, Shift galopa; troncos e paredes param o cavalo), soldados montados, sinalizadores de fumaça e a Titã Fêmea (`src/story/female-titan.js`). As regras novas ficam em `src/story/act3-rules.js` com testes.
+
+**Fase 13 — Além das muralhas:** o castelo com Levi, Petra, Oluo e Hange; os titãs capturados mortos de madrugada; a pergunta de Erwin. Na formação de longo alcance, como Armin a cavalo, fique no seu posto (sair por 8 s falha) e repita cada sinal do posto vizinho com a mesma cor (clique vermelho, G verde) em até 6 s; cor errada conta como erro. Depois da fumaça negra, repita o sinal com Espaço e cavalgue até o mensageiro do flanco direito. Desafio: dez sinais sem erro.
+
+**Fase 14 — A perseguidora:** a Fêmea atravessa a ala direita. A cavalo, acompanhe-a entre 15 e 70 m e observe três padrões nos soldados que a enfrentam: ela olha o rosto de quem pega, cobre a nuca com a mão endurecida e varre quem chega pela frente. Chegar ao alcance dela ou perdê-la de vista falha. Ela derruba Armin, levanta o capuz e vai embora. Na aldeia abandonada, como Jean, fique perto da cabeça dela por 20 s: na frente das mãos ela varre, embaixo ela chuta. Reiner é agarrado e sai cortando; Armin a provoca com o apelido de Marco.
+
+**Fase 15 — A floresta das árvores gigantes:** como Eren a cavalo, mantenha-se a até 18 m de Levi entre os troncos enquanto a retaguarda morre tentando parar a Fêmea; se ela chegar a 14 m, alcança o cavalo. A escolha de confiar ou morder a mão termina com Eren cavalgando; a armadilha de Erwin dispara os arpões quando ela entra na clareira. Desafio: atravessar sem sair da formação.
+
+Limites: o mundo de campo é procedural e sem relevo; a Fêmea usa o modelo da galeria com cristal simplificado; os soldados que a enfrentam são encenados, não simulados.
 
 ## Co-op local — fase 24
 
