@@ -254,6 +254,17 @@ Controles do Modo História: WASD e mouse; Espaço avança e dá gás; G/R age; 
 
 Limites: só as fases 1, 2 e 32 são jogáveis; as demais seguem planejadas no hub. Falas são paráfrases originais, sem dublagem. Os mapas são aproximações e não plantas conferidas episódio a episódio. Não há cinemáticas animadas à mão nem captura de movimento. A violência é estilizada (partículas, cortes de câmera). Testes de navegador usam ganchos de depuração para pular deslocamentos longos; o equilíbrio da carga e do duelo precisa de teste humano.
 
+## Co-op local — fase 24
+
+`coop.html` (no Modo História, em "Fora da continuidade") é um modo em tela dividida para dois jogadores, fora da história canônica. A dupla escolhe personagens do elenco e precisa limpar um campo de 12 titãs em 4 minutos usando ODM.
+
+- **Golpe combinado:** quando um titã persegue seu parceiro e você corta a nuca dele, o abate devolve 8 s ao relógio (a lógica de distração e corte do anime).
+- **Agarrado:** o parceiro só se solta se você matar o titã que o segura.
+- **Caído:** levanta quando você segura o botão de ação perto dele; soltar o botão faz a barra cair aos poucos.
+- **Controles:** com dois controles, um para cada jogador. Com um controle, o J1 usa teclado e mouse e o J2 o controle. Sem controle, os dois dividem o teclado (WASD/Q/E/Espaço/clique e IJKL/U/O/Shift direito/Enter).
+
+Limites: só local, sem rede. Sem tela dividida no celular (o toque continua para um jogador). Os titãs usam uma perseguição simples. Não há progresso salvo.
+
 ## Validação
 
 ```sh
@@ -279,6 +290,7 @@ Antes do primeiro teste de navegador, instale o Chromium correspondente à vers�
 - `src/gallery-main.js` / `galeria.html`: galeria de modelos.
 - `src/transformation.js` / `src/transformation-fx.js`: regras, linha do tempo e efeitos da transformação.
 - `src/story-main.js` / `story.html`: casco das fases jogáveis; `src/story/`: motor de roteiro, Shiganshina (mundo, roteiro, adaptador), A última carga (roteiro, regras, adaptador), controlador de ODM e adereços.
+- `src/coop-main.js` / `src/coop-rules.js` / `coop.html`: co-op local em tela dividida.
 - `src/platform.js`: perfis de entrada, mescla de frames, rótulos por perfil e tela cheia.
 - `src/touch-controls.js` / `src/touch-controls.css`: analógico flutuante, câmera por arraste e botões de toque.
 - `src/mechanics.js`: regras independentes de renderização, cobertas por testes.

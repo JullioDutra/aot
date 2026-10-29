@@ -42,7 +42,8 @@ test('chapter 1 opens under the tree and walks through the five sub-missions', a
   await expect(page.locator('#story-start')).toBeEnabled({ timeout: 60000 });
   await page.locator('#story-start').click();
   await expect(page.locator('#story-banner-title')).toHaveText('Sob a árvore');
-  await expect(page.locator('#story-speaker')).toHaveText('Mikasa', { timeout: 15000 });
+  // The opening shot lasts 3.5 s of game time, ~17 s with software rendering.
+  await expect(page.locator('#story-speaker')).toHaveText('Mikasa', { timeout: 60000 });
   const end = await playThrough(page, { option: 2 });
   expect(end.story.log.filter(e => e.startsWith('mission:'))).toEqual(['mission:arvore', 'mission:portao', 'mission:retorno', 'mission:casa', 'mission:canal']);
   expect(end.story.choices).toEqual({ tropa: 'calar' });

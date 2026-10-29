@@ -396,7 +396,7 @@ export const EXTRA_MODES = Object.freeze([
   { id: 'arena', title: 'Arena de transformação', kind: 'ensaio de combate', href: './arena.html' },
   { id: 'alvos-104', title: 'Alvos do 104º', kind: 'contra o relógio', href: null },
   { id: 'sobrevivencia', title: 'Sobrevivência em Trost', kind: 'ondas', href: null },
-  { id: 'coop', title: 'Co-op local', kind: 'dois jogadores', href: null },
+  { id: 'coop', title: 'Co-op local', kind: 'dois jogadores', href: './coop.html' },
 ]);
 
 export function chapter(number) {

@@ -130,6 +130,10 @@ Regras de quem pode se transformar e quando, linha do tempo ferimento → raio �
 
 Motor de roteiro com falas, objetivos, escolhas convergentes, eventos, metas e falha com checkpoint. Fases 1 e 2 (Shiganshina, da árvore à morte de Carla) e fase 32 (a carga de Erwin e Levi contra o Bestial) jogáveis em teclado/mouse, controle e toque. Pendentes: as outras 44 fases, dublagem, cinemáticas autorais e teste humano de equilíbrio.
 
+## Entrega intermediária 24 — co-op local
+
+Tela dividida para dois jogadores com ODM, golpe combinado por distração, resgate de parceiro agarrado e reanimação; atribuição automática de controles e teclado compartilhado. Sem rede, sem celular e fora da continuidade.
+
 ## Marco 4 — demonstração de produção
 
 Uma operação de 15–20 minutos com arte e animação próprias de produção, referências verificadas, missão legível, resgate, abastecimento, destruição controlada e conclusão narrativa. Não será construída a campanha completa antes da aprovação desse marco.
