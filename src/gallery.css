@@ -1,0 +1,23 @@
+*{box-sizing:border-box}
+body.gallery-page{margin:0;background:#11191d;color:#eff0e8;font-family:Arial,Helvetica,sans-serif;height:100vh;overflow:hidden;display:grid;grid-template-columns:minmax(0,1fr) 260px;grid-template-rows:auto minmax(0,1fr) auto}
+[hidden]{display:none!important}
+button,select{font:inherit;cursor:pointer}
+button:focus-visible,select:focus-visible,a:focus-visible{outline:2px solid #d2ac6c;outline-offset:3px}
+.gallery-top{grid-column:1/-1;display:flex;align-items:center;gap:18px;padding:14px 20px;border-bottom:1px solid #b2c3bd26}
+.gallery-top a{color:#a9b8b5;text-decoration:none;font-size:11px;letter-spacing:1px}
+.gallery-top a.brand{color:#eff0e8;font-weight:700;letter-spacing:2px;font-size:12px}
+.gallery-top .spacer{flex:1}
+.gallery-tabs{display:flex;gap:6px}
+.gallery-tabs button,.gallery-top>button{background:transparent;border:1px solid #b2c3bd40;color:#c9d3cf;padding:8px 12px;font-size:10px;letter-spacing:1.2px}
+.gallery-tabs button.active{background:#d5b77f;color:#152025;border-color:#eed3a3}
+.gallery-top label{font-size:10px;letter-spacing:1px;color:#a9b8b5;display:flex;gap:8px;align-items:center}
+.gallery-top select{background:#1b2a30;color:#e3e9df;border:1px solid #59716d;padding:6px}
+#gallery-canvas{grid-column:1;grid-row:2;width:100%;height:100%;display:block}
+.gallery-side{grid-column:2;grid-row:2;overflow:auto;border-left:1px solid #b2c3bd26;padding:10px}
+#gallery-list{display:flex;flex-direction:column;gap:4px}
+#gallery-list button{text-align:left;background:transparent;border:0;border-left:2px solid transparent;color:#c9d3cf;padding:9px 10px;font-size:12px}
+#gallery-list button:hover{background:#ffffff0a}
+#gallery-list button.active{border-left-color:#d2ac6c;color:#f1d39e;background:#d2ac6c14}
+.gallery-foot{grid-column:1/-1;padding:10px 20px;font-size:11px;color:#a9b8b5;border-top:1px solid #b2c3bd26;display:flex;justify-content:space-between;gap:16px}
+.gallery-foot small{color:#7f9294}
+@media(max-width:760px){body.gallery-page{grid-template-columns:1fr;grid-template-rows:auto minmax(0,1fr) 180px auto}.gallery-side{grid-column:1;grid-row:3;border-left:0;border-top:1px solid #b2c3bd26}.gallery-top{flex-wrap:wrap;padding:12px 16px}.gallery-foot{flex-direction:column;padding:10px 16px}}
