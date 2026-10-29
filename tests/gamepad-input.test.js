@@ -45,3 +45,11 @@ test('arena restart remains available while held combat inputs are suppressed', 
   const s = arena.sample([pad([6, 7, 8])]);
   assert.equal(s.pressed.restart, true); assert.equal(s.held.guard, undefined); assert.equal(s.held.regenerate, undefined);
 });
+test('a slot reads the nth standard controller so two players never share one', () => {
+  const first = { ...pad([0]), index: 0, id: 'a' }, second = { ...pad([2]), index: 3, id: 'b' };
+  const p1 = createGamepadInput(undefined, undefined, 0), p2 = createGamepadInput(undefined, undefined, 1);
+  for (const input of [p1, p2]) { input.sample([first, second]); input.sample([{ ...first, buttons: pad().buttons }, { ...second, buttons: pad().buttons }]); }
+  assert.equal(p1.sample([first, second]).pressed.jump, true);
+  assert.equal(p2.sample([first, second]).pressed.attack, true);
+  assert.equal(createGamepadInput(undefined, undefined, 1).sample([first]).connected, false);
+});

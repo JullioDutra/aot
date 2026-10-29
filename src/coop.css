@@ -1,0 +1,26 @@
+*{box-sizing:border-box}
+body.coop-page{margin:0;overflow:hidden;background:#0b1114;color:#eff0e8;font-family:Arial,Helvetica,sans-serif}
+[hidden]{display:none!important}
+button,select{font:inherit;cursor:pointer}
+button:focus-visible,select:focus-visible,a:focus-visible{outline:2px solid #d2ac6c;outline-offset:3px}
+#coop-canvas{position:fixed;inset:0;width:100%;height:100%;display:block}
+.coop-divider{position:fixed;top:0;bottom:0;left:50%;width:2px;background:#0b1114;z-index:3}
+.coop-top{position:fixed;top:0;left:0;right:0;display:flex;justify-content:center;gap:24px;align-items:center;padding:12px;z-index:5;text-shadow:0 2px 6px #000;font-size:12px;letter-spacing:1.5px}
+.coop-top b{font-family:Georgia,serif;font-size:22px;font-weight:400;color:#f1d39e}
+.coop-side{position:fixed;bottom:16px;width:min(260px,40vw);z-index:5;text-shadow:0 1px 4px #000}
+.coop-side.p1{left:16px}.coop-side.p2{left:calc(50% + 16px)}
+.coop-side span{display:block;font-size:10px;letter-spacing:1.5px;color:#d7bc85;margin-bottom:6px}
+.coop-meter{height:4px;background:#ffffff22;margin:4px 0}.coop-meter i{display:block;height:100%;background:#bed7d1}.coop-meter.hp i{background:#a6b38c}
+.coop-msg{position:fixed;top:22%;width:46%;text-align:center;font-size:14px;opacity:0;transition:opacity .3s;z-index:6;text-shadow:0 2px 6px #000}
+.coop-msg.visible{opacity:1}#coop-msg-1{left:2%}#coop-msg-2{left:52%}
+.coop-overlay{position:fixed;inset:0;display:grid;place-items:center;background:#060c0fcc;backdrop-filter:blur(6px);z-index:20;padding:16px}
+.coop-panel{width:min(620px,94vw);max-height:92vh;overflow:auto;padding:30px;background:#132228f5;border:1px solid #b2c3bd33;border-top:2px solid #d2ac6c}
+.coop-panel .eyebrow{font-size:9px;letter-spacing:2.5px;color:#cbb889}
+.coop-panel h1,.coop-panel h2{font-family:Georgia,serif;font-weight:400;font-size:clamp(28px,4vw,42px);margin:10px 0}
+.coop-panel p,.coop-panel li{font-size:13px;line-height:1.7;color:#c8d2ce}
+.coop-pick{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:14px 0}
+.coop-pick label{display:flex;flex-direction:column;gap:6px;font-size:10px;letter-spacing:1.5px;color:#d7bc85}
+.coop-pick select{background:#1b2a30;color:#e3e9df;border:1px solid #59716d;padding:9px}
+.coop-primary{display:block;width:100%;margin-top:14px;padding:15px;background:#d5b77f;border:1px solid #eed3a3;color:#152025;font-size:11px;font-weight:800;letter-spacing:2px;text-align:center;text-decoration:none}
+.coop-secondary{display:block;width:100%;margin-top:8px;padding:12px;border:1px solid #b2c3bd33;color:#c9d3cf;font-size:12px;text-align:center;text-decoration:none;background:none}
+#coop-sources{font-size:11px;color:#93a6a6;letter-spacing:.5px}

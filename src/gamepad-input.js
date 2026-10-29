@@ -9,12 +9,13 @@ const trostBindings = { jump: 0, release: 1, attack: 2, interact: 3, supply: 5, 
 export const ARENA_GAMEPAD_BINDINGS = Object.freeze({ dodge: 0, exit: 1, light: 2, heavy: 3, grab: 4, transform: 5, guard: 6, regenerate: 7, restart: 8, menu: 9, lock: 11 });
 const empty = () => ({ connected: false, armed: false, move: [0, 0], look: [0, 0], held: {}, pressed: {}, lost: false });
 
-export function createGamepadInput(bindings = trostBindings, menuActions = ['menu', 'checkpoint']) {
+// `slot` picks the nth connected standard controller (local co-op uses 0 and 1).
+export function createGamepadInput(bindings = trostBindings, menuActions = ['menu', 'checkpoint'], slot = 0) {
   let identity = null, previous = {}, armed = false;
   return {
     suspend() { armed = false; },
     sample(pads = []) {
-      const pad = Array.from(pads ?? []).find(p => p && p.connected !== false && p.mapping === 'standard');
+      const pad = Array.from(pads ?? []).filter(p => p && p.connected !== false && p.mapping === 'standard')[slot];
       const nextIdentity = pad ? `${pad.index}:${pad.id}` : null;
       const lost = identity !== null && identity !== nextIdentity;
       if (identity !== nextIdentity) { armed = false; previous = {}; identity = nextIdentity; }

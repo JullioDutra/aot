@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0b1114" />
+  <title>Co-op local · Asas da Liberdade</title>
+  <link rel="icon" href="data:," />
+</head>
+<body class="coop-page">
+  <canvas id="coop-canvas" aria-label="Campo de treino em tela dividida"></canvas>
+  <div id="coop-hud" hidden>
+    <div class="coop-divider" aria-hidden="true"></div>
+    <div class="coop-top"><span>TITÃS <b id="coop-kills">0</b></span><span>TEMPO <b id="coop-timer">--</b></span><span id="coop-sources"></span></div>
+    <div class="coop-side p1"><span id="coop-state-1">J1</span><div class="coop-meter"><i id="coop-gas-1"></i></div><div class="coop-meter hp"><i id="coop-hp-1"></i></div></div>
+    <div class="coop-side p2"><span id="coop-state-2">J2</span><div class="coop-meter"><i id="coop-gas-2"></i></div><div class="coop-meter hp"><i id="coop-hp-2"></i></div></div>
+    <div class="coop-msg" id="coop-msg-1" role="status"></div><div class="coop-msg" id="coop-msg-2" role="status"></div>
+  </div>
+  <section class="coop-overlay" id="coop-intro">
+    <div class="coop-panel">
+      <span class="eyebrow">CO-OP LOCAL · FORA DA CONTINUIDADE</span>
+      <h1>Dois cabos, uma nuca.</h1>
+      <p>Limpem o campo de 12 titãs antes do tempo acabar. Quando um titã persegue seu parceiro, o corte que você der na nuca dele vale como golpe combinado e devolve segundos ao relógio. Um parceiro agarrado só se solta se você matar o titã que o segura; um parceiro caído levanta se você segurar o botão de ação perto dele.</p>
+      <div class="coop-pick"><label>JOGADOR 1<select id="coop-p1"></select></label><label>JOGADOR 2<select id="coop-p2"></select></label></div>
+      <ul>
+        <li><b>Dois controles:</b> um para cada jogador.</li>
+        <li><b>Um controle:</b> J1 usa teclado e mouse (WASD, Q/E cabos, Espaço gás, clique corta, G reanima); J2 usa o controle (gatilhos cabos, A gás, X corta, Y reanima).</li>
+        <li><b>Sem controle:</b> J2 usa IJKL para mover, U/O para os cabos, Shift direito para o gás, Enter para cortar, vírgula/ponto para girar a câmera e H para reanimar.</li>
+      </ul>
+      <button class="coop-primary" id="coop-start" type="button">COMEÇAR ↗</button>
+      <button class="coop-secondary" id="coop-fullscreen" type="button">Tela cheia</button>
+      <a class="coop-secondary" href="./historia.html">Voltar ao Modo História</a>
+    </div>
+  </section>
+  <section class="coop-overlay" id="coop-end" hidden><div class="coop-panel"><span class="eyebrow">RESULTADO</span><h2 id="coop-end-title"></h2><p id="coop-end-stats"></p><button class="coop-primary" id="coop-retry" type="button">JOGAR DE NOVO ↗</button><a class="coop-secondary" href="./historia.html">Modo História</a></div></section>
+  <div id="coop-error" class="coop-overlay" hidden><div class="coop-panel"><h2>WebGL indisponível.</h2></div></div>
+  <script type="module" src="/src/coop-main.js"></script>
+</body>
+</html>

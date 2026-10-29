@@ -10,6 +10,7 @@ export default defineConfig({
       historia: fileURLToPath(new URL('./historia.html', import.meta.url)),
       galeria: fileURLToPath(new URL('./galeria.html', import.meta.url)),
       story: fileURLToPath(new URL('./story.html', import.meta.url)),
+      coop: fileURLToPath(new URL('./coop.html', import.meta.url)),
     },
     // Three.js is shared by both pages; give it a stable, honest chunk name.
     output: { manualChunks: { three: ['three'] } },
