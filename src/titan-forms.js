@@ -222,7 +222,8 @@ export function createTitanForm(spec, { outline = true } = {}) {
     for (const elbow of elbows) elbow.rotation.x = .2;
   }
   if (k === 'beast') {
-    tufts(chest, hair, { center: new THREE.Vector3(0, torso * .55, 0), radius: w * 1.15, count: 60, length: w * .55, width: w * .2, phiFrom: .2, phiTo: 2.4, fall: .6, seed: 7 });
+    tufts(chest, hair, { center: new THREE.Vector3(0, torso * .55, 0), radius: w * 1.12, count: 150, length: w * .42, width: w * .14, phiFrom: .15, phiTo: 2.5, fall: .65, seed: 7 });
+    tufts(chest, toon('#7a5a40'), { center: new THREE.Vector3(0, torso * .5, 0), radius: w * 1.08, count: 90, length: w * .32, width: w * .12, phiFrom: .3, phiTo: 2.4, fall: .7, seed: 13 });
     tufts(head, hair, { center: new THREE.Vector3(0, -headR * .2, 0), radius: headR * 1.05, count: 22, length: headR * .6, width: headR * .22, phiFrom: 1.4, phiTo: 2.6, fall: .7, seed: 9 });
     for (const leg of legs) tufts(leg, hair, { center: new THREE.Vector3(0, -legLen * .25, 0), radius: w * .5, count: 14, length: w * .45, width: w * .2, phiFrom: .6, phiTo: 2.4, fall: .5, seed: 11 });
   }
