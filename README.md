@@ -252,7 +252,7 @@ Limites: o modelo do titã da arena ainda é o anterior às fases 19–20; os ra
 
 Controles do Modo História: WASD e mouse; Espaço avança e dá gás; G/R age; Shift corre; Q/E seguram os cabos; clique corta ou dispara o sinalizador. No controle: A avança/gás, X lâmina/sinalizador, Y age, B corre, gatilhos para os cabos. No toque: CONTINUAR, AGIR, CORRER e, nas fases de combate, ◀ CABO, CABO ▶, GÁS e LÂMINA.
 
-Limites: as fases 1–38 são jogáveis; as demais seguem planejadas no hub. Falas são paráfrases originais, sem dublagem. Os mapas são aproximações e não plantas conferidas episódio a episódio. Não há cinemáticas animadas à mão nem captura de movimento. A violência é estilizada (partículas, cortes de câmera). Testes de navegador usam ganchos de depuração para pular deslocamentos longos; o equilíbrio da carga e do duelo precisa de teste humano.
+Limites: as fases 1–42 são jogáveis; as demais seguem planejadas no hub. Falas são paráfrases originais, sem dublagem. Os mapas são aproximações e não plantas conferidas episódio a episódio. Não há cinemáticas animadas à mão nem captura de movimento. A violência é estilizada (partículas, cortes de câmera). Testes de navegador usam ganchos de depuração para pular deslocamentos longos; o equilíbrio da carga e do duelo precisa de teste humano.
 
 ## Ato I completo — fase 25 (fases 3, 4 e 5 da história)
 
@@ -373,6 +373,18 @@ Regras puras em `src/story/act7-rules.js` (ninhos de metralhadora, espinhos do M
 **Fase 38 — A extração:** como Mikasa, derrube as 6 equipes de lanças antititã nos telhados antes que acertem Eren; como Armin, voe até o porto e vire o Colossal sobre a frota; proteja as cordas do dirigível dos atiradores; Gabi entra no dirigível e Sasha morre. Desafio: nenhuma lança acertar Eren.
 
 Limites: Liberio reaproveita a cidade murada; Fort Slava é um campo plano com sacos de areia; os navios são blocos.
+
+## Guerra por Paradis, parte 1 — fase 34 (fases 39 a 42 da história)
+
+Regras puras em `src/story/act8-rules.js` (artilharia de Pieck, desarmar Yeageristas, calor dos Colossais, ancoragem em osso, voo de Falco) com testes. Capítulos noturnos na cidade agora aceitam céu e luz próprios.
+
+**Fase 39 — A floresta de Levi:** o grito de Zeke transforma os soldados que beberam o vinho; como Levi, corte 10 deles (o desafio é não tocar o chão) e desmonte o Bestial cortando braços, olhos e nuca em qualquer ordem. Levi amarra Zeke à lança do trovão e Zeke puxa o pino.
+
+**Fase 40 — Shiganshina em guerra:** à noite, corte os 5 soldados de Marley nos canhões da muralha; como Eren, agarre o Mandíbula no ar (soque no pulo, senão a mordida tira corpo); avance até Zeke enquanto a artilharia de Pieck cai onde você estava quando ela mirou (círculo laranja). Colt tenta afastar Falco. Desafio: nenhum tiro de Pieck.
+
+**Fase 41 — O grito e os Caminhos:** o grito transforma Colt, Pyxis e os soldados; Porco se entrega a Falco. Nos Caminhos (areia, céu noturno e a árvore de luz), ande pelas lembranças de Grisha com Zeke (pedir que pare ou continue converge) até Ymir; o Estrondo começa.
+
+**Fase 42 — A aliança:** a fogueira com ex-inimigos; Jean e Reiner (o soco vem nas duas escolhas); depois leve o equipamento da carroça até os cavalos.
 
 ## Co-op local — fase 24
 

@@ -170,6 +170,10 @@ Fases 29 (a marcha noturna e o portão), 30 (Reiner na muralha e as pedras sobre
 
 Fases 35 (Fort Slava), 36 (Liberio), 37 (a declaração e o Martelo de Guerra) e 38 (a extração e Sasha). O Ato VII está jogável por inteiro (fases 1–38).
 
+## Entrega intermediária 34 — Guerra por Paradis, parte 1
+
+Fases 39 (a floresta de Levi), 40 (Shiganshina em guerra), 41 (o grito e os Caminhos) e 42 (a aliança).
+
 ## Marco 4 — demonstração de produção
 
 Uma operação de 15–20 minutos com arte e animação próprias de produção, referências verificadas, missão legível, resgate, abastecimento, destruição controlada e conclusão narrativa. Não será construída a campanha completa antes da aprovação desse marco.
