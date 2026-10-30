@@ -2,7 +2,8 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import './gallery.css';
 import { CHARACTER_SPECS } from './character-specs.js';
-import { createCharacter } from './character-model.js';
+import { createCharacter, setExpression } from './character-model.js';
+import { EXPRESSIONS } from './face-expressions.js';
 import { characterPose, applyPose, POSES } from './character-animation.js';
 import { TITAN_FORMS, createTitanForm } from './titan-forms.js';
 import { toggleFullscreen } from './platform.js';
@@ -25,7 +26,7 @@ ground.rotation.x = -Math.PI / 2; ground.receiveShadow = true; scene.add(ground)
 const CAST = ['eren', 'mikasa', 'armin', 'levi', 'erwin', 'hange', 'jean', 'sasha', 'connie', 'reiner', 'bertholdt', 'annie', 'historia', 'ymir', 'marco', 'hannes', 'pixis', 'shadis', 'zeke', 'pieck', 'falco', 'gabi', 'eren-s4'];
 const CHILDHOOD = ['eren-child', 'mikasa-child', 'armin-child', 'carla', 'grisha', 'hannes'];
 const params = new URLSearchParams(location.search);
-let mode = params.get('modo') === 'titas' ? 'titans' : 'cast', selected = params.get('id'), pose = 'idle';
+let mode = params.get('modo') === 'titas' ? 'titans' : 'cast', selected = params.get('id'), pose = 'idle', closeUp = params.get('rosto') === '1', expression = EXPRESSIONS.includes(params.get('expressao')) ? params.get('expressao') : 'neutral';
 const actors = [];
 const stage = new THREE.Group(); scene.add(stage);
 
@@ -49,7 +50,8 @@ function single(id) {
   const rig = createCharacter(CHARACTER_SPECS[id], { blades: ['strike', 'odm'].includes(pose) }); rig.id = id;
   stage.add(rig.root); actors.push(rig);
   const h = CHARACTER_SPECS[id].height;
-  controls.target.set(0, h * .62, 0); camera.position.set(1.2, h * .8, 3.2);
+  if (closeUp) { const head = rig.proportions.H - rig.proportions.headH * .55; controls.target.set(0, head, 0); camera.position.set(.12, head + .02, rig.proportions.headH * 3.4); }
+  else { controls.target.set(0, h * .62, 0); camera.position.set(1.2, h * .8, 3.2); }
 }
 function titans(id) {
   clear();
@@ -92,6 +94,11 @@ for (const button of document.querySelectorAll('[data-mode]')) button.addEventLi
 });
 $('gallery-pose').replaceChildren(...POSES.map(p => { const o = document.createElement('option'); o.value = p; o.textContent = p; return o; }));
 $('gallery-pose').addEventListener('change', event => { pose = event.target.value; build(); });
+const EXPRESSION_NAMES = { neutral: 'neutra', angry: 'raiva', shout: 'grito', cry: 'choro', sad: 'tristeza', smile: 'sorriso', closed: 'olhos fechados', determined: 'determinação', shock: 'susto' };
+$('gallery-expression').replaceChildren(...EXPRESSIONS.map(e => { const o = document.createElement('option'); o.value = e; o.textContent = EXPRESSION_NAMES[e]; o.selected = e === expression; return o; }));
+$('gallery-expression').addEventListener('change', event => { expression = event.target.value; });
+$('gallery-face').checked = closeUp;
+$('gallery-face').addEventListener('change', event => { closeUp = event.target.checked; build(); });
 $('gallery-fullscreen').addEventListener('click', () => void toggleFullscreen(document, document.documentElement));
 document.querySelector(`[data-mode="${mode}"]`)?.classList.add('active');
 
@@ -103,9 +110,9 @@ const clock = new THREE.Clock();
 renderer.setAnimationLoop(() => {
   const time = clock.getElapsedTime();
   for (const actor of actors) {
-    if (actor.proportions) applyPose(actor, characterPose(pose, time, { progress: (time % 1.2) / 1.2 }));
+    if (actor.proportions) { applyPose(actor, characterPose(pose, time, { progress: (time % 1.2) / 1.2 })); setExpression(actor, expression); }
     else actor.animate?.(time);
   }
   controls.update(); renderer.render(scene, camera);
 });
-window.__GALLERY__ = Object.freeze({ snapshot: () => ({ mode, selected, pose, actors: actors.map(a => a.id ?? a.spec?.id), drawCalls: renderer.info.render.calls }) });
+window.__GALLERY__ = Object.freeze({ snapshot: () => ({ mode, selected, pose, expression, actors: actors.map(a => a.id ?? a.spec?.id), drawCalls: renderer.info.render.calls }) });

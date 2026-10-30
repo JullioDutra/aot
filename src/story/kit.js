@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { CHARACTER_SPECS } from '../character-specs.js';
-import { createCharacter } from '../character-model.js';
+import { createCharacter, setExpression } from '../character-model.js';
+import { poseExpression } from '../face-expressions.js';
 import { characterPose, applyPose } from '../character-animation.js';
 import { TITAN_FORMS, createTitanForm } from '../titan-forms.js';
 import { canStrikeNape } from '../mechanics.js';
@@ -85,6 +86,8 @@ export function createStage({ scene, camera, ui, audio, sky = '#c9d6d2', fog = [
       else if (!lying && a.laid) { root.rotation.x = 0; root.position.y -= .25; a.laid = false; }
     }
     if (a.pose !== 'manual') applyPose(a.rig, characterPose(a.pose, a.t, { speed: a.pose === 'run' || a.pose === 'walk' ? a.speed / 3 : 1, progress: a.progress }));
+    // Chapters may set a.expression; otherwise the pose picks one.
+    setExpression(a.rig, a.expression ?? poseExpression(a.pose));
   }
   return stage;
 }
@@ -173,6 +176,7 @@ export function createOdmPilot(stage, rig, { colliders = [], anchorRoots = [], b
       pilot.cooldown -= dt;
       const striking = pilot.cooldown > .25;
       applyPose(rig, characterPose(striking ? 'strike' : odm.player.grounded ? (speed > 1 ? 'run' : 'idle') : 'odm', stage.time, { progress: 1 - (pilot.cooldown - .25) / .35, speed: 1.5 }));
+      setExpression(rig, striking ? 'shout' : odm.player.grounded ? 'neutral' : 'determined');
       const strike = (input.pressed.attack || pilot.pending) && pilot.cooldown <= 0 && odm.player.blades > 0; pilot.pending = false;
       if (strike) { pilot.cooldown = .6; pilot.lastStrike = stage.time; stage.audio.play('dodge', 1, 0, .6); }
       // Behind a nape, close and fast: the finisher prompt appears and the
