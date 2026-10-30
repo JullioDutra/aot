@@ -18,13 +18,17 @@ export function createChapter(args) {
     const { stage, ui } = ctx;
     const falco = ctx.cast('falco', 'falco', 0, 4, Math.PI);
     const gabi = ctx.cast('gabi', 'gabi', 1.6, 2, Math.PI); gabi.follow = falco; gabi.followGap = 1.8;
-    const walker = ctx.useWalker(falco, { bounds: { minX: -9, maxX: 9, minZ: -10, maxZ: 110 } }); walker.lookAt(0, 40);
+    // Market tables block the walk (filled below).
+    const tables = [];
+    const walker = ctx.useWalker(falco, { bounds: { minX: -9, maxX: 9, minZ: -10, maxZ: 110 }, colliders: tables }); walker.lookAt(0, 40);
     const cloth = [toon('#b04a3a'), toon('#3a6a8a'), toon('#c9a24a')], wood = toon('#6b4a32');
     TALKS.forEach((t, i) => {
       const stall = new THREE.Group(); stall.position.set(t.at[0] + Math.sign(t.at[0]) * 2.4, 0, t.at[1]); ctx.scene.add(stall);
       const table = new THREE.Mesh(new THREE.BoxGeometry(2.4, .9, 1.4), wood); table.position.y = .45; stall.add(table);
+      tables.push({ minX: stall.position.x - 1.2, maxX: stall.position.x + 1.2, minZ: t.at[1] - .7, maxZ: t.at[1] + .7 });
       const awning = new THREE.Mesh(new THREE.BoxGeometry(2.8, .1, 1.8), cloth[i]); awning.position.y = 2.4; awning.rotation.z = .1; stall.add(awning);
-      ctx.cast(`vendor-${i}`, i % 2 ? 'civilian-m' : 'civilian-f', t.at[0] + Math.sign(t.at[0]) * 3.6, t.at[1], -Math.sign(t.at[0]) * Math.PI / 2, { override: { extras: ['armband'] } });
+      // The vendor stands behind the table, clear of its far edge.
+      ctx.cast(`vendor-${i}`, i % 2 ? 'civilian-m' : 'civilian-f', t.at[0] + Math.sign(t.at[0]) * 4.3, t.at[1], -Math.sign(t.at[0]) * Math.PI / 2, { override: { extras: ['armband'] } });
     });
     for (let i = 0; i < 10; i++) ctx.cast(`crowd-${i}`, i % 2 ? 'civilian-f' : 'civilian-m', (i % 2 ? -1 : 1) * (3 + (i % 3)), 10 + i * 6, i, { override: { extras: ['armband'] } });
     const kruger = ctx.cast('kruger', 'eren', -2.6, 92, Math.PI / 2, { pose: 'bench', override: { outfit: 'civilian-coat', hair: { style: 'long', color: '#35251b' }, face: { brows: 'flat', mouth: 'flat', marks: ['stubble'] } } });

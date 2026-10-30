@@ -46,7 +46,7 @@ export function createParticles(scene, capacity = 600) {
 export function createHorse(color = '#6b4a33') {
   const coat = toon(color), mane = toon('#2a1e17'), hoof = toon('#2b2622'), leather = toon('#4a3020');
   const line = outlineMaterial(.012);
-  const root = new THREE.Group();
+  const root = new THREE.Group(); root.userData.mount = true;
   const body = new THREE.Group(); body.position.y = 1.45; root.add(body);
   // Only large parts get an outline: a full charge has twenty horses on screen.
   const add = (parent, geometry, material, position, rotation = [0, 0, 0], scale = [1, 1, 1], outlined = false) => {

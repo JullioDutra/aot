@@ -8,7 +8,7 @@ import { createTitanForm } from '../titan-forms.js';
 // walking player only.
 export function createReturnChapter({ scene, camera, ui, audio, data, number }, plan, { sky = '#c9d2d0', fog = [120, 520], light, hemi } = {}) {
   const stage = createStage({ scene, camera, ui, audio, sky, fog, sun: [-120, 140, 80], ...(light ? { light } : {}), ...(hemi ? { hemi } : {}) });
-  const world = createShiganshina(scene); stage.ground = world.groundHeight;
+  const world = createShiganshina(scene); stage.ground = world.groundHeight; stage.colliders = world.colliders;
   // Five years after the fall: the outer gate is a hole and the streets are empty.
   world.breakOuterGate();
   const actors = {};

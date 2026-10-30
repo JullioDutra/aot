@@ -13,7 +13,7 @@ import { FLARES } from './act3-rules.js';
 export function createFieldChapter({ scene, camera, ui, audio, data, number }, plan, { sky = '#c4d2d6', fog = [160, 700], world: worldOptions = {}, light, hemi } = {}) {
   document.body.classList.add('combat-chapter');
   const stage = createStage({ scene, camera, ui, audio, sky, fog, sun: [-140, 190, 110], shadow: 170, ...(light ? { light } : {}), ...(hemi ? { hemi } : {}) });
-  const world = createField(scene, worldOptions);
+  const world = createField(scene, worldOptions); stage.colliders = world.colliders;
   const horde = createHorde(stage, { anchorRoots: world.anchorRoots });
   const bounds = { minX: -FIELD.bounds, maxX: FIELD.bounds, minZ: -FIELD.bounds, maxZ: FIELD.bounds };
   const actors = {}, mounts = [], flares = [];

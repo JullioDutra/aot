@@ -157,7 +157,7 @@ export function createTitanForm(spec, { outline = true } = {}) {
   const plate = toon(k === 'warhammer' ? '#f4f1ea' : '#efe3c4');
   const hair = toon(spec.hair?.color ?? '#3a2a20');
   const tendon = toon('#efdcc4');
-  const root = new THREE.Group(); root.name = spec.id;
+  const root = new THREE.Group(); root.name = spec.id; root.userData.titan = spec.id;
   const heads = spec.heads ?? (k === 'jaw' ? 4.5 : k === 'cart' ? 3.5 : 7.2);
   const build = spec.build ?? (k === 'armored' || k === 'colossal' ? 1.25 : k === 'female' ? .85 : k === 'beast' ? 1.2 : 1);
   const headH = 1 / heads, headR = headH * .56;

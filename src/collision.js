@@ -15,6 +15,13 @@ export function gableCollider(h, halfWidth, rise, overhang = 0) {
   return { top: h + edge, roofRise: rise - edge };
 }
 
+// Top of the highest walkable platform under (x, z) (piers, decks, straw), or 0.
+export function standHeight(platforms, x, z) {
+  let top = 0;
+  for (const p of platforms) if (x >= p.minX && x <= p.maxX && z >= p.minZ && z <= p.maxZ) top = Math.max(top, p.top);
+  return top;
+}
+
 const within = (c, x, z) => x >= c.minX && x <= c.maxX && z >= c.minZ && z <= c.maxZ;
 
 // Called at <= 1/120 s with a maximum speed of 55 m/s. The player is a

@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { toon } from '../character-model.js';
 import { createTitanForm } from '../titan-forms.js';
 import { createShiganshina } from './shiganshina-world.js';
+import { standHeight } from '../collision.js';
 import { createStage, createWalker, createHorde, strideTitan, titanForm } from './kit.js';
 import { CHAPTER_3, RETREAT_PLACES } from './act1-scripts.js';
 
@@ -16,7 +17,7 @@ const BELL = 100;
 
 export function createChapter({ scene, camera, ui, audio, data }) {
   const stage = createStage({ scene, camera, ui, audio, sky: '#d8c7aa', fog: [120, 480], sun: [-140, 70, -40], light: ['#ffc98f', 2.3], hemi: ['#f0e2c8', '#6f6046', 1.5] });
-  const world = createShiganshina(scene); stage.ground = world.groundHeight;
+  const world = createShiganshina(scene); stage.ground = world.groundHeight; stage.colliders = world.colliders;
   world.breakOuterGate();
   for (const h of world.houses.filter(h => h.z < 10 && Math.abs(h.x) < 60).slice(0, 16)) world.collapse(h);
   const wood = toon('#7a5638'), plank = toon('#9a7a55'), water = new THREE.MeshToonMaterial({ color: '#5f8f9f', transparent: true, opacity: .9 });
@@ -32,6 +33,14 @@ export function createChapter({ scene, camera, ui, audio, data }) {
     return g;
   }
   const lastBoat = boat(DOCK.x, 128.6), otherBoats = [boat(DOCK.x + 40, 129.5), boat(DOCK.x + 75, 130.2)];
+  // Walkable tops so nobody stands inside them: the pier, the hull decks (read
+  // from each boat, which may move) and the straw piles in the shelter.
+  const strawPiles = Array.from({ length: 6 }, (_, i) => { const x = SHELTER[0] - 15 + i * 5.6, z = -9 + (i % 2) * 17; return { minX: x - 2, maxX: x + 2, minZ: z - 1.2, maxZ: z + 1.2, top: .275 }; });
+  const platforms = () => [
+    { minX: DOCK.x - 10, maxX: DOCK.x + 10, minZ: 122.3, maxZ: 125.7, top: .35 }, ...strawPiles,
+    ...[lastBoat, ...otherBoats].map(b => ({ minX: b.position.x - 6.5, maxX: b.position.x + 6.5, minZ: b.position.z - 2.1, maxZ: b.position.z + 2.1, top: b.position.y + .7 })),
+  ];
+  stage.ground = (x, z) => Math.max(world.groundHeight(x, z), standHeight(platforms(), x, z));
 
   // Shelter in Wall Rose: a long storehouse set far from the district.
   const shelter = new THREE.Group(); shelter.position.set(SHELTER[0], 0, SHELTER[1]); scene.add(shelter);

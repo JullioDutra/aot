@@ -4,7 +4,7 @@ import { createCharacter, toon } from '../character-model.js';
 import { characterPose, applyPose } from '../character-animation.js';
 import { TITAN_FORMS, createTitanForm } from '../titan-forms.js';
 import { createTransformationFx } from '../transformation-fx.js';
-import { createShiganshina, moveWithCollisions } from './shiganshina-world.js';
+import { createShiganshina, moveWithCollisions, BRIDGES, CANAL_Z } from './shiganshina-world.js';
 import { SCRIPTS, LANDMARKS } from './shiganshina-script.js';
 import { createParticles, createHorse } from './props.js';
 
@@ -38,7 +38,9 @@ export function createChapter({ scene, camera, number, ui, audio, data }) {
   const grisha = actor('grisha', 'grisha', 22.5, 21.5, 0);
   const civilians = [];
   for (let i = 0; i < 16; i++) {
-    const a = actor(`civil-${i}`, i % 2 ? 'civilian-f' : 'civilian-m', -16 + (i % 6) * 6 + Math.sin(i) * 2, 40 + Math.floor(i / 6) * 9, i);
+    // The market grid may land on a stall: step out of it.
+    const [x, z] = moveWithCollisions([-16 + (i % 6) * 6 + Math.sin(i) * 2, 40 + Math.floor(i / 6) * 9], [0, 0], .5, world.colliders);
+    const a = actor(`civil-${i}`, i % 2 ? 'civilian-f' : 'civilian-m', x, z, i);
     civilians.push(a);
   }
   const mother = actor('mae', 'civilian-f', 9, 46, -Math.PI / 2);
@@ -120,7 +122,15 @@ export function createChapter({ scene, camera, number, ui, audio, data }) {
     },
     panic: () => {
       panic = true;
-      for (const [i, c] of civilians.entries()) { c.rig.root.position.set(-30 + (i % 8) * 8, 0, -60 + Math.floor(i / 8) * 25); walkTo(c, [[c.rig.root.position.x * .3, 30], [0, 100]], 3.6 + (i % 3) * .5, 'run'); }
+      for (const [i, c] of civilians.entries()) {
+        const x = -30 + (i % 8) * 8, z = -60 + Math.floor(i / 8) * 25;
+        c.rig.root.position.set(x, world.groundHeight(x, z), z);
+        // South of the canal, run over the nearest bridge instead of through the water.
+        const [bx, w] = BRIDGES.reduce((best, b) => (Math.abs(b[0] - x) < Math.abs(best[0] - x) ? b : best));
+        const lane = bx + ((i % 3) - 1) * (w / 2 - 1.2);
+        const cross = z < CANAL_Z ? [[lane, CANAL_Z - 7], [lane, CANAL_Z + 7]] : [];
+        walkTo(c, [...cross, [x * .3, 30], [0, 100]], 3.6 + (i % 3) * .5, 'run');
+      }
       for (const t of trapped) { t.rig.root.visible = true; t.pose = 'reach'; }
     },
     'house-collapsed': () => {

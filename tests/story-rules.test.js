@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { titanIntent, grabReach, titanSpeed, createBalance, balanceStep, createDuel, duelStep, DUEL, cutScore, rivalScore, rankFor, syncGrade, carrySpeed, ROUTES, routeRisk } from '../src/story/story-rules.js';
+import { titanIntent, grabReach, titanSpeed, createBalance, balanceStep, createDuel, duelStep, DUEL, cutScore, rivalScore, rankFor, syncGrade, carrySpeed, ROUTES, routeRisk, passesHoop, trainingGas, TRAINING_GAS } from '../src/story/story-rules.js';
 
 test('pure titans chase the nearest prey and grab only what is in reach', () => {
   const titan = { position: [0, 0, 0], height: 10, kind: 'pure' };
@@ -63,4 +63,16 @@ test('sync cut, boulder weight and route risk', () => {
   const risk = Object.fromEntries(ROUTES.map(r => [r.id, routeRisk(r)]));
   assert.ok(risk.telhados < risk.avenida, 'the unknown titan clears the rooftop route');
   assert.ok(routeRisk(ROUTES[0], false) > routeRisk(ROUTES[0], true));
+});
+
+test('the training course counts a hoop a little past its rim and refills practice tanks on the ground', () => {
+  assert.equal(passesHoop([70, 9, -10], [70, 9, -10]), true);
+  assert.equal(passesHoop([70, 9 + 4.2, -10], [70, 9, -10]), true);
+  assert.equal(passesHoop([70, 9 + 5, -10], [70, 9, -10]), false);
+  assert.ok(TRAINING_GAS.rate < 1);
+  // Grounded and free: refills; in the air or on a cable: unchanged.
+  assert.equal(trainingGas(0, 1, { grounded: true }), TRAINING_GAS.refill);
+  assert.equal(trainingGas(90, 1, { grounded: true }), 100);
+  assert.equal(trainingGas(10, 1, { grounded: false }), 10);
+  assert.equal(trainingGas(10, 1, { grounded: true, attached: true }), 10);
 });

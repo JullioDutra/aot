@@ -19,7 +19,8 @@ export function createChapter(args) {
     const mikasa = ctx.cast('mikasa', 'mikasa', 0, 0, 0, { blades: true });
     const pilot = ctx.usePilot(mikasa.rig); pilot.place(10, 0, -150, 0);
     const gunmen = createGunmen(stage, { colliders: world.colliders });
-    const raiders = [-56, -28, 28, 56, 84].map((x, i) => { const a = ctx.cast(`raider-${i}`, 'soldier-m', x, TROST.wallZ + 2, 0, { override: { outfit: 'marley', hair: { style: 'buzz', color: '#2a2420' } }, y: TOP }); return gunmen.add(a, i * .5); });
+    // Raiders stand behind the cannon line (carriages reach wallZ + 2.5).
+    const raiders = [-56, -28, 28, 56, 84].map((x, i) => { const a = ctx.cast(`raider-${i}`, 'soldier-m', x, TROST.wallZ + 3.6, 0, { override: { outfit: 'marley', hair: { style: 'buzz', color: '#2a2420' } }, y: TOP }); return gunmen.add(a, i * .5); });
     const jaw = ctx.titanForm('mandibula'); jaw.root.visible = false; ctx.scene.add(jaw.root);
     const cart = ctx.titanForm('carroca'); cart.root.position.set(-40, TOP, TROST.wallZ); ctx.scene.add(cart.root);
     const beast = ctx.titanForm('bestial'); beast.root.position.set(ZEKE[0], 0, ZEKE[1] + 12); beast.root.rotation.y = Math.PI; beast.root.visible = false; ctx.scene.add(beast.root);

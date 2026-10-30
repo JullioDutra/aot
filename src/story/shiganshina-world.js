@@ -76,10 +76,10 @@ export function createShiganshina(scene, { outline = true } = {}) {
   const outerBlock = solid(-7, 7, -120, -116, 'outer-gate');
 
   // Canal with stone banks and two bridges.
-  const canalZ = -22;
+  const canalZ = CANAL_Z;
   const water = new THREE.Mesh(new THREE.PlaneGeometry(236, 9), mat.water); water.rotation.x = -Math.PI / 2; water.position.set(0, -.6, canalZ); group.add(water);
   for (const side of [-1, 1]) box(mat.stone, 0, -.2, canalZ + side * 5, 236, 1, 1.2);
-  for (const [x, w] of [[0, 14], [-70, 7]]) {
+  for (const [x, w] of BRIDGES) {
     box(mat.stone, x, .15, canalZ, w, .5, 11);
     for (const s of [-1, 1]) box(mat.stone, x + s * (w / 2 - .3), .8, canalZ, .5, 1, 11);
   }
@@ -141,8 +141,19 @@ export function createShiganshina(scene, { outline = true } = {}) {
 
   return {
     group, colliders, houses, yeager, tree, bellMesh, innerGate, outerGate, canalZ, wallHeight: WALL_HEIGHT,
-    landmarks: LANDMARKS, groundHeight: hillHeight, collapse, breakOuterGate, breakInnerGate,
+    landmarks: LANDMARKS, groundHeight: (x, z) => Math.max(hillHeight(x, z), canalHeight(x, z)), collapse, breakOuterGate, breakInnerGate,
   };
+}
+
+// The canal crosses east–west; bridges are [x, width] over it.
+export const CANAL_Z = -22;
+export const BRIDGES = Object.freeze([[0, 14], [-70, 7]].map(Object.freeze));
+// Walkable height over the canal: bridge decks stand 0.4 m and the stone
+// banks 0.3 m above the street, so nobody wades through them.
+export function canalHeight(x, z) {
+  const dz = Math.abs(z - CANAL_Z);
+  for (const [bx, w] of BRIDGES) if (Math.abs(x - bx) <= w / 2 && dz <= 5.5) return .4;
+  return Math.abs(dz - 5) <= .6 ? .3 : 0;
 }
 
 // Circle vs. box push-out for walking characters (y is handled by groundHeight).

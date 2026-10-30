@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { toon } from '../character-model.js';
 import { createFieldChapter } from './field-chapter.js';
+import { standHeight } from '../collision.js';
 import { castExtra } from './extras.js';
 import { heatDamage, toppled } from './act8-rules.js';
 import { CHAPTER_44 } from './act8-scripts.js';
@@ -16,12 +17,15 @@ export function createChapter(args) {
     const { stage, ui, audio, world } = ctx;
     const sea = new THREE.Mesh(new THREE.PlaneGeometry(1600, 1000), new THREE.MeshToonMaterial({ color: '#4f7f9a' })); sea.rotation.x = -Math.PI / 2; sea.position.set(0, .1, -560); ctx.scene.add(sea);
     const quay = new THREE.Mesh(new THREE.BoxGeometry(220, 1, 30), toon('#8d877b')); quay.position.set(0, .5, -40); ctx.scene.add(quay);
+    // The quay top (1 m) is the ground there, for walkers and the pilot (see chapter 43).
+    const decks = [{ minX: -110, maxX: 110, minZ: -55, maxZ: -25, top: 1 }];
+    stage.ground = (x, z) => standHeight(decks, x, z);
     const plane = new THREE.Group(); plane.position.set(PLANE[0], 2, PLANE[1]); ctx.scene.add(plane);
     const fuselage = new THREE.Mesh(new THREE.CylinderGeometry(1.4, 1, 14, 12), toon('#c9c2b0')); fuselage.rotation.x = Math.PI / 2; plane.add(fuselage);
     const wing = new THREE.Mesh(new THREE.BoxGeometry(22, .3, 2.6), toon('#b8b0a0')); wing.position.y = 1.4; plane.add(wing);
     const ship = new THREE.Mesh(new THREE.BoxGeometry(18, 10, 70), toon('#4a4a4e')); ship.position.set(70, 4, -150); ctx.scene.add(ship);
     const hange = ctx.cast('hange', 'hange', 0, 0, 0, { blades: true });
-    const pilot = ctx.usePilot(hange.rig); pilot.place(0, 0, -20, Math.PI);
+    const pilot = ctx.usePilot(hange.rig, { colliders: [...world.colliders, ...decks] }); pilot.place(0, 0, -20, Math.PI);
     const armin = ctx.cast('armin', 'armin', -4, -30, Math.PI), levi = ctx.cast('levi', 'levi', -6, -30, Math.PI, { pose: 'sit' });
     const magath = castExtra(ctx, 'magath', 66, -130, 0, { y: 9 }), shadis = ctx.cast('shadis', 'shadis', 72, -128, 0, { y: 9 });
     const colossi = [-120, -40, 40, 120].map((x, i) => { const t = ctx.titanForm('colossal'); t.root.scale.setScalar(58); t.root.position.set(x, 0, 320 + (i % 2) * 90); t.root.rotation.y = Math.PI; ctx.scene.add(t.root); world.anchorRoots.push(t.root); return { t, ankles: { left: false, right: false }, fallen: 0, phase: i }; });

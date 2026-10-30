@@ -287,7 +287,7 @@ export function createCharacter(spec, { gear = true, blades = false, outline = t
   const shirt = toon(o.shirt), pants = toon(o.pants), boots = toon(o.boots), strap = o.straps ? toon(o.straps) : null;
   const jacket = o.jacket ? toon(o.jacket) : null, sleeve = jacket ?? shirt;
   const metal = toon('#8d9497', { emissive: '#1c2124' }), dark = toon('#2a2724');
-  const root = new THREE.Group(); root.name = spec.id;
+  const root = new THREE.Group(); root.name = spec.id; root.userData.character = spec.id;
   const hips = joint(root, 0, p.hipY, 0);
   const w = p.shoulder, g = p.girth;
   // Pelvis and lower torso (shirt or pants), waist belt.
