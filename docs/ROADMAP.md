@@ -182,6 +182,10 @@ Fases 43 (o porto de Odiha), 44 (o Estrondo e Hange), 45 (sobre o Fundador), 46 
 
 Três quadros de Eren e Mikasa na abertura, sumário das 47 fases e como jogar por tipo de entrada.
 
+## Entrega intermediária 37 — Gancho no titã
+
+O corpo do titã aceita o gancho e o cabo o acompanha; no ar, A/D giram em volta da ancoragem e W/S controlam o cabo; atrás da nuca aparece FINALIZAR.
+
 ## Fidelidade e jogabilidade (entregas 36–43)
 
 Pedido após a campanha completa: equipamento com a sensação do anime, personagens e titãs mais parecidos, cenários mais fiéis, celular melhor e uma página inicial que apresente o jogo. Tudo continua gerado em código, sem modelos, imagens ou músicas oficiais.

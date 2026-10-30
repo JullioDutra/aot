@@ -4,6 +4,7 @@ import { createCharacter } from '../character-model.js';
 import { characterPose, applyPose } from '../character-animation.js';
 import { TITAN_FORMS, createTitanForm } from '../titan-forms.js';
 import { canStrikeNape } from '../mechanics.js';
+import { finisherWindow } from '../titan-hook.js';
 import { createParticles, createHorse } from './props.js';
 import { createOdm } from './odm-controller.js';
 import { moveWithCollisions } from './shiganshina-world.js';
@@ -174,7 +175,12 @@ export function createOdmPilot(stage, rig, { colliders = [], anchorRoots = [], b
       applyPose(rig, characterPose(striking ? 'strike' : odm.player.grounded ? (speed > 1 ? 'run' : 'idle') : 'odm', stage.time, { progress: 1 - (pilot.cooldown - .25) / .35, speed: 1.5 }));
       const strike = (input.pressed.attack || pilot.pending) && pilot.cooldown <= 0 && odm.player.blades > 0; pilot.pending = false;
       if (strike) { pilot.cooldown = .6; pilot.lastStrike = stage.time; stage.audio.play('dodge', 1, 0, .6); }
-      return { strike, reach: speed > 24 ? 9 : 6.5, speed, position: P };
+      // Behind a nape, close and fast: the finisher prompt appears and the
+      // next cut kills through the horde's own update.
+      const finisher = finisherTarget(stage, odm); pilot.finisher = finisher;
+      stage.ui.finisher?.(finisher?.nape ?? null);
+      if (strike && finisher) { finisher.t.finish = true; stage.ui.slowmo?.(.45); stage.ui.flash?.('#fff1d6', .3); }
+      return { strike, reach: speed > 24 ? 9 : 6.5, speed, position: P, finisher };
     },
     view() {
       const P = odm.player.position, d = 6.5, f = forwardOf(pilot.yaw);
@@ -205,6 +211,7 @@ export function strideTitan(t, target, speed, dt, phase) {
 export function createHorde(stage, { anchorRoots = [] } = {}) {
   const list = [], tmp = new THREE.Vector3();
   const horde = {
+    stage,
     list,
     spawn(formId, x, z, { height, kind = 'hunt', yaw = 0, speed, sight = 70, id } = {}) {
       const spec = { ...titanForm(formId) }; if (height) spec.height = height; spec.id = id ?? `${spec.id}-${list.length}`;
@@ -230,6 +237,7 @@ export function createHorde(stage, { anchorRoots = [] } = {}) {
           if (t.death > 5) T.root.visible = false; continue;
         }
         if (!T.root.visible) continue;
+        if (t.finish) { t.finish = false; horde.kill(t); killed.push(t); continue; }
         T.animate(stage.time + t.phase);
         if (cut) {
           T.nape.getWorldPosition(tmp); const yaw = T.root.rotation.y, fwd = [Math.sin(yaw), 0, Math.cos(yaw)];
@@ -252,7 +260,22 @@ export function createHorde(stage, { anchorRoots = [] } = {}) {
     },
     reachOf: t => grabReach(t.titan.spec.height),
   };
+  (stage.hordes ??= []).push(horde);
   return horde;
+}
+
+// Nearest living horde titan whose finisher window is open for the pilot.
+function finisherTarget(stage, odm) {
+  const P = odm.player.position, from = [P.x, P.y + 1, P.z], velocity = odm.player.velocity.toArray(), nape = new THREE.Vector3();
+  let best = null;
+  for (const horde of stage.hordes ?? []) for (const t of horde.list) {
+    const T = t.titan;
+    if (!t.alive || !T.root.visible) continue;
+    T.nape.getWorldPosition(nape); const yaw = T.root.rotation.y;
+    const w = finisherWindow(from, velocity, nape.toArray(), [Math.sin(yaw), 0, Math.cos(yaw)], { blades: odm.player.blades, onTitan: odm.hookedTo(T.root) });
+    if (w.ready && (!best || w.distance < best.distance)) best = { t, horde, distance: w.distance, nape: nape.clone() };
+  }
+  return best;
 }
 
 // A titan steered by the player (Eren): heavy steps, punches that crush pure
