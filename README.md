@@ -408,6 +408,10 @@ A página inicial (`index.html`) agora rola sobre a cena viva de Trost. Na abert
 
 O corpo dos titãs aceita o gancho em Trost, na arena do Modo História e no co-op: o cabo fica preso ao ponto atingido e acompanha o titã enquanto ele anda, e se solta quando ele morre. Preso a um cabo no ar, **A/D** (ou o analógico para os lados) giram em volta da ancoragem e **W/S** recolhem ou soltam o cabo, para dar a volta até as costas. Atrás da nuca, a até 9 m, dentro de 5 m de altura e a pelo menos 6 m/s (ou pendurado no próprio titã), aparece o botão **FINALIZAR** sobre a nuca; o ataque nesse instante mata o titã em câmera lenta. As regras ficam em `src/titan-hook.js` (`orbitControl`, `finisherWindow`), com testes.
 
+## Chefes mais difíceis — fase 38
+
+A Titã Fêmea (fase 17), o Blindado (fase 31) e o Bestial (fase 39) agora atacam, com aviso antes de cada golpe (`src/story/boss-threat.js`, regras em `src/story/boss-rules.js` com testes). **Golpe do braço:** um arco vermelho no chão marca o lado que vai ser varrido; escape pelo outro lado, por trás ou por cima da cabeça. **Pisão** (Fêmea e Blindado): um anel nos pés pune quem fica no chão perto deles. **Pedra arremessada** (Bestial): uma sombra marca onde ela cai, calculada pela sua direção. **Nuca endurecida** (Fêmea): quem chega por trás faz surgir um cristal por alguns segundos. Cada acerto tira de 34 a 50 de vida, solta os cabos e empurra o piloto; com a vida zerada, a sub-fase recomeça. A ordem dos cortes é o desafio: cego, o chefe para de atacar; sem os dois braços, não golpeia nem arremessa. No Bestial, a nuca só abre depois dos braços e dos olhos e mostra o botão de finalização.
+
 ## Co-op local — fase 24
 
 `coop.html` (no Modo História, em "Fora da continuidade") é um modo em tela dividida para dois jogadores, fora da história canônica. A dupla escolhe personagens do elenco e precisa limpar um campo de 12 titãs em 4 minutos usando ODM.
