@@ -1,6 +1,8 @@
 import * as THREE from 'three';
 import { createFieldChapter } from './field-chapter.js';
 import { odmCombat } from './trost-chapter.js';
+import { createBossThreat } from './boss-threat.js';
+import { finisherWindow } from '../titan-hook.js';
 import { CHAPTER_39 } from './act8-scripts.js';
 
 // Chapter 39: Levi's forest. Zeke screams and the soldiers who drank the wine
@@ -17,6 +19,7 @@ export function createChapter(args) {
     const soldiers = Array.from({ length: 12 }, (_, i) => { const a = i / 12 * Math.PI * 2; return ctx.cast(`soldier-${i}`, i % 3 ? 'soldier-m' : 'soldier-f', CAMP[0] + Math.cos(a) * 16, CAMP[1] + Math.sin(a) * 16, -a); });
     const beast = ctx.titanForm('bestial'); beast.root.visible = false; beast.root.position.set(CAMP[0] - 10, 0, CAMP[1] - 40); ctx.scene.add(beast.root); ctx.world.anchorRoots.push(beast.root);
     let grounded = false, cuts = new Set(), blast = false;
+    const threat = createBossThreat(stage, beast, 'beast', { blind: () => cuts.has('olho-e') && cuts.has('olho-d'), disarmed: () => cuts.has('braco-e') && cuts.has('braco-d') });
     const tmp = new THREE.Vector3();
 
     function point(id, out) {
@@ -58,9 +61,14 @@ export function createChapter(args) {
       if (ctx.mission === 'bestial') {
         if (!beast.root.visible) { beast.root.visible = true; zeke.rig.root.visible = false; horde.list.forEach(t => { t.titan.root.visible = false; t.alive = false; }); }
         const r = pilot.step(dt, input);
+        threat.update(dt, pilot, { active: cuts.size < PARTS.length });
+        if (pilot.odm.player.health <= 0) return 'O Bestial derrubou Levi. Corte os braços primeiro: sem eles ele não golpeia nem arremessa pedras.';
+        // The nape stays shut until arms and eyes are gone; then the finisher opens.
+        const open = PARTS.filter(p => !cuts.has(p) && (p !== 'nuca' || cuts.size === PARTS.length - 1));
+        if (open.length === 1 && open[0] === 'nuca') { point('nuca', tmp); const y = beast.root.rotation.y; ui.finisher?.(finisherWindow([r.position.x, r.position.y + 1, r.position.z], pilot.odm.player.velocity.toArray(), tmp.toArray(), [Math.sin(y), 0, Math.cos(y)], { onTitan: pilot.odm.hookedTo(beast.root) }).ready ? tmp.clone() : null); }
         if (r.strike) {
-          const near = PARTS.filter(p => !cuts.has(p)).map(id => ({ id, d: point(id, tmp).distanceTo(r.position) })).sort((a, b) => a.d - b.d)[0];
-          if (near && near.d <= r.reach) { cuts.add(near.id); point(near.id, tmp); stage.particles.burst(tmp, 'blood', 40, 6); audio.play('punch', 2, 0, .8); ui.toast(`Corte · ${cuts.size} / ${PARTS.length}`, 1); if (near.id.startsWith('braco')) beast.arms[near.id === 'braco-e' ? 0 : 1].visible = false; }
+          const near = open.map(id => ({ id, d: point(id, tmp).distanceTo(r.position) })).sort((a, b) => a.d - b.d)[0];
+          if (near && near.d <= r.reach) { cuts.add(near.id); point(near.id, tmp); if (near.id === 'nuca') ui.slowmo?.(.45); stage.particles.burst(tmp, 'blood', 40, 6); audio.play('punch', 2, 0, .8); ui.toast(`Corte · ${cuts.size} / ${PARTS.length}`, 1); if (near.id.startsWith('braco')) beast.arms[near.id === 'braco-e' ? 0 : 1].visible = false; }
         }
         if (cuts.size === PARTS.length) { beast.root.rotation.x = -1.2; ctx.goals.add('bestial'); }
       }
@@ -79,18 +87,18 @@ export function createChapter(args) {
       status() {
         if (ctx.control !== 'odm') return '';
         if (ctx.mission === 'companheiros') return `Gás ${Math.round(pilot.odm.player.gas)}% · Abatidos ${horde.list.filter(t => !t.alive).length} / ${NEEDED}${grounded ? ' · tocou o chão' : ''}`;
-        return `Gás ${Math.round(pilot.odm.player.gas)}% · Bestial: ${cuts.size} / ${PARTS.length} cortes`;
+        return `Gás ${Math.round(pilot.odm.player.gas)}% · Vida ${Math.max(0, Math.round(pilot.odm.player.health))}% · Bestial: ${cuts.size} / ${PARTS.length} cortes${cuts.size === PARTS.length - 1 ? ' · nuca aberta' : ''}`;
       },
       restore(snapshot) {
         if (snapshot?.mission === 'companheiros') { grounded = false; horde.list.forEach(t => horde.reset(t)); }
-        if (snapshot?.mission === 'bestial') { cuts.clear(); beast.arms.forEach(a => { a.visible = true; }); beast.root.rotation.x = 0; }
+        if (snapshot?.mission === 'bestial') { threat.reset(); pilot.odm.player.health = 100; cuts.clear(); beast.arms.forEach(a => { a.visible = true; }); beast.root.rotation.x = 0; }
       },
       challenges: () => (ctx.goals.has('companheiros') && !grounded ? [ctx.data.challenges[0]] : []),
       debug: {
         nearest() { const t = horde.alive()[0]; if (!t) return; horde.nape(t, tmp); const y = t.titan.root.rotation.y; pilot.place(tmp.x - Math.sin(y) * 1.5, tmp.y + .4, tmp.z - Math.cos(y) * 1.5); pilot.strikeNow(); },
         part(id) { point(id, tmp); pilot.place(tmp.x, tmp.y - .3, tmp.z + 1); pilot.strikeNow(); },
       },
-      snapshot: () => ({ kills: horde.list.filter(t => !t.alive).length, grounded, cuts: [...cuts], blast }),
+      snapshot: () => ({ kills: horde.list.filter(t => !t.alive).length, grounded, cuts: [...cuts], blast, boss: threat.snapshot(), health: pilot.odm.player.health }),
     };
   }, { sky: '#aebcaa', fog: [70, 420] });
 }
