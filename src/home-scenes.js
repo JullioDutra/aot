@@ -5,9 +5,10 @@ import * as THREE from 'three';
 import { CHARACTER_SPECS } from './character-specs.js';
 import { createCharacter, toon } from './character-model.js';
 import { characterPose, applyPose } from './character-animation.js';
+import { dressFor } from './campaign/wardrobe.js';
 
-function actor(scene, id, { pose = 'idle', x = 0, z = 0, yaw = 0, y = 0, blades = false, extras, tweak } = {}) {
-  const base = CHARACTER_SPECS[id];
+function actor(scene, id, { pose = 'idle', x = 0, z = 0, yaw = 0, y = 0, blades = false, extras, tweak, chapter = 0 } = {}) {
+  const base = dressFor(CHARACTER_SPECS[id], chapter);
   const rig = createCharacter(extras ? { ...base, extras } : base, { blades });
   applyPose(rig, characterPose(pose, 1.2));
   tweak?.(rig);
@@ -64,8 +65,9 @@ const BUILDERS = {
     for (const [x, z, h] of [[-6, -6, 6], [4, -9, 8], [9, -4, 5], [-11, -10, 9]]) { const house = new THREE.Mesh(new THREE.BoxGeometry(4, h, 4), stone); house.position.set(x, h / 2 - 3, z); scene.add(house); }
     const wall = new THREE.Mesh(new THREE.BoxGeometry(90, 26, 2), toon('#a99272')); wall.position.set(0, 10, -34); scene.add(wall);
     const blades = r => { r.arms.forEach((a, i) => { a.rotation.set(-.35, 0, (i ? 1 : -1) * .35); }); r.elbows.forEach(e => { e.rotation.x = -.5; }); };
-    actor(scene, 'eren', { x: -.42, yaw: .25, blades: true, tweak: blades });
-    actor(scene, 'mikasa', { x: .42, yaw: -.15, blades: true, tweak: blades });
+    // Trost, 850: still trainees, so no cloak yet.
+    actor(scene, 'eren', { x: -.42, yaw: .25, blades: true, tweak: blades, chapter: 7 });
+    actor(scene, 'mikasa', { x: .42, yaw: -.15, blades: true, tweak: blades, chapter: 7 });
     return { scene, eye: [.5, .85, 3.3], look: [0, 1.2, 0] };
   },
 };
