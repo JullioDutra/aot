@@ -86,6 +86,7 @@ export function createFieldChapter({ scene, camera, ui, audio, data, number }, p
     return fail ? { fail } : null;
   }
   function playerVector() {
+    const custom = hooks.playerVector?.(control); if (custom) return custom;
     if (control === 'odm' && ctx.pilot) return ctx.pilot.odm.player.position;
     if (control === 'titan' && ctx.titan) return ctx.titan.titan.root.position;
     if (control === 'ride' && ctx.rider) return ctx.rider.position;
