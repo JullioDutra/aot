@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { surfaceHeight, resolveMotion, segmentEntry, segmentObstructed } from '../src/collision.js';
+import { surfaceHeight, resolveMotion, segmentEntry, segmentObstructed, gableCollider } from '../src/collision.js';
 
 const roof = { minX: -5, maxX: 5, minZ: -5, maxZ: 5, top: 10, roofRise: 4 };
 const wall = { minX: 0, maxX: 2, minZ: -5, maxZ: 5, top: 20 };
@@ -59,4 +59,15 @@ test('roof overhang does not extend an invisible wall below the eaves', () => {
   const canopy = { minX: -5.65, maxX: 5.65, minZ: -5.75, maxZ: 5.75, bottom: 10, top: 10, roofRise: 4 };
   assert.equal(segmentObstructed([0, 7, 12], [0, 7, 5], [body, canopy]), false);
   assert.equal(segmentObstructed([0, 7, 12], [0, 7, 4], [body, canopy]), true);
+});
+
+test('a gabled roof collider follows the drawn slopes, eaves included', () => {
+  const h = 10, halfWidth = 6, rise = 4, overhang = .5;
+  const c = { minX: -halfWidth, maxX: halfWidth, minZ: -5, maxZ: 5, ...gableCollider(h, halfWidth, rise, overhang) };
+  // Drawn roof: from h at the eave tip (halfWidth + overhang) to h + rise at the ridge.
+  const drawn = x => h + rise * (1 - Math.abs(x) / (halfWidth + overhang));
+  for (const x of [0, 2, 4.5, 6]) assert.ok(Math.abs(surfaceHeight(c, x) - drawn(x)) < 1e-9, `x = ${x}`);
+  // Landing at the ridge puts the feet on the tiles, not inside the roof.
+  const landed = resolveMotion([0, 15, 0], [0, 13.5, 0], [0, -5, 0], [c]);
+  assert.ok(landed.grounded); assert.ok(Math.abs(landed.position[1] - (h + rise)) < 1e-9);
 });

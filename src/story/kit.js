@@ -16,6 +16,7 @@ import { createOdm } from './odm-controller.js';
 import { moveWithCollisions } from './shiganshina-world.js';
 import { titanIntent, titanSpeed, grabReach } from './story-rules.js';
 import { rideSpeed, HORSE } from './act3-rules.js';
+import { walkSpeeds, flightPace } from './movement.js';
 
 // Building blocks shared by the story chapters from 3 on: lights and camera
 // shots, actors that walk scripted paths, a walking player, an ODM pilot with
@@ -99,7 +100,8 @@ export function createStage({ scene, camera, ui, audio, sky = '#c9d6d2', fog = [
 }
 
 // Third-person walking for a ground actor (children, cadets indoors).
-export function createWalker(stage, a, { colliders = [], bounds = { minX: -1e4, maxX: 1e4, minZ: -1e4, maxZ: 1e4 }, speeds = [3.1, 5.6], distance = 4.4 } = {}) {
+// speeds: [walk, run]; by default from the character's agility (movement.js).
+export function createWalker(stage, a, { colliders = [], bounds = { minX: -1e4, maxX: 1e4, minZ: -1e4, maxZ: 1e4 }, speeds = walkSpeeds(a.rig.spec?.id), distance = 4.4 } = {}) {
   const w = {
     yaw: 0, pitch: .2, moved: false, ran: false, colliders, bounds,
     step(dt, input, mode, talking) {
@@ -163,7 +165,7 @@ export function createRider(stage, actor, { colliders = [], bounds = { minX: -1e
 // ODM flight with blades for a rig. Mirrors chapter 32: cables on Q/E or the
 // triggers, gas on Space, cut on click; the camera trails the flight.
 export function createOdmPilot(stage, rig, { colliders = [], anchorRoots = [], bounds = 320, gas = 100 } = {}) {
-  const odm = createOdm({ scene: stage.scene, camera: stage.camera, colliders, anchorRoots, gas, bounds });
+  const odm = createOdm({ scene: stage.scene, camera: stage.camera, colliders, anchorRoots, gas, bounds, pace: flightPace(rig.spec?.id) });
   const pilot = {
     odm, rig, yaw: 0, pitch: .1, cooldown: 0, pending: false, gasRate: 1, lastStrike: -1,
     place(x, y, z, yaw) { odm.releaseAll(); odm.player.position.set(x, y, z); odm.player.velocity.set(0, 0, 0); if (yaw !== undefined) pilot.yaw = yaw; rig.root.position.set(x, y, z); },

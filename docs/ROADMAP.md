@@ -223,6 +223,10 @@ Pedido após a campanha completa: equipamento com a sensação do anime, persona
 
 Controles de toque com cabo fixo (tocar prende, tocar de novo solta), ações divididas entre os dois polegares, arrastar a partir dos botões, ajustes de toque e arena no toque. Só o perfil de toque muda. Detalhes em [MOBILE_PLAN.md](MOBILE_PLAN.md).
 
+## Ajustes de jogo: telhados, tela limpa e velocidade
+
+Pedido durante a rodada de celular. Os telhados de Trost no Modo História e as casas da aldeia fora das muralhas passam a ser de duas águas com colisão na mesma inclinação (antes a pirâmide desenhada não batia com a caixa plana e os personagens afundavam perto da cumeeira). O botão ◐ ("tela limpa") esconde títulos, detalhes e dicas durante a partida em Trost e no Modo História e fica salvo no navegador. No Modo História, andar e correr ficam mais rápidos e cada personagem tem sua agilidade (Levi e Mikasa mais rápidos, Sasha e Annie ágeis, Armin e as crianças mais lentos, Pyxis o mais lento); no voo a diferença é menor.
+
 ## Marco 4 — demonstração de produção
 
 Uma operação de 15–20 minutos com arte e animação próprias de produção, referências verificadas, missão legível, resgate, abastecimento, destruição controlada e conclusão narrativa. Não será construída a campanha completa antes da aprovação desse marco.

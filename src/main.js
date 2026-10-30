@@ -4,6 +4,7 @@ import { createWorld, createCadet, createTitan } from './world.js';
 import { createGamepadInput } from './gamepad-input.js';
 import { initialProfile, nextProfile, mergeFrames, defaultQuality, toggleFullscreen, fullscreenState, localizeKeys, prompt as inputPrompt } from './platform.js';
 import { createTouchControls } from './touch-controls.js';
+import { bindHudToggle } from './hud-mode.js';
 import './touch-controls.css';
 import { createGraphicsQuality } from './graphics-quality.js';
 import { createBladeStrike, beginBladeStrike, stepBladeStrike, bladeStrikePhase, bladeStrikePose } from './blade-strike.js';
@@ -88,6 +89,7 @@ let mission = createMission(), checkpointStorage;
 let bladeStrike = createBladeStrike();
 let escortStatus = 'idle', escortHeading = 0;
 try { checkpointStorage = window.localStorage; } catch { /* Session-only checkpoints remain available. */ }
+bindHudToggle($('hud-toggle'), document.body, checkpointStorage);
 const graphics = createGraphicsQuality({ renderer, scene, light: sun, storage: checkpointStorage, pixelRatio: () => devicePixelRatio });
 // Phones and tablets start on the performance profile until the player picks one.
 if (!graphics.snapshot().persisted) graphics.apply(defaultQuality(initialProfile({ coarsePointer: matchMedia('(pointer: coarse)').matches, hover: matchMedia('(hover: hover)').matches, maxTouchPoints: navigator.maxTouchPoints }), null), false);

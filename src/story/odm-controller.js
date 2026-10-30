@@ -15,7 +15,8 @@ let flown = null;
 export function takeFlownHooks() { const hooks = flown; flown = null; return hooks; }
 const shown = object => { for (let o = object; o; o = o.parent) if (!o.visible) return false; return true; };
 
-export function createOdm({ scene, camera, colliders = [], anchorRoots = [], gas = 100, blades = 100, bounds = 300 }) {
+// pace: the pilot's flight agility (movement.js); scales thrust and steering.
+export function createOdm({ scene, camera, colliders = [], anchorRoots = [], gas = 100, blades = 100, bounds = 300, pace = 1 }) {
   const player = { position: new THREE.Vector3(), velocity: new THREE.Vector3(), grounded: true, gas, blades, health: 100 };
   const hooks = [-1, 1].map(side => {
     const line = new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(), new THREE.Vector3()]), new THREE.LineBasicMaterial({ color: '#efe6c8' }));
@@ -70,7 +71,7 @@ export function createOdm({ scene, camera, colliders = [], anchorRoots = [], gas
     if (swinging) { let n = 0; for (const hook of hooks) if (hook.active) { anchor.add(hook.point); n++; } anchor.divideScalar(n); }
     const orbit = swinging ? orbitControl(player.position.toArray(), anchor.toArray(), input.move) : null;
     const acc = new THREE.Vector3(0, -22, 0);
-    if (orbit) acc.add(new THREE.Vector3(...orbit.acceleration)); else acc.addScaledVector(move, player.grounded ? 55 : 14);
+    if (orbit) acc.add(new THREE.Vector3(...orbit.acceleration)); else acc.addScaledVector(move, (player.grounded ? 55 : 14) * pace);
     if (input.jump && player.grounded) { player.velocity.y = 10; player.grounded = false; }
     for (const hook of hooks) {
       if (!hook.active) continue;
@@ -78,7 +79,7 @@ export function createOdm({ scene, camera, colliders = [], anchorRoots = [], gas
       hook.length = Math.max(2.5, hook.length - dt * (boost ? 16 : 8) + dt * (orbit?.reel ?? 0));
       acc.add(new THREE.Vector3(...cableAcceleration(player.position.toArray(), player.velocity.toArray(), hook.point.toArray(), hook.length, boost)));
     }
-    if (attached) { player.gas = Math.max(0, player.gas - dt * (boost ? 5 : 1.2)); if (boost) acc.addScaledVector(new THREE.Vector3(Math.sin(yaw) * Math.cos(input.pitch), Math.sin(input.pitch), -Math.cos(yaw) * Math.cos(input.pitch)), 16); }
+    if (attached) { player.gas = Math.max(0, player.gas - dt * (boost ? 5 : 1.2)); if (boost) acc.addScaledVector(new THREE.Vector3(Math.sin(yaw) * Math.cos(input.pitch), Math.sin(input.pitch), -Math.cos(yaw) * Math.cos(input.pitch)), 16 * pace); }
     // Gas burst without cables only nudges the trajectory, never free flight.
     if (!attached && input.boost && !player.grounded && player.gas > 0) { acc.addScaledVector(move, 10); player.gas = Math.max(0, player.gas - dt * 3); }
     player.velocity.addScaledVector(acc, dt);

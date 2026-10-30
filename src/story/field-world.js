@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 import { toon, outlineMaterial } from '../character-model.js';
+import { gableCollider, surfaceHeight } from '../collision.js';
 
 // Outside the walls, 850: the open plain of the long-range formation and the
 // forest of giant trees. The expedition rides toward -z. The plain has only
@@ -74,9 +75,10 @@ export function createField(scene, { outline = true, forest = true, castle = tru
   if (village) for (let i = 0; i < 9; i++) {
     const x = FIELD.village[0] + (i % 3) * 16 + rand() * 3, z = FIELD.village[1] + Math.floor(i / 3) * 16 + rand() * 3, w = 8 + rand() * 3, d = 9, h = 6 + Math.floor(rand() * 3) * 2;
     shape(mat.plaster, new THREE.BoxGeometry(w, h, d), x, h / 2, z);
-    const r = new THREE.CylinderGeometry(.01, 1, 1, 4, 1); r.rotateY(Math.PI / 4); r.scale(w * .74, 3.2, d * .74); shape(mat.roof, r, x, h + 1.6, z);
+    // Gabled roof whose collider follows the slopes (see trost-world.js).
+    const r = new THREE.CylinderGeometry(1, 1, d + 1, 3, 1); r.rotateX(-Math.PI / 2); r.scale((w / 2 + .5) / Math.sin(Math.PI / 3), 3.2 / 1.5, 1); shape(mat.roof, r, x, h + 3.2 / 3, z);
     for (const sx of [-1, 1]) shape(mat.timber, new THREE.BoxGeometry(.4, h, .4), x + sx * (w / 2 - .2), h / 2, z + d / 2);
-    solid(x - w / 2, x + w / 2, z - d / 2, z + d / 2, h + 1.5, 'house'); houses.push({ x, z, w, d, h: h + 1.5 });
+    Object.assign(solid(x - w / 2, x + w / 2, z - d / 2, z + d / 2, 0, 'house'), gableCollider(h, w / 2, 3.2, .5)); houses.push({ x, z, w, d, h: h + 3.2 });
   }
 
   // ── The castle of Levi's squad ─────────────────────────────────────────
@@ -120,6 +122,6 @@ export function createField(scene, { outline = true, forest = true, castle = tru
   // Nearest trunk to a point (for placing soldiers on branches).
   const nearestTrunk = (x, z) => trunks.reduce((best, t) => (Math.hypot(t.x - x, t.z - z) < Math.hypot(best.x - x, best.z - z) ? t : best));
   // Height of whatever stands under a point (roof, castle, trunk top).
-  function topAt(x, z) { let top = 0; for (const c of colliders) if (x >= c.minX && x <= c.maxX && z >= c.minZ && z <= c.maxZ) top = Math.max(top, c.top ?? 0); return top; }
+  function topAt(x, z) { let top = 0; for (const c of colliders) if (x >= c.minX && x <= c.maxX && z >= c.minZ && z <= c.maxZ) top = Math.max(top, surfaceHeight(c, x)); return top; }
   return { group, colliders, anchorRoots, trunks, houses, nearestTrunk, topAt };
 }

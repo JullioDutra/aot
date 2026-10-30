@@ -23,3 +23,7 @@ body[data-input=touch] .touch-button.menu{right:auto;left:calc(50% + 110px)}
 .nape-marker.finisher{width:44px;height:44px;border-width:3px;background:#2a1a0f99;box-shadow:0 0 30px #ffcf8acc;animation:nape-finisher .6s ease-in-out infinite alternate}.nape-marker.finisher span{top:44px;left:26px;white-space:nowrap;font-size:10px;font-weight:700;color:#ffe7b8}
 @keyframes nape-finisher{from{box-shadow:0 0 14px #f2b56c88}to{box-shadow:0 0 40px #ffd28bee}}
 a.primary-button{text-decoration:none}
+/* Tela limpa: in play, keep the objective, resources, reticle and markers only. */
+body.hud-minimal[data-playing=true] :is(.brand,.build-label,.mission .eyebrow,.mission h2,#mission-phase,#rescue-status,#blade-action,.target-hint,.velocity,.compass,.controls,.pilot){display:none!important}
+body.hud-minimal[data-playing=true] .mission{opacity:.85}
+#hud-toggle[aria-pressed=true]{background:#d5b77f;color:#152025}
