@@ -97,6 +97,11 @@ export function emblemTexture(kind) {
     } else if (kind === 'swords') {
       c.strokeStyle = '#3a3634'; c.lineWidth = 6;
       for (const d of [-1, 1]) { c.beginPath(); c.moveTo(d * -28, -34); c.lineTo(d * 24, 34); c.stroke(); c.beginPath(); c.moveTo(d * 16, 18); c.lineTo(d * 30, 26); c.stroke(); }
+    } else if (kind === 'unicorn') {
+      // Original simplified horned horse head facing left.
+      c.beginPath(); c.moveTo(18, 40); c.lineTo(14, 4); c.quadraticCurveTo(10, -18, -6, -22); c.lineTo(-26, -8); c.lineTo(-30, 4); c.lineTo(-14, 6); c.lineTo(-6, 24); c.closePath();
+      c.fillStyle = '#2f5f4a'; c.fill(); c.strokeStyle = '#1f2a24'; c.lineWidth = 2.5; c.stroke();
+      c.beginPath(); c.moveTo(-4, -22); c.lineTo(-20, -48); c.lineTo(2, -24); c.closePath(); c.fillStyle = '#efe9d8'; c.fill(); c.stroke();
     } else if (kind === 'roses') {
       for (const [x, y] of [[-14, -8], [14, -8], [0, 16]]) { c.beginPath(); c.arc(x, y, 13, 0, Math.PI * 2); c.fillStyle = '#b8323a'; c.fill(); c.strokeStyle = '#4a1418'; c.lineWidth = 2.5; c.stroke(); c.beginPath(); c.arc(x, y, 5, 0, Math.PI * 1.5); c.stroke(); }
     }
@@ -175,7 +180,7 @@ export function faceTexture(spec, expression = 'neutral') {
     // Scars from the timeline: Mikasa's cut under the right eye (854), Levi's
     // slashes across the face after the forest blast.
     if (f.marks.includes('cheekScar')) { c.strokeStyle = '#b8645a'; c.lineWidth = 2.2; c.beginPath(); c.moveTo(70, 160); c.lineTo(84, 170); c.stroke(); }
-    if (f.marks.includes('slashScars')) { c.strokeStyle = '#a24e48'; c.lineWidth = 3; for (const [x1, y1, x2, y2] of [[58, 92, 196, 196], [150, 110, 108, 214], [80, 150, 112, 156]]) { c.beginPath(); c.moveTo(x1, y1); c.lineTo(x2, y2); c.stroke(); } }
+    if (f.marks.includes('slashScars')) { c.strokeStyle = 'rgba(176,96,88,.8)'; c.lineWidth = 1.5; for (const [x1, y1, x2, y2] of [[58, 92, 196, 196], [150, 110, 108, 214], [80, 150, 112, 156]]) { c.beginPath(); c.moveTo(x1, y1); c.lineTo(x2, y2); c.stroke(); } }
   });
 }
 
@@ -328,6 +333,12 @@ export function createCharacter(spec, { gear = true, blades = false, outline = t
     const frame = toon('#3a332c');
     for (const s of [-1, 1]) add(head, new THREE.TorusGeometry(p.headR * (spec.extras.includes('roundGlasses') ? .2 : .22), p.headR * .025, 6, 16), frame, [s * p.headR * .36, -p.headR * .02, p.headR * .99], [1, spec.extras.includes('roundGlasses') ? 1 : .75, 1]);
     add(head, unitCube, frame, [0, -p.headR * .02, p.headR * 1.02], [p.headR * .25, p.headR * .03, p.headR * .03]);
+  }
+  if (spec.extras.includes('eyepatch')) {
+    // Hange after 850: patch over the left eye and a band around the head.
+    const patch = toon('#1d1a18');
+    oval(head, patch, [p.headR * .36, -p.headR * .02, p.headR * .93], [p.headR * .24, p.headR * .2, p.headR * .08]);
+    add(head, new THREE.TorusGeometry(p.headR * 1.0, p.headR * .03, 6, 28), patch, [0, p.headR * .05, 0], [1, 1, 1], [Math.PI / 2 - .12, 0, -.25]);
   }
   if (spec.extras.includes('goggles')) {
     add(head, new THREE.TorusGeometry(p.headR * 1.02, p.headR * .05, 6, 24), dark, [0, p.headR * .35, 0], [1, 1, 1], [Math.PI / 2 - .25, 0, 0]);

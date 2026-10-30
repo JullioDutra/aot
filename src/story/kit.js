@@ -2,6 +2,11 @@ import * as THREE from 'three';
 import { CHARACTER_SPECS } from '../character-specs.js';
 import { createCharacter, setExpression } from '../character-model.js';
 import { poseExpression } from '../face-expressions.js';
+import { dressFor } from '../campaign/wardrobe.js';
+
+// Chapter number used to dress the cast; set by the story shell before a chapter builds.
+let chapterEra = 0;
+export function setChapterEra(number) { chapterEra = number; }
 import { characterPose, applyPose } from '../character-animation.js';
 import { TITAN_FORMS, createTitanForm } from '../titan-forms.js';
 import { canStrikeNape } from '../mechanics.js';
@@ -36,7 +41,8 @@ export function createStage({ scene, camera, ui, audio, sky = '#c9d6d2', fog = [
     // Moves the sun's shadow box with the action.
     focusLight(x, z) { sunLight.target.position.set(x, 0, z); sunLight.position.set(x + sun[0], sun[1], z + sun[2]); },
     actor(id, spec, x, z, yaw = 0, options = {}) {
-      const base = typeof spec === 'string' ? CHARACTER_SPECS[spec] : spec;
+      // Clothes and scars follow the chapter's point in the timeline.
+      const base = dressFor(typeof spec === 'string' ? CHARACTER_SPECS[spec] : spec, chapterEra);
       const o = options.override ?? {};
       const rig = createCharacter({ ...base, ...o, hair: { ...base.hair, ...o.hair }, face: { ...base.face, ...o.face } }, options);
       rig.root.position.set(x, options.y ?? stage.ground(x, z), z); rig.root.rotation.y = yaw; scene.add(rig.root);
