@@ -22,6 +22,7 @@ export function createChapter(args) {
     const pilot = ctx.usePilot(mikasa.rig);
     const falco = ctx.cast('falco', 'falco', deck.x + 2, deck.z + 6, 0, { y: deck.y });
     const crew = ['armin', 'jean', 'connie', 'reiner', 'pieck', 'levi'].map((id, i) => ctx.cast(id, id, deck.x - 3 + (i % 3) * 3, deck.z + 10 + Math.floor(i / 3) * 3, Math.PI, { y: deck.y, pose: id === 'levi' ? 'sit' : 'idle', blades: true }));
+    founder.carry(plane, falco.rig.root, ...crew.map(a => a.rig.root));
     let fleshUsed = false, tear = [0, 0], spawned = 0, planeHit = false, wave = 0;
     const tmp = new THREE.Vector3();
 
@@ -41,7 +42,7 @@ export function createChapter(args) {
 
     function update(dt, input, control) {
       // The spine sways as the Founder walks.
-      founder.group.position.y = Math.sin(stage.time * .8) * .6;
+      founder.bob(Math.sin(stage.time * .8) * .6);
       if (control !== 'odm') { horde.update(dt, { freeze: true }); return null; }
       const r = pilot.step(dt, input), P = r.position;
       // Flesh does not hold: a cable in it tears loose.

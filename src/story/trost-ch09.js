@@ -95,7 +95,7 @@ export function createChapter(args) {
       if (r.grabbed?.prey.cadet) kill(r.grabbed.prey.cadet, 'foi agarrado no caminho');
       // Named cadets fly ahead of Jean; the squad follows behind him.
       progress = Math.max(progress, nearestParam(path, r.position));
-      named.forEach((a, i) => { pointOn(path, progress + .35 + i * .08, tmp); a.rig.root.position.copy(tmp).add(new THREE.Vector3((i - 2) * 3, 4, 0)); a.pose = 'odm'; a.rig.root.rotation.y = Math.atan2(WINDOW.x - tmp.x, WINDOW.z - tmp.z); });
+      named.forEach((a, i) => { pointOn(path, progress + .35 + i * .08, tmp); a.rig.root.position.copy(tmp).add(new THREE.Vector3((i - 2) * 3, 4, 0)); const P = a.rig.root.position; P.y = Math.max(P.y, world.roofAt(P.x, P.z) + 1.5); a.pose = 'odm'; a.rig.root.rotation.y = Math.atan2(WINDOW.x - tmp.x, WINDOW.z - tmp.z); });
       squad.forEach((s, i) => { if (!s.alive || s === stuck) return; pointOn(path, progress - .18 - i * .1, tmp); s.actor.rig.root.position.copy(tmp).add(new THREE.Vector3((i - 1) * 3, -1, 0)); s.actor.pose = 'odm'; });
       if (view.kind === 'goal' && view.id === 'meio' && progress >= 2) ctx.goals.add('meio');
       if (view.kind === 'goal' && view.id === 'jean' && r.position.distanceTo(WINDOW) < 8) ctx.goals.add('jean');

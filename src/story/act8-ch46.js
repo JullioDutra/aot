@@ -32,7 +32,7 @@ export function createChapter(args) {
     const handlers = {
       'falco-wings': () => { ui.flash('#fff7d8', .8); audio.play('transform', 0, 0, 1); stage.setShot([30, 70, 170], [10, 60, 140], 58); },
       'zeke-out': () => {
-        const top = founder.top(-120); stage.show([zeke, levi], true); stage.place(zeke, top.x, top.z); zeke.rig.root.position.y = top.y; stage.place(levi, top.x + 2, top.z + 3); levi.rig.root.position.y = top.y; levi.pose = 'guard';
+        const top = founder.top(-120); stage.show([zeke, levi], true); stage.place(zeke, top.x, top.z); zeke.rig.root.position.y = top.y; stage.place(levi, top.x + 2, top.z + 3); levi.rig.root.position.y = top.y; levi.pose = 'guard'; founder.carry(zeke.rig.root, levi.rig.root);
         stage.setShot([top.x + 8, top.y + 2, top.z + 8], [top.x, top.y + 1, top.z], 48);
       },
       'levi-cut': () => { levi.pose = 'strike'; zeke.rig.root.getWorldPosition(tmp); stage.particles.burst(tmp.setY(tmp.y + 1.6), 'blood', 50, 5); zeke.pose = 'lie'; },
@@ -45,7 +45,7 @@ export function createChapter(args) {
     };
 
     function update(dt, input, control) {
-      founder.group.position.y = Math.sin(stage.time * .8) * .6; head.animate(stage.time);
+      founder.bob(Math.sin(stage.time * .8) * .6); head.animate(stage.time);
       mouthAt(mouth); if (eren.rig.root.visible) eren.rig.root.position.copy(mouth).add(new THREE.Vector3(0, -1, -1));
       wings.forEach((w, i) => { w.rotation.y = Math.sin(stage.time * 6) * .5 * (i ? 1 : -1); });
       if (control === 'fly') {
