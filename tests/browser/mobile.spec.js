@@ -30,6 +30,7 @@ test('story on touch: the finisher prompt is tappable and kills the titan', asyn
   await page.goto('/story.html?fase=7');
   await expect(page.locator('#story-start')).toBeEnabled({ timeout: 60000 });
   await page.locator('#story-start').click();
+  await page.evaluate(() => { window.__STORY__.timeScale = 4; });
   for (let i = 0; i < 300; i++) {
     const s = await story();
     if (s.adapter?.control === 'odm' && s.adapter.titans > 0 && !(await page.locator('#story-dialogue').isVisible())) break;
@@ -37,6 +38,7 @@ test('story on touch: the finisher prompt is tappable and kills the titan', asyn
     else if (await page.locator('#story-dialogue').isVisible()) await page.keyboard.press('Space');
     await page.waitForTimeout(150);
   }
+  await page.evaluate(() => { window.__STORY__.timeScale = 1; });
   // A touch on the screen switches the profile to touch.
   await page.locator('#story-canvas').dispatchEvent('pointerdown', { pointerType: 'touch', pointerId: 1, isPrimary: true });
   await expect.poll(async () => (await story()).inputProfile).toBe('touch');
@@ -44,13 +46,16 @@ test('story on touch: the finisher prompt is tappable and kills the titan', asyn
   // next tap lets go.
   const left = page.locator('.touch-button[data-action="left"]');
   for (let i = 0; i < 20 && !(await story()).cables[0]; i++) {
+    const t0 = (await story()).elapsed;
     await left.dispatchEvent('pointerdown', { pointerType: 'touch', pointerId: 20 + i }); await left.dispatchEvent('pointerup', { pointerType: 'touch', pointerId: 20 + i });
-    await page.waitForTimeout(700);
+    // Let the game run a few steps before judging the tap.
+    await page.waitForFunction(t => window.__STORY__.snapshot().elapsed > t + .15, t0, { timeout: 30000 });
     if (!(await story()).cables[0]) await expect(left).not.toHaveClass(/latched/);
     else break;
   }
   expect((await story()).cables[0]).toBe(true);
-  await page.waitForTimeout(800);
+  const held = (await story()).elapsed;
+  await page.waitForFunction(t => window.__STORY__.snapshot().elapsed > t + .3, held, { timeout: 30000 });
   expect((await story()).cables[0]).toBe(true);
   await expect(left).toHaveClass(/latched/);
   await left.dispatchEvent('pointerdown', { pointerType: 'touch', pointerId: 60 }); await left.dispatchEvent('pointerup', { pointerType: 'touch', pointerId: 60 });
@@ -230,6 +235,32 @@ test('on touch, Trost splits the buttons between both thumbs and shows context b
   await page.setViewportSize({ width: 844, height: 390 });
   const l = await layout(page);
   expect(l.gap).toBeGreaterThanOrEqual(16); expect(l.inside).toBe(true);
+  expect(errors).toEqual([]);
+});
+
+test('arena on touch: TITÃ alone before the transformation, then the fight buttons for both thumbs', async ({ page }) => {
+  test.setTimeout(240000);
+  const errors = []; page.on('pageerror', e => errors.push(e.message));
+  const arena = () => page.evaluate(() => window.__TITAN_ARENA__.snapshot());
+  await page.setViewportSize({ width: 844, height: 390 });
+  await page.goto('/arena.html');
+  await page.locator('#arena-start').dispatchEvent('pointerdown', { pointerType: 'touch', pointerId: 1 });
+  await page.locator('#arena-start').dispatchEvent('click');
+  await expect.poll(async () => (await arena()).touchVisible).toBe(true);
+  await expect.poll(async () => (await layout(page)).actions).toEqual(['transform']);
+  const titan = page.locator('.touch-button[data-action="transform"]');
+  await titan.dispatchEvent('pointerdown', { pointerType: 'touch', pointerId: 2 }); await titan.dispatchEvent('pointerup', { pointerType: 'touch', pointerId: 2 });
+  await expect.poll(async () => (await arena()).form, { timeout: 120000 }).toBe('titan');
+  await expect.poll(async () => (await layout(page)).actions.sort()).toEqual(['dodge', 'exit', 'guard', 'heavy', 'light', 'lock', 'regenerate']);
+  const l = await layout(page);
+  expect(l.gap).toBeGreaterThanOrEqual(16); expect(l.size).toBeGreaterThanOrEqual(52); expect(l.inside).toBe(true);
+  // DEFESA sits under the left thumb and guards while held.
+  const guard = page.locator('.touch-button[data-action="guard"]');
+  expect((await guard.boundingBox()).x).toBeLessThan(100);
+  await guard.dispatchEvent('pointerdown', { pointerType: 'touch', pointerId: 3 });
+  await expect.poll(async () => (await arena()).guarding, { timeout: 20000 }).toBe(true);
+  await guard.dispatchEvent('pointerup', { pointerType: 'touch', pointerId: 3 });
+  await expect.poll(async () => (await arena()).guarding, { timeout: 20000 }).toBe(false);
   expect(errors).toEqual([]);
 });
 

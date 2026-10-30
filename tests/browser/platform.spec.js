@@ -22,11 +22,16 @@ test('touch drives Trost through on-screen controls and prompts follow the last 
   await look.dispatchEvent('pointerup', { pointerType: 'touch', pointerId: 2, clientX: 1000, clientY: 400 });
   await expect.poll(async () => (await snapshot(page)).yaw).toBeGreaterThan(yaw + .3);
 
-  // Holding the left cable button attaches it; releasing lets go.
+  // A tap on the left cable button attaches it and it stays after the
+  // finger lifts; the next tap lets go.
   const cable = page.locator('.touch-button[data-action="left"]');
   await cable.dispatchEvent('pointerdown', { pointerType: 'touch', pointerId: 3 });
   await expect.poll(async () => (await snapshot(page)).hooks[0].active).toBe(true);
   await cable.dispatchEvent('pointerup', { pointerType: 'touch', pointerId: 3 });
+  await page.waitForTimeout(500);
+  expect((await snapshot(page)).hooks[0].active).toBe(true);
+  await cable.dispatchEvent('pointerdown', { pointerType: 'touch', pointerId: 5 });
+  await cable.dispatchEvent('pointerup', { pointerType: 'touch', pointerId: 5 });
   await expect.poll(async () => (await snapshot(page)).hooks[0].active).toBe(false);
 
   // The on-screen pause button pauses and hides the overlay.

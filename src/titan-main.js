@@ -70,9 +70,9 @@ const gamepadInput = createGamepadInput(ARENA_GAMEPAD_BINDINGS, ['menu', 'restar
 let padFrame = gamepadInput.sample();
 let inputProfile = initialProfile({ coarsePointer: matchMedia('(pointer: coarse)').matches, hover: matchMedia('(hover: hover)').matches, maxTouchPoints: navigator.maxTouchPoints }), syncedMode = null;
 const touch = createTouchControls({ root: document.body, buttons: [
-  { action: 'transform', label: 'TITÃ', className: 'primary' }, { action: 'light', label: 'SOCO', className: 'primary' }, { action: 'heavy', label: 'FORTE' },
-  { action: 'guard', label: 'DEFESA' }, { action: 'dodge', label: 'ESQUIVA' }, { action: 'grab', label: 'AGARRAR' },
-  { action: 'regenerate', label: 'REGENERAR' }, { action: 'exit', label: 'SAIR' }, { action: 'lock', label: 'ALVO' }, { action: 'menu', label: 'Ⅱ', className: 'menu' }] });
+  { action: 'transform', label: 'TITÃ', className: 'primary', context: true }, { action: 'light', label: 'SOCO', className: 'primary', context: true }, { action: 'heavy', label: 'FORTE', context: true },
+  { action: 'guard', label: 'DEFESA', context: true }, { action: 'dodge', label: 'ESQUIVA', context: true }, { action: 'grab', label: 'AGARRAR', context: true },
+  { action: 'regenerate', label: 'REGENERAR', context: true }, { action: 'exit', label: 'SAIR', context: true }, { action: 'lock', label: 'ALVO', context: true }, { action: 'menu', label: 'Ⅱ', className: 'menu' }], layout: 'arena' });
 function syncInputProfile() {
   document.body.dataset.input = inputProfile; document.body.dataset.playing = mode === 'playing'; syncedMode = mode;
   touch.setVisible(inputProfile === 'touch' && mode === 'playing');
@@ -250,6 +250,9 @@ function pollGamepad(dt) {
   yaw += padFrame.lookDelta[0] * .005; pitch = clamp(pitch + padFrame.lookDelta[1] * .004, -.35, .65);
   if (!padFrame.held.guard && !keys.has('Guard')) state.guarding = false;
   for (const action of ['transform', 'exit', 'dodge', 'light', 'heavy', 'grab']) if (padFrame.pressed[action]) command(action);
+  // On touch, only the buttons that apply to the current form show.
+  const titan = state.form === 'titan', near = Math.hypot(state.player.x - state.enemy.x, state.player.z - state.enemy.z) <= 8.5;
+  touch.setAvailable({ transform: state.form === 'human', light: titan, heavy: titan, guard: titan, dodge: titan, regenerate: titan, exit: titan, lock: titan, grab: titan && state.enemy.action === 'recovery' && near });
   if (padFrame.pressed.lock) { locked = !locked; notice(locked ? 'Alvo fixado.' : 'Mira livre: direcione com o analógico direito.', 2); }
 }
 let previous = performance.now(), uiClock = 0;

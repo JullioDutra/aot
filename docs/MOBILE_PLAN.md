@@ -75,7 +75,7 @@ Nenhuma fonte oficial descreve um esquema de toque de equipamento de manobra 3D;
 
 ### 5. Arena de titãs no toque
 
-Mesma lógica de dois polegares: **SOCO** grande no canto, FORTE e ESQUIVA em arco, **DEFESA** (que é segurar) do lado esquerdo acima do analógico, para defender e socar ao mesmo tempo; TITÃ, AGARRAR, REGENERAR, SAIR e ALVO como botões de contexto.
+Mesma lógica de dois polegares: **SOCO** grande no canto (TITÃ ocupa o canto antes da transformação, sozinho), FORTE e ESQUIVA em arco, **DEFESA** (que é segurar) do lado esquerdo acima do analógico, com ALVO acima dela; AGARRAR só com o rival em recuperação a até 8,5 m; REGENERAR e SAIR em volta. As regras da arena não deixam atacar enquanto defende, então o ganho é soltar a defesa com um polegar e socar com o outro na hora. No toque, as barras da arena vão para o centro do topo e a descrição some, para não ficarem sob DEFESA e ALVO. Os ajustes de toque (C4) ainda não aparecem na arena.
 
 ### Depois, se valer a pena
 
@@ -92,7 +92,7 @@ Cada entrega é empilhada sobre a anterior (a primeira sobre a 42) e tem PR pró
 | **C2 — Distribuição** ✅ | Seção 2 (posições, tamanhos, contexto, CONTINUAR fora do bloco) | Em 844×390, 667×375, 740×360 e 1024×768: nenhum botão sobreposto, folga ≥ 16 px, tamanho ≥ 56 px, nada fora da área segura; capturas de tela anexadas ao PR |
 | **C3 — Arrastar** ✅ | Seção 3 | Navegador: segurar GÁS e deslizar gira a câmera com gás ativo; deslizar do GÁS para a LÂMINA corta |
 | **C4 — Ajustes** ✅ | Seção 4 | Teste puro das escolhas salvas; navegador: canhoto espelha, tamanho muda, cabo fixo desligado volta ao segurar |
-| **C5 — Arena** | Seção 5 | Navegador: DEFESA segurada + SOCO ao mesmo tempo |
+| **C5 — Arena** ✅ | Seção 5 | Navegador: só TITÃ antes da transformação; depois os botões de luta sem sobreposição; DEFESA à esquerda defende enquanto segurada |
 
 Em todas: `npm test`, `npm run test:browser` completo (incluindo `platform`, `mobile`, `gamepad`, `arena-gamepad`, `titan-hook`, `story-finisher`, para provar que teclado e controle não mudaram) e `npm run build`.
 

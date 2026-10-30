@@ -34,11 +34,11 @@ body[data-input=touch][data-playing=true] #hud{z-index:21}
    context buttons on the outer ring. --gap keeps at least 16 px between
    buttons; each button's touch area reaches 6 px past its edge. */
 .touch-controls .touch-button.off{display:none!important}
-.touch-odm{--u:88px;--v:76px;--w:72px;--y:56px;--a:calc(var(--u) * var(--k,1));--g:calc(var(--v) * var(--k,1));--c:calc(var(--w) * var(--k,1));--x:calc(var(--y) * var(--k,1));--gap:18px;--r:max(16px,env(safe-area-inset-right),env(safe-area-inset-left));--b:max(16px,env(safe-area-inset-bottom));--l:max(16px,env(safe-area-inset-left))}
-@media (max-height:420px){.touch-odm{--u:76px;--v:68px;--w:64px;--y:52px;--gap:16px}}
-.touch-odm .touch-buttons{position:absolute;inset:0;display:block;pointer-events:none}
-.touch-odm .touch-button{position:absolute;width:var(--x);height:var(--x);font-size:9px}
-.touch-odm .touch-button::before{content:'';position:absolute;inset:-6px;border-radius:inherit}
+.touch-odm,.touch-arena{--u:88px;--v:76px;--w:72px;--y:56px;--a:calc(var(--u) * var(--k,1));--g:calc(var(--v) * var(--k,1));--c:calc(var(--w) * var(--k,1));--x:calc(var(--y) * var(--k,1));--gap:18px;--r:max(16px,env(safe-area-inset-right),env(safe-area-inset-left));--b:max(16px,env(safe-area-inset-bottom));--l:max(16px,env(safe-area-inset-left))}
+@media (max-height:420px){.touch-odm,.touch-arena{--u:76px;--v:68px;--w:64px;--y:52px;--gap:16px}}
+.touch-odm .touch-buttons,.touch-arena .touch-buttons{position:absolute;inset:0;display:block;pointer-events:none}
+.touch-odm .touch-button,.touch-arena .touch-button{position:absolute;width:var(--x);height:var(--x);font-size:9px}
+.touch-odm .touch-button::before,.touch-arena .touch-button::before{content:'';position:absolute;inset:-6px;border-radius:inherit}
 .touch-odm .touch-button[data-action=attack],.touch-odm .touch-button[data-action=advance]{width:var(--a);height:var(--a);inset-inline-end:var(--r);bottom:var(--b);font-size:12px}
 .touch-odm .touch-button[data-action=advance]{font-size:10px;letter-spacing:.3px}
 .touch-odm .touch-button[data-action=jump]{width:var(--g);height:var(--g);inset-inline-end:calc(var(--r) + var(--a) + var(--gap));bottom:calc(var(--b) + (var(--a) - var(--g)) / 2);font-size:11px}
@@ -72,3 +72,14 @@ body:not([data-input=touch]) .touch-settings{display:none}
 .touch-settings .setting{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:10px 0;font-size:12px;color:#dfe5dd}
 .touch-settings select{background:#243840;color:#e3e9df;padding:6px;border:1px solid #59716d}
 .touch-settings input{accent-color:#d5b77f;max-width:140px}
+/* Arena on touch: the same two-thumb slots. SOCO (or TITÃ before the
+   transformation) in the corner, FORTE and ESQUIVA around it, DEFESA under
+   the left thumb so guarding and punching can overlap; the rest by context. */
+.touch-arena .touch-button[data-action=light],.touch-arena .touch-button[data-action=transform]{width:var(--a);height:var(--a);inset-inline-end:var(--r);bottom:var(--b);font-size:12px}
+.touch-arena .touch-button[data-action=heavy]{width:var(--g);height:var(--g);inset-inline-end:calc(var(--r) + var(--a) + var(--gap));bottom:calc(var(--b) + (var(--a) - var(--g)) / 2);font-size:11px}
+.touch-arena .touch-button[data-action=dodge]{width:var(--c);height:var(--c);inset-inline-end:calc(var(--r) + (var(--a) - var(--c)) / 2);bottom:calc(var(--b) + var(--a) + var(--gap))}
+.touch-arena .touch-button[data-action=guard]{width:var(--c);height:var(--c);inset-inline-start:var(--l);bottom:calc(var(--b) + var(--a) + var(--gap))}
+.touch-arena .touch-button[data-action=grab]{inset-inline-end:calc(var(--r) + var(--a) + var(--gap) + (var(--g) - var(--x)) / 2);bottom:calc(var(--b) + (var(--a) - var(--g)) / 2 + var(--g) + var(--gap))}
+.touch-arena .touch-button[data-action=regenerate]{inset-inline-end:calc(var(--r) + var(--a) + var(--gap) * 2 + var(--g));bottom:calc(var(--b) + (var(--a) - var(--x)) / 2)}
+.touch-arena .touch-button[data-action=exit]{inset-inline-end:calc(var(--r) + (var(--a) - var(--x)) / 2);bottom:calc(var(--b) + var(--a) + var(--gap) * 2 + var(--c))}
+.touch-arena .touch-button[data-action=lock]{inset-inline-start:calc(var(--l) + (var(--c) - var(--x)) / 2);bottom:calc(var(--b) + var(--a) + var(--gap) * 2 + var(--c))}

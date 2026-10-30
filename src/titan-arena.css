@@ -9,3 +9,8 @@ body[data-input=touch] .arena-resources{top:150px;bottom:auto;width:170px}
 body[data-input=touch] .touch-buttons{grid-template-columns:repeat(3,58px);grid-auto-rows:58px;gap:8px}
 body.arena-page .touch-button.menu{display:none}
 body[data-input=touch] .arena-resources{top:175px}
+/* Touch: the left edge holds DEFESA and ALVO, so the meters move to the top centre. */
+body[data-input=touch] .arena-resources{top:56px;bottom:auto;left:50%;transform:translateX(-50%);width:220px}
+body[data-input=touch] .arena-resources .arena-resource{margin-top:8px}
+body[data-input=touch] :is(.arena-mission p,.arena-mission .form-tag,.arena-resources>small){display:none}
+body[data-input=touch] .arena-notice{top:44%}
