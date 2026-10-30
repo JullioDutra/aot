@@ -1,0 +1,57 @@
+/* Scrollable home over the live Trost scene: hero with the Eren and Mikasa
+   scenes, then the chapter summary and how to play. */
+.home{position:fixed;inset:0;z-index:2;overflow-x:hidden;overflow-y:auto;scroll-behavior:smooth;scrollbar-color:#d2ac6c55 transparent}
+.home-hero{position:relative;min-height:100vh}
+.home #landing{position:relative;left:auto;top:auto;padding:24vh 0 48px 8%;max-width:640px}
+.home-more{display:flex;align-items:center;justify-content:space-between;gap:12px;max-width:290px;margin-top:15px;color:#cfd8d2;font-size:8px;text-decoration:none;letter-spacing:1.4px;padding:11px 0;border-bottom:1px solid #a9b59b44}
+.home-more:hover{color:#ffe2a6}.home-more span{font-size:15px}
+.home-scenes{position:absolute;right:4%;top:100px;width:min(310px,27vw);display:grid;gap:10px}
+.home-scene{position:relative;margin:0;border:1px solid #b1c5c332;border-top:2px solid #bdab7d;background:#13232bcc;backdrop-filter:blur(8px);overflow:hidden}
+.home-scene canvas{display:block;width:100%;aspect-ratio:16/9;background:linear-gradient(135deg,#2a3a40,#1a272d)}
+.home-scene figcaption{display:grid;grid-template-columns:1fr auto;gap:4px 10px;padding:8px 12px 9px}
+.home-hero .home-scene small{display:none}
+.home-scene:hover small,.home-scene:focus-within small{display:block}
+.home-scene b{font-family:Georgia,serif;font-weight:400;font-size:14px}
+.home-scene figcaption span{font-size:9px;letter-spacing:1.5px;color:var(--accent)}
+.home-scene small{grid-column:1/-1;font-size:9px;line-height:1.5;color:#a9bab8}
+.home-section{position:relative;padding:110px 8% 56px;background:linear-gradient(180deg,#0d1a20e6,#0f1d23f5)}
+.home-section h2{font-family:Georgia,serif;font-weight:400;font-size:clamp(30px,4vw,48px);margin:14px 0 10px}
+.home-lead{font-size:12px;color:#aebcba;margin:0 0 30px;line-height:1.7}
+.home-acts{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:16px}
+.home-act{border:1px solid #b1c5c326;border-top:2px solid #bdab7d;padding:18px 18px 12px;background:#14262ecc}
+.home-act h3{font-family:Georgia,serif;font-weight:400;font-size:19px;margin:8px 0 12px}
+.home-act ol{list-style:none;margin:0;padding:0}
+.home-act li{display:grid;grid-template-columns:26px 1fr auto;gap:8px;align-items:baseline;padding:7px 0;border-top:1px solid #b1c5c31c;font-size:12px}
+.home-act li i{font-style:normal;font-size:9px;letter-spacing:1px;color:var(--accent)}
+.home-act li a{color:#e7ece4;text-decoration:none}.home-act li a:hover{color:#ffe2a6;text-decoration:underline}
+.home-act li span{color:#8fa2a5}
+.home-act li small{font-size:9px;color:#8fa2a5}
+.home-basics{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px;list-style:none;padding:0;margin:20px 0 26px;counter-reset:basic}
+.home-basics li{counter-increment:basic;font-size:12px;line-height:1.7;color:#cbd5d0;padding:14px 16px;border-left:2px solid #d2ac6c88;background:#14262e99}
+.home-basics li::before{content:"0" counter(basic);display:block;font-size:9px;letter-spacing:2px;color:var(--accent);margin-bottom:6px}
+.home-inputs{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px}
+.home-input{border:1px solid #b1c5c326;padding:16px 18px;background:#14262ecc}
+.home-input h3{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--accent);margin:0 0 12px}
+.home-input dl{display:grid;grid-template-columns:auto 1fr;gap:8px 12px;margin:0;font-size:11px}
+.home-input dt{font-size:9px;border:1px solid #abbdb160;padding:3px 6px;color:#f0e7d2;justify-self:start;white-space:nowrap}
+.home-input dd{margin:0;color:#c3cec9;align-self:center}
+body[data-input=keyboard] .home-input[data-input=keyboard],body[data-input=gamepad] .home-input[data-input=gamepad],body[data-input=touch] .home-input[data-input=touch]{border-color:#d2ac6c88}
+.home .operation-card{position:static;margin-top:26px;width:auto;max-width:360px}
+.home footer{position:static;padding:24px 4% 30px;background:#0f1d23}
+@media(max-width:900px){
+  .home-hero .home-scene small{display:block}
+  .home-hero{min-height:auto;padding-bottom:20px}
+  .home #landing{padding:22vh 8% 0}
+  .home-scenes{position:relative;right:auto;top:auto;width:auto;margin:28px 8% 0;grid-template-columns:repeat(3,minmax(200px,1fr));overflow-x:auto}
+}
+@media(max-width:650px){.home #landing{padding-top:18vh}.home-scenes{grid-template-columns:repeat(3,72vw)}.home-section{padding:52px 6% 40px}}
+body[data-input=touch] .home-scenes{grid-template-columns:repeat(3,minmax(190px,1fr))}
+/* Short landscape screens (phones): one scene at a time beside the title. */
+@media(max-height:500px) and (min-width:651px){
+  .home-hero{min-height:100vh}
+  .home #landing{padding:84px 0 24px 6%;max-width:52%}
+  .home-scenes{position:absolute;right:4%;top:76px;width:40vw;margin:0;grid-template-columns:1fr;overflow:visible}
+  .home-scene{grid-area:1/1;opacity:0;transition:opacity .8s}
+  .home-scene.active{opacity:1}
+  .home-hero .home-scene small{display:none}
+}

@@ -17,20 +17,27 @@
       <button id="settings-button" class="icon-button" aria-label="Configurações">⚙</button>
     </header>
 
-    <main id="landing">
-      <div class="chapter-tag"><span>01</span> A BATALHA POR TROST</div>
-      <h1>ALÉM DO<br/><em>MEDO.</em></h1>
-      <p class="intro">A muralha caiu. A nossa vontade, não.<br/>Domine os céus. Proteja quem ainda está aqui.</p>
-      <button id="continue-button" class="primary-button" hidden><span>RETOMAR CHECKPOINT</span><span>↗</span></button>
-      <button id="start-button" class="primary-button"><span>INICIAR OPERAÇÃO</span><span>↗</span></button>
-      <a class="story-entry" href="./historia.html">MODO HISTÓRIA · 47 FASES <span>→</span></a>
-      <a class="arena-entry" href="./arena.html">ENSAIO 03 · TRANSFORMAÇÃO EM TITÃ <span>→</span></a>
-      <p id="save-status" class="save-status"></p>
-      <div class="landing-details"><span>◈ CAMPANHA · TREINO DE CAMPO</span><span id="landing-input">TECLADO + MOUSE</span></div>
-      <div class="chapter-line"><b>850</b><span>DISTRITO DE TROST<br/>MURALHA ROSE · SETOR SUL</span></div>
-    </main>
+    <div id="home" class="home">
+    <section class="home-hero">
+      <main id="landing">
+        <div class="chapter-tag"><span>01</span> A BATALHA POR TROST</div>
+        <h1>ALÉM DO<br/><em>MEDO.</em></h1>
+        <p class="intro">A muralha caiu. A nossa vontade, não.<br/>Domine os céus. Proteja quem ainda está aqui.</p>
+        <button id="continue-button" class="primary-button" hidden><span>RETOMAR CHECKPOINT</span><span>↗</span></button>
+        <button id="start-button" class="primary-button"><span>INICIAR OPERAÇÃO</span><span>↗</span></button>
+        <a class="home-more" href="#home-summary">SUMÁRIO E COMO JOGAR <span>↓</span></a>
+        <a class="story-entry" href="./historia.html">MODO HISTÓRIA · 47 FASES <span>→</span></a>
+        <a class="arena-entry" href="./arena.html">ENSAIO 03 · TRANSFORMAÇÃO EM TITÃ <span>→</span></a>
+        <p id="save-status" class="save-status"></p>
+        <div class="landing-details"><span>◈ CAMPANHA · TREINO DE CAMPO</span><span id="landing-input">TECLADO + MOUSE</span></div>
+        <div class="chapter-line"><b>850</b><span>DISTRITO DE TROST<br/>MURALHA ROSE · SETOR SUL</span></div>
+      </main>
 
-    <aside class="operation-card" id="operation-card">
+      <section class="home-scenes" id="home-scenes" aria-label="Eren e Mikasa"></section>
+    </section>
+    <section class="home-section" id="home-summary" aria-labelledby="home-summary-title"><span class="eyebrow">MODO HISTÓRIA · 845–857</span><h2 id="home-summary-title">As 47 fases.</h2><p class="home-lead">Oito atos, da árvore na colina ao epílogo. Toque numa fase para jogá-la.</p><div class="home-acts" id="home-acts"></div></section>
+    <section class="home-section" id="home-howto" aria-labelledby="home-howto-title"><span class="eyebrow">ANTES DA PRIMEIRA OPERAÇÃO</span><h2 id="home-howto-title">Como jogar.</h2><ul class="home-basics" id="home-basics"></ul><div class="home-inputs" id="home-inputs"></div>
+      <aside class="operation-card" id="operation-card">
       <span class="eyebrow">ORDENS DE CAMPO / 001</span>
       <h2>Recupere o distrito.</h2>
       <p>Resgate os civis, recupere o abastecimento e abra a rota até o portão.</p>
@@ -39,7 +46,9 @@
       <div class="card-bottom"><span>◌</span> CENÁRIO 3D EM TEMPO REAL</div>
     </aside>
 
-    <footer id="landing-footer"><span>DEDICADO A QUEM OUSA IR ALÉM.</span><span>ESTUDO INDEPENDENTE · NÃO OFICIAL</span></footer>
+    </section>
+      <footer id="landing-footer"><span>DEDICADO A QUEM OUSA IR ALÉM.</span><span>ESTUDO INDEPENDENTE · NÃO OFICIAL</span></footer>
+    </div>
 
     <section id="hud" hidden aria-label="Informações da operação">
       <div class="mission"><span class="eyebrow">OPERAÇÃO / RETIRADA</span><h2>As ruas de Trost</h2><div id="mission-phase" class="mission-phase">ETAPA 1 / 4</div><div id="objective">Resgate os civis da praça</div><div id="rescue-status">Aproxime-se do grupo e pressione G.</div><div id="escort-status" hidden></div><div id="blade-action">LÂMINAS PRONTAS</div><div id="combat-warning" role="status" hidden></div></div>
@@ -60,6 +69,7 @@
     <section id="settings" class="modal-backdrop" hidden><div class="modal"><span class="eyebrow">CONFIGURAÇÕES</span><h2>Seu equipamento.</h2><label class="setting">Qualidade<select id="quality" aria-describedby="quality-description"><option value="high">Alta</option><option value="medium">Equilibrada</option><option value="low">Desempenho</option></select></label><p id="quality-description" class="muted"></p><label class="setting">Sensibilidade<input id="sensitivity" type="range" min="0.5" max="2" step="0.1" value="1"/></label><label class="setting">Assistência de ancoragem<input id="anchor-assist" type="checkbox" checked/></label><label class="setting">Campo de visão com velocidade<input id="fov-effect" type="checkbox" checked/></label><label class="setting">Áudio procedural<input id="audio-enabled" type="checkbox" checked/></label><p id="controller-status" class="muted"></p><p class="muted">Áudio sintetizado localmente. Sem músicas ou recursos extraídos do anime. Trost e arena aceitam controle padrão ou teclado/mouse. Configurações e links usam teclado/mouse. Requer WebGL 2.</p><button id="close-settings" class="primary-button">VOLTAR <span>↗</span></button></div></section>
     <div class="touch-rotate-hint" role="status">Gire o aparelho para a horizontal.</div>
     <div id="fatal" class="modal-backdrop" hidden><div class="modal"><h2>O renderizador não iniciou.</h2><p id="fatal-message">Use um navegador com WebGL 2 e aceleração gráfica disponível.</p></div></div>
+    <script type="module" src="/src/home-main.js"></script>
     <script type="module" src="/src/main.js"></script>
   </body>
 </html>

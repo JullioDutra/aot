@@ -178,6 +178,23 @@ Fases 39 (a floresta de Levi), 40 (Shiganshina em guerra), 41 (o grito e os Cami
 
 Fases 43 (o porto de Odiha), 44 (o Estrondo e Hange), 45 (sobre o Fundador), 46 (a última travessia) e 47 (depois da batalha). As 47 fases do Modo História estão jogáveis; o próximo passo é revisão humana de ritmo, câmera e dificuldade em GPU real e no celular.
 
+## Entrega intermediária 36 — Página inicial
+
+Três quadros de Eren e Mikasa na abertura, sumário das 47 fases e como jogar por tipo de entrada.
+
+## Fidelidade e jogabilidade (entregas 36–43)
+
+Pedido após a campanha completa: equipamento com a sensação do anime, personagens e titãs mais parecidos, cenários mais fiéis, celular melhor e uma página inicial que apresente o jogo. Tudo continua gerado em código, sem modelos, imagens ou músicas oficiais.
+
+1. **36 — Página inicial:** três quadros de Eren e Mikasa (sob a árvore, o cachecol, prontos para a batalha), sumário das 47 fases por ato e como jogar no teclado, controle e toque.
+2. **37 — Gancho no titã:** o corpo do titã aceita o gancho e o cabo acompanha o movimento; preso, o jogador controla o giro em volta dele; atrás da nuca, perto e com velocidade, aparece o botão de finalização. Arena e Modo História.
+3. **38 — Chefes:** Fêmea, Blindado, Bestial, Colossal e Martelo de Guerra com etapas (tornozelo, braço, nuca) e desafios próprios, mais difíceis que os titãs comuns.
+4. **39 — Rostos:** olhos, íris, cílios, sobrancelhas e franja próprios de cada personagem, cicatrizes da linha do tempo e expressões em cena (raiva, choro, grito).
+5. **40 — Roupas pela cronologia:** civil em 845, cadete, Tropa com capa, uniforme preto de 854 e visuais que mudam com o tempo (Eren de cabelo comprido, Levi com cicatrizes).
+6. **41 — Titãs:** proporções, rostos e silhuetas dos titãs puros e dos nove titãs mais próximos do anime.
+7. **42 — Celular:** controles de toque redesenhados para o gancho no titã, o giro e a finalização, com mira assistida.
+8. **43 — Cenários:** Shiganshina, Trost, a floresta de árvores gigantes e Liberio com mais detalhe e marcos reconhecíveis.
+
 ## Marco 4 — demonstração de produção
 
 Uma operação de 15–20 minutos com arte e animação próprias de produção, referências verificadas, missão legível, resgate, abastecimento, destruição controlada e conclusão narrativa. Não será construída a campanha completa antes da aprovação desse marco.

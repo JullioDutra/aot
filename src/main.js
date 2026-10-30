@@ -158,7 +158,7 @@ function lockMouse() {
   try { const result = canvas.requestPointerLock?.(); result?.catch(() => toast('Arraste a cena para olhar; Q/E continuam prendendo os cabos.')); } catch { toast('Arraste a cena para controlar a câmera.'); }
 }
 function start(lock = true) {
-  $('landing').hidden = true; $('operation-card').hidden = true; $('landing-footer').hidden = true; $('pause').hidden = true; $('result').hidden = true; $('hud').hidden = false;
+  $('home').hidden = true; $('landing').hidden = true; $('operation-card').hidden = true; $('landing-footer').hidden = true; $('pause').hidden = true; $('result').hidden = true; $('hud').hidden = false;
   document.body.classList.add('playing'); mode = 'playing'; clearInput();
   void titanAudio.start(); audioContext = titanAudio.context; syncInputProfile();
   if (inputProfile === 'touch') { if (!fullscreenState(document).active) void toggleFullscreen(document, document.documentElement); } else if (lock) lockMouse(); toast(`${missionObjective(mission).title}. ${missionObjective(mission).detail}`, 6);
