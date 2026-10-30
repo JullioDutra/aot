@@ -66,6 +66,7 @@ function titans(id) {
   for (const t of placed) t.root.position.x -= x / 2;
   const tallest = Math.max(...list.map(t => t.height));
   controls.target.set(0, tallest * .5, 0); camera.position.set(0, tallest * .6, Math.max(tallest * 2.2, x * .9));
+  if (closeUp && id && placed[0]) { placed[0].root.updateWorldMatrix(true, true); const head = placed[0].head.getWorldPosition(new THREE.Vector3()); controls.target.copy(head); camera.position.set(head.x + tallest * .05, head.y, head.z + tallest * .42); }
   if (!id) { const human = createCharacter(CHARACTER_SPECS.levi, {}); human.root.position.set(placed[0].root.position.x - 6, 0, 4); stage.add(human.root); actors.push(human); human.id = 'levi'; }
 }
 

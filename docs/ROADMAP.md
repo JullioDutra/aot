@@ -198,6 +198,10 @@ Olhos no estilo do anime, queixo afinado, franjas, nove expressões automáticas
 
 Cadetes até Trost, Tropa com capa, Polícia Militar para Annie, uniforme escuro de 854, Eren de cabelo comprido, cicatrizes e tapa-olho no tempo certo; seletor de época na galeria.
 
+## Entrega intermediária 41 — Titãs
+
+Rostos de titã com órbitas fundas, narinas, lábios, fibras da bochecha no Titã de Ataque, cavidade nasal do Colossal e músculos da Fêmea; close de titã na galeria.
+
 ## Fidelidade e jogabilidade (entregas 36–43)
 
 Pedido após a campanha completa: equipamento com a sensação do anime, personagens e titãs mais parecidos, cenários mais fiéis, celular melhor e uma página inicial que apresente o jogo. Tudo continua gerado em código, sem modelos, imagens ou músicas oficiais.
