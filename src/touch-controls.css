@@ -14,3 +14,15 @@
 @media (orientation:portrait){body[data-input=touch][data-playing=true] .touch-rotate-hint{display:block;position:fixed;top:30%;left:50%;transform:translateX(-50%);z-index:21;background:#13252ce6;border-left:2px solid #d0b17c;padding:12px 18px;font-size:12px;color:#efe6cf;pointer-events:none}}
 .icon-button+.icon-button{margin-left:8px!important}
 .icon-button.active{background:#d5b77f;color:#152025}
+/* Bigger thumb targets; the blade glows while the finisher window is open. */
+.touch-buttons{grid-template-columns:repeat(3,70px);grid-auto-rows:70px;gap:10px}
+.touch-button.cable-left,.touch-button.cable-right{font-size:10px}
+body.finisher-ready .touch-button[data-action=attack]{background:#ffd28b;color:#2a1a0f;border-color:#fff1d0;box-shadow:0 0 26px #ffcf8acc;animation:touch-finisher .6s ease-in-out infinite alternate}
+@keyframes touch-finisher{from{transform:scale(1)}to{transform:scale(1.12)}}
+body[data-input=touch] .story-finisher,body[data-input=touch] .nape-marker.finisher{pointer-events:auto;cursor:pointer}
+body[data-input=touch] .story-finisher b{min-width:72px;height:72px;font-size:13px}
+@media (max-height:420px){.touch-buttons{grid-template-columns:repeat(3,60px);grid-auto-rows:60px;gap:8px}}
+@media(prefers-reduced-motion:reduce){body.finisher-ready .touch-button[data-action=attack]{animation:none}}
+/* Keep the tappable finisher above the touch layer (the HUD itself stays click-through). */
+body[data-input=touch] .story-finisher{z-index:22}
+body[data-input=touch][data-playing=true] #hud{z-index:21}

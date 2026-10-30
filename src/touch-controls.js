@@ -16,6 +16,8 @@ export function stickVector(origin, point, radius = STICK_RADIUS) {
 // Capture keeps a finger bound to its control when it slides off; it may fail
 // for pointers the browser no longer tracks, which must not drop the input.
 function capture(element, id) { try { element.setPointerCapture?.(id); } catch { /* Input still works without capture. */ } }
+// Short haptic tick where the device supports it; silently ignored elsewhere.
+function buzz(ms) { try { navigator.vibrate?.(ms); } catch { /* No vibration support. */ } }
 
 export function createTouchControls({ root, buttons }) {
   const element = document.createElement('div');
@@ -36,7 +38,7 @@ export function createTouchControls({ root, buttons }) {
     const pointers = new Set();
     button.addEventListener('pointerdown', event => {
       event.preventDefault(); event.stopPropagation(); capture(button, event.pointerId);
-      pointers.add(event.pointerId); held.add(spec.action); down.add(spec.action); button.classList.add('active');
+      pointers.add(event.pointerId); held.add(spec.action); down.add(spec.action); button.classList.add('active'); buzz(10);
     });
     const up = event => {
       pointers.delete(event.pointerId);
@@ -81,6 +83,8 @@ export function createTouchControls({ root, buttons }) {
   return {
     element,
     setVisible(visible) { element.hidden = !visible; if (!visible) this.suspend(); },
+    // One-frame press from another on-screen element (the finisher prompt).
+    press(action) { if (element.hidden) return; down.add(action); buzz(25); },
     suspend() {
       held.clear(); down.clear(); previous = new Set(); stick = null; look = null; move = [0, 0]; lookDelta = [0, 0];
       base.hidden = true; knob.style.transform = '';

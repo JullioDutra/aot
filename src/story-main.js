@@ -62,6 +62,8 @@ const touch = createTouchControls({ root: document.body, buttons: [
   { action: 'attack', label: 'LÂMINA', className: 'primary story-combat' }, { action: 'left', label: '◀ CABO', className: 'cable-left story-combat' }, { action: 'right', label: 'CABO ▶', className: 'cable-right story-combat' },
   { action: 'jump', label: 'GÁS', className: 'story-combat' }, { action: 'menu', label: 'Ⅱ', className: 'menu' }] });
 const key = action => prompt(inputProfile, action);
+// On touch the finisher prompt is itself the button.
+document.getElementById('story-finisher').addEventListener('pointerdown', event => { event.preventDefault(); touch.press('attack'); });
 
 function syncInput() {
   document.body.dataset.input = inputProfile; document.body.dataset.playing = mode === 'playing'; syncedMode = mode;
@@ -226,7 +228,7 @@ function gatherInput(dt) {
   const held = { ...padFrame.held, jump: (keys.has('Space') || !!padFrame.held.jump) && !talking, left: keys.has('KeyQ') || !!padFrame.held.left, right: keys.has('KeyE') || !!padFrame.held.right, attack: !!padFrame.held.attack };
   const pressed = { ...padFrame.pressed, attack: !!padFrame.pressed.attack || edges.has('Mouse0'), jump: (!!padFrame.pressed.jump || edges.has('Space')) && !talking, left: !!padFrame.pressed.left || edges.has('KeyQ'), right: !!padFrame.pressed.right || edges.has('KeyE') };
   edges.clear();
-  const frame = { move, look, advance, interact, choose, run: keys.has('ShiftLeft') || keys.has('ShiftRight') || !!padFrame.held.run, held, pressed, previous: previousHeld, keyLabel: key };
+  const frame = { touch: inputProfile === 'touch', move, look, advance, interact, choose, run: keys.has('ShiftLeft') || keys.has('ShiftRight') || !!padFrame.held.run, held, pressed, previous: previousHeld, keyLabel: key };
   previousHeld = held;
   return frame;
 }
@@ -234,6 +236,8 @@ function gatherInput(dt) {
 // Finisher prompt over the nape; hidden on any frame the pilot did not ask for it.
 function renderFinisher() {
   const el = $('story-finisher'), point = finisherSeen && mode === 'playing' ? finisherPoint : null; finisherSeen = false;
+  if (!point) document.body.classList.remove('finisher-ready');
+  document.body.classList.toggle('finisher-ready', !!point);
   if (!point) { el.hidden = true; return; }
   const screen = point.clone().project(camera);
   if (screen.z > 1) { el.hidden = true; return; }

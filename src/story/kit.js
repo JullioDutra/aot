@@ -171,7 +171,7 @@ export function createOdmPilot(stage, rig, { colliders = [], anchorRoots = [], b
       pilot.yaw += input.look[0]; pilot.pitch = Math.max(-.85, Math.min(1.05, pilot.pitch - input.look[1]));
       for (const side of [-1, 1]) {
         const key = side < 0 ? 'left' : 'right';
-        if (input.pressed[key] || (input.held[key] && !input.previous[key])) if (!odm.attach(side, pilot.yaw)) stage.ui.toast('Sem ancoragem: mire em um prédio, árvore ou titã.', 1.1);
+        if (input.pressed[key] || (input.held[key] && !input.previous[key])) if (!odm.attach(side, pilot.yaw, input.touch ? 2 : 1)) stage.ui.toast('Sem ancoragem: mire em um prédio, árvore ou titã.', 1.1);
         if (!input.held[key]) odm.release(side);
       }
       const before = odm.player.gas;

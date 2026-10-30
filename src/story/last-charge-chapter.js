@@ -169,8 +169,8 @@ export function createChapter({ scene, camera, ui, audio, data }) {
 
   function updateOdm(dt, input) {
     yaw += input.look[0]; pitch = Math.max(-.85, Math.min(1.05, pitch - input.look[1]));
-    if (input.pressed.left || (input.held.left && !input.previous.left)) { if (!odm.attach(-1, yaw)) ui.toast('Sem ancoragem: mire em uma casa ou em um titã.', 1.2); }
-    if (input.pressed.right || (input.held.right && !input.previous.right)) { if (!odm.attach(1, yaw)) ui.toast('Sem ancoragem: mire em uma casa ou em um titã.', 1.2); }
+    if (input.pressed.left || (input.held.left && !input.previous.left)) { if (!odm.attach(-1, yaw, input.touch ? 2 : 1)) ui.toast('Sem ancoragem: mire em uma casa ou em um titã.', 1.2); }
+    if (input.pressed.right || (input.held.right && !input.previous.right)) { if (!odm.attach(1, yaw, input.touch ? 2 : 1)) ui.toast('Sem ancoragem: mire em uma casa ou em um titã.', 1.2); }
     if (!input.held.left) odm.release(-1); if (!input.held.right) odm.release(1);
     odm.step(dt, { move: input.move, boost: input.held.jump, jump: input.pressed.jump, yaw, pitch });
     const P = odm.player.position, speed = odm.player.velocity.length();
