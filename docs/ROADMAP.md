@@ -150,6 +150,10 @@ Fases 10 (o titã desconhecido visto de fora e de dentro), 11 (o elevador e os s
 
 Mundo fora das muralhas (planície, aldeia, floresta de árvores gigantes, castelo), cavalgada, sinalizadores e a Titã Fêmea. Fases 13 (castelo e formação de longo alcance), 14 (os padrões da Fêmea; Jean e Reiner) e 15 (a cavalgada pela floresta e a armadilha).
 
+## Entrega intermediária 29 — A Titã Fêmea, parte 2
+
+Fases 16 (arpões, nuca endurecida, o grito e a fuga), 17 (a queda do esquadrão de Levi, o duelo de titãs e o resgate em ordem) e 18 (Stohess, a escalada da muralha e o cristal). O Ato III está jogável por inteiro (fases 13–18).
+
 ## Marco 4 — demonstração de produção
 
 Uma operação de 15–20 minutos com arte e animação próprias de produção, referências verificadas, missão legível, resgate, abastecimento, destruição controlada e conclusão narrativa. Não será construída a campanha completa antes da aprovação desse marco.

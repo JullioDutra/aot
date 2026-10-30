@@ -71,11 +71,11 @@ export async function toggleFullscreen(doc, element) {
 // they use; unknown actions fall back to the keyboard label.
 export const PROMPTS = Object.freeze({
   keyboard: { move: 'WASD', look: 'Mouse', left: 'Q', right: 'E', jump: 'Espaço', attack: 'Clique', interact: 'G', supply: 'R', release: 'Q+E', menu: 'Esc', fullscreen: 'F',
-    transform: 'T', light: 'Clique', heavy: 'Q', guard: 'Botão dir.', dodge: 'Espaço', grab: 'F', regenerate: 'R', exit: 'E', lock: 'Tab', advance: 'Espaço', choose: '1 / 2 / 3' },
+    transform: 'T', light: 'Clique', heavy: 'Q', guard: 'Botão dir.', dodge: 'Espaço', grab: 'F', regenerate: 'R', exit: 'E', lock: 'Tab', advance: 'Espaço', choose: '1 / 2 / 3', run: 'Shift' },
   gamepad: { move: 'LS', look: 'RS', left: 'LT/L2', right: 'RT/R2', jump: 'A/×', attack: 'X/□', interact: 'Y/△', supply: 'RB/R1', release: 'B/○', menu: 'Start', fullscreen: '—',
-    transform: 'RB/R1', light: 'X/□', heavy: 'Y/△', guard: 'LT/L2', dodge: 'A/×', grab: 'LB/L1', regenerate: 'RT/R2', exit: 'B/○', lock: 'R3', advance: 'A/×', choose: 'Direcional + A/×' },
+    transform: 'RB/R1', light: 'X/□', heavy: 'Y/△', guard: 'LT/L2', dodge: 'A/×', grab: 'LB/L1', regenerate: 'RT/R2', exit: 'B/○', lock: 'R3', advance: 'A/×', choose: 'Direcional + A/×', run: 'B/○' },
   touch: { move: 'Analógico esq.', look: 'Arrastar à direita', left: '◀ Cabo', right: 'Cabo ▶', jump: 'Gás', attack: 'Lâmina', interact: 'Agir', supply: 'Abastecer', release: 'Soltar', menu: 'Ⅱ', fullscreen: '⛶',
-    transform: 'Titã', light: 'Soco', heavy: 'Forte', guard: 'Defesa', dodge: 'Esquiva', grab: 'Agarrar', regenerate: 'Regenerar', exit: 'Sair', lock: 'Alvo', advance: 'Toque', choose: 'Toque na opção' },
+    transform: 'Titã', light: 'Soco', heavy: 'Forte', guard: 'Defesa', dodge: 'Esquiva', grab: 'Agarrar', regenerate: 'Regenerar', exit: 'Sair', lock: 'Alvo', advance: 'Toque', choose: 'Toque na opção', run: 'Correr' },
 });
 
 export function prompt(profile, action) {

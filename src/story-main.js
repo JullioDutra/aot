@@ -20,6 +20,7 @@ const ADAPTERS = {
   6: () => import('./story/trost-ch06.js'), 7: () => import('./story/trost-ch07.js'), 8: () => import('./story/trost-ch08.js'), 9: () => import('./story/trost-ch09.js'),
   10: () => import('./story/trost-ch10.js'), 11: () => import('./story/trost-ch11.js'), 12: () => import('./story/trost-ch12.js'),
   13: () => import('./story/act3-ch13.js'), 14: () => import('./story/act3-ch14.js'), 15: () => import('./story/act3-ch15.js'),
+  16: () => import('./story/act3-ch16.js'), 17: () => import('./story/act3-ch17.js'), 18: () => import('./story/act3-ch18.js'),
   32: () => import('./story/last-charge-chapter.js'),
 };
 
