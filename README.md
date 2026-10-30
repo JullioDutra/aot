@@ -252,7 +252,7 @@ Limites: o modelo do titã da arena ainda é o anterior às fases 19–20; os ra
 
 Controles do Modo História: WASD e mouse; Espaço avança e dá gás; G/R age; Shift corre; Q/E seguram os cabos; clique corta ou dispara o sinalizador. No controle: A avança/gás, X lâmina/sinalizador, Y age, B corre, gatilhos para os cabos. No toque: CONTINUAR, AGIR, CORRER e, nas fases de combate, ◀ CABO, CABO ▶, GÁS e LÂMINA.
 
-Limites: as fases 1–24 e 32 são jogáveis; as demais seguem planejadas no hub. Falas são paráfrases originais, sem dublagem. Os mapas são aproximações e não plantas conferidas episódio a episódio. Não há cinemáticas animadas à mão nem captura de movimento. A violência é estilizada (partículas, cortes de câmera). Testes de navegador usam ganchos de depuração para pular deslocamentos longos; o equilíbrio da carga e do duelo precisa de teste humano.
+Limites: as fases 1–28 e 32 são jogáveis; as demais seguem planejadas no hub. Falas são paráfrases originais, sem dublagem. Os mapas são aproximações e não plantas conferidas episódio a episódio. Não há cinemáticas animadas à mão nem captura de movimento. A violência é estilizada (partículas, cortes de câmera). Testes de navegador usam ganchos de depuração para pular deslocamentos longos; o equilíbrio da carga e do duelo precisa de teste humano.
 
 ## Ato I completo — fase 25 (fases 3, 4 e 5 da história)
 
@@ -329,6 +329,20 @@ O mundo de campo ganhou a muralha Rose atrás da planície e a torre em ruínas 
 **Fase 24 — O grito:** Eren, amarrado, não consegue se transformar; Hannes enfrenta o titã sorridente e é devorado. Soque a mão do titã e grite: os titãs atacam o sorridente e o Blindado; Ymir parte com Reiner. Volte a cavalo até a muralha.
 
 Limites: a torre e a muralha são formas simples; o titã de Ymir usa o modelo da Mandíbula; a escalada dos titãs na torre é encenada pela regra de cerco, sem física.
+
+## A revolta — fase 31 (fases 25 a 28 da história)
+
+Inimigos humanos: o esquadrão antipessoal (`src/story/gunmen.js`) mira com uma linha vermelha, atira e recarrega; um prédio ou pilar no meio bloqueia o tiro (regra de linha de visada em `src/story/act5-rules.js`, com o endurecimento e o ciclo da boca de Rod, todos testados).
+
+**Fase 25 — Caçados na cidade:** no bar, Kenny entra; como Levi, saia pela porta dos fundos antes do tiro. Depois fuja pelos telhados até a carroça com nove atiradores nos telhados: cada tiro tira 34% do corpo se a linha de visada estiver livre. Desafio: não ser atingido.
+
+**Fase 26 — A conspiração:** como Armin disfarçado de Historia, ande até a carroça dos sequestradores (correr falha). A emboscada termina com o primeiro tiro de Armin, qualquer que seja a escolha. Como Hange, reúna três provas; o golpe acontece no cadafalso de Erwin sem nenhum disparo. Desafio: não alertar os sequestradores.
+
+**Fase 27 — A capela subterrânea:** caverna de pilares de cristal (âncoras e cobertura). Como Levi, voe até o altar sob as escopetas; Historia recusa a seringa (as duas escolhas convergem); Rod se transforma; Eren engole o frasco e você aperta o ataque sem parar para o cristal crescer antes que o teto desça. Desafio: ninguém ferido na infiltração.
+
+**Fase 28 — O titã de Rod Reiss:** mire três canhões em Orvud (o calor anula os tiros); empurre os barris quando a boca abrir (boca fechada faz os barris voltarem); como Historia, ache o fragmento que brilha entre os pedaços em brasa; Kenny entrega a caixa a Levi sob a árvore e morre; Historia é coroada. Desafio: barris na primeira tentativa.
+
+Limites: o bar é uma sala simples no meio da avenida; Orvud reaproveita Trost; o rosto de Rod repousa sobre a muralha sem animação de boca além da cabeça.
 
 ## Co-op local — fase 24
 
