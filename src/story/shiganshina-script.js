@@ -40,7 +40,7 @@ export const CHAPTER_1 = [
   { type: 'mission', id: 'retorno', title: 'O retorno da Tropa' },
   event('bell', 1.5),
   line('Morador', 'É o sino! A Tropa de Exploração voltou!', 2.2),
-  { type: 'objective', id: 'avenida', text: 'Vá até a avenida principal para ver a Tropa passar', target: [6, 44], radius: 10 },
+  { type: 'objective', id: 'avenida', text: 'Vá até a avenida principal para ver a Tropa passar', target: [0, 44], radius: 10 },
   { type: 'control', mode: 'none' },
   event('survey-return', 5),
   line('Mulher', 'Moses! Cadê o meu filho? Ele estava com vocês!'),

@@ -3,7 +3,7 @@ import { toon } from '../character-model.js';
 import { characterPose, applyPose } from '../character-animation.js';
 import { createTrainingGrounds, RIG, RING, COURSE, HALL, FOREST_START } from './training-world.js';
 import { createStage, createWalker, createOdmPilot } from './kit.js';
-import { createBalance, balanceStep, createDuel, duelStep, cutScore, rivalScore, rankFor } from './story-rules.js';
+import { createBalance, balanceStep, createDuel, duelStep, cutScore, rivalScore, rankFor, passesHoop, trainingGas, TRAINING_GAS } from './story-rules.js';
 import { ACT1_SCRIPTS } from './act1-scripts.js';
 
 // Chapters 4 and 5: the 104th Training Corps. Chapter 4 teaches the systems
@@ -36,6 +36,7 @@ export function createChapter({ scene, camera, number, ui, audio, data }) {
   // ── Controllers ───────────────────────────────────────────────────────
   const walker = createWalker(stage, eren, { colliders: world.hallColliders, bounds: world.hallBounds, distance: 2.6 });
   const pilot = createOdmPilot(stage, eren.rig, { colliders: world.colliders, anchorRoots: world.anchorRoots, bounds: 600 });
+  pilot.gasRate = TRAINING_GAS.rate;
   let control = 'none', goals = new Set(), mission = null;
   let balance = null, faulty = true, balanceHold = 0, balanceWorst = 0, retryTimer = 0;
   let duel = null, opponent = null, duelHits = 0, annieClock = 0, takedown = 0;
@@ -152,9 +153,13 @@ export function createChapter({ scene, camera, number, ui, audio, data }) {
   }
   function updateOdm(dt, input) {
     const r = pilot.step(dt, input);
-    const P = r.position;
+    const P = r.position, odm = pilot.odm;
+    // Practice tanks: half the field drain, refilled whenever the cadet stands free on the ground.
+    const before = odm.player.gas;
+    odm.player.gas = trainingGas(odm.player.gas, dt, { grounded: odm.player.grounded, attached: odm.hooks.some(h => h.active) });
+    if (before < 20 && odm.player.gas >= 20 && odm.player.grounded) ui.toast('Cilindros de treino recarregando no chão.', 1.4);
     if (number === 4) {
-      if (hoop < COURSE.length && P.distanceTo(new THREE.Vector3(...COURSE[hoop])) < 3.8) {
+      if (hoop < COURSE.length && passesHoop(P.toArray(), COURSE[hoop])) {
         world.hoops[hoop].material = toon('#6fae5c'); hoop++; audio.play('block', 1, 0, .5);
         ui.toast(hoop < COURSE.length ? `Arco ${hoop} / ${COURSE.length}` : 'Circuito completo!', 1.2);
         if (hoop < COURSE.length) world.hoops[hoop].material = toon('#e0b44a'); else goals.add('cabos');
@@ -243,10 +248,12 @@ export function createChapter({ scene, camera, number, ui, audio, data }) {
     },
     debug: {
       teleport([x, z]) { if (control === 'odm') pilot.place(x, 4, z); else stage.place(eren, x, z); },
+      gas(value) { pilot.odm.player.gas = value; },
+      fly([x, y, z]) { pilot.place(x, y, z); },
       goal(id) { goals.add(id); },
       // Puts the cadet behind the next uncut target, for browser tests.
       behindTarget() { const t = world.targets.find(o => !o.cut); if (!t) return false; t.napeMesh.getWorldPosition(nape); const back = new THREE.Vector3(-Math.sin(t.group.rotation.y), 0, -Math.cos(t.group.rotation.y)).multiplyScalar(2.5); pilot.place(nape.x + back.x, nape.y - 1, nape.z + back.z); pilot.strikeNow(); return true; },
     },
-    snapshot: () => ({ control, mission, tilt: balance ? +balance.tilt.toFixed(2) : null, fallen: !!balance?.fallen, wins: duel?.wins ?? 0, duelHits, hoop, score, cuts, jean: rivalScore(rotaClock), player: (control === 'odm' ? pilot.odm.player.position : eren.rig.root.position).toArray().map(v => +v.toFixed(1)) }),
+    snapshot: () => ({ control, mission, tilt: balance ? +balance.tilt.toFixed(2) : null, fallen: !!balance?.fallen, wins: duel?.wins ?? 0, duelHits, hoop, score, cuts, gas: Math.round(pilot.odm.player.gas), jean: rivalScore(rotaClock), player: (control === 'odm' ? pilot.odm.player.position : eren.rig.root.position).toArray().map(v => +v.toFixed(1)) }),
   };
 }

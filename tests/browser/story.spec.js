@@ -134,6 +134,21 @@ test('chapter 4: the broken belt flips Eren on its own and the drills run in ord
   expect(errors).toEqual([]);
 });
 
+test('chapter 4: practice tanks refill on the ground and a hoop counts near its rim', async ({ page }) => {
+  test.setTimeout(300000);
+  const errors = []; page.on('pageerror', e => errors.push(e.message));
+  await begin(page, 4, 4);
+  await playThrough(page, { until: s => s.adapter?.control === 'odm' && s.story.mission?.id === 'cabos' });
+  // Out of gas on the ground: the tanks come back instead of locking the course.
+  await page.evaluate(() => { window.__STORY__.debug('fly', [48, 0, -6]); window.__STORY__.debug('gas', 0); });
+  await expect.poll(async () => (await snap(page)).adapter.gas, { timeout: 60000 }).toBeGreaterThan(30);
+  // Flying 4 m off the first hoop's centre (inside its 3.6 m rim plus margin) counts it.
+  const hoop = (await snap(page)).adapter.hoop;
+  await page.evaluate(() => window.__STORY__.debug('fly', [70, 13, -10]));
+  await expect.poll(async () => (await snap(page)).adapter.hoop, { timeout: 30000 }).toBe(hoop + 1);
+  expect(errors).toEqual([]);
+});
+
 test('chapter 5: wooden napes score only from behind, then the graduation table choice', async ({ page }) => {
   test.setTimeout(300000);
   const errors = []; page.on('pageerror', e => errors.push(e.message));

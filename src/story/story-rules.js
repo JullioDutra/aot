@@ -72,6 +72,15 @@ export function duelStep(state, dt, counter = false) {
 
 // ── Chapter 5: forest exercise ──────────────────────────────────────────────
 // A clean, fast nape cut scores more; a hidden target is worth double.
+// Training cable course (chapters 4 and 5): a hoop counts a little past its
+// rim, practice tanks drain at half the field rate and refill on the ground,
+// so running dry costs time, never the chapter.
+export const HOOP_PASS = 4.6;
+export const TRAINING_GAS = Object.freeze({ rate: .5, refill: 25 });
+export function passesHoop(position, hoop, radius = HOOP_PASS) { return Math.hypot(...position.map((v, i) => v - hoop[i])) < radius; }
+export function trainingGas(gas, dt, { grounded = false, attached = false } = {}) {
+  return grounded && !attached ? Math.min(100, gas + TRAINING_GAS.refill * dt) : gas;
+}
 export function cutScore(speed, hidden = false) { return (10 + Math.min(15, Math.round(speed * .4))) * (hidden ? 2 : 1); }
 // Jean's score after `seconds` of the timed run: steady and good, not perfect.
 export const rivalScore = seconds => Math.floor(seconds / 9) * 15;

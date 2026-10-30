@@ -290,5 +290,25 @@ renderer.setAnimationLoop(now => {
   renderer.render(scene, camera);
 });
 
-window.__STORY__ = { ready: false, timeScale: 1, debug: (name, ...args) => adapter?.debug?.[name]?.(...args), snapshot: () => ({ number, mode, ready: !!story, inputProfile, cables: [...cables], elapsed, fade, story: story ? { index: story.index, control: story.control, finished: story.finished, mission: story.mission, choices: { ...story.choices }, log: [...story.log] } : null, adapter: adapter?.snapshot?.() ?? null, progress: structuredClone(progress), drawCalls: renderer.info.render.calls, camera: camera.position.toArray().map(v => +v.toFixed(1)) }) };
+// Test hook: visible characters whose feet sit below a surface right under
+// them (a bridge deck, a platform, a floor), with how deep they are.
+const footRay = new THREE.Raycaster();
+function sunkActors(tolerance = .15) {
+  const actors = [], surfaces = [];
+  const shown = o => { for (let p = o; p; p = p.parent) if (!p.visible) return false; return true; };
+  const own = o => { for (let p = o; p; p = p.parent) if (p.userData.character || p.userData.titan || p.userData.mount) return true; return false; };
+  scene.traverse(o => {
+    if (o.userData.character && shown(o)) actors.push(o);
+    else if ((o.isMesh || o.isInstancedMesh) && shown(o) && !own(o) && !o.material?.transparent && o.material?.side !== THREE.BackSide) surfaces.push(o);
+  });
+  const out = [];
+  for (const a of actors) {
+    const feet = a.getWorldPosition(new THREE.Vector3());
+    footRay.set(feet.clone().setY(feet.y + 1.2), new THREE.Vector3(0, -1, 0)); footRay.far = 1.2 - tolerance;
+    const hit = footRay.intersectObjects(surfaces, false)[0];
+    if (hit) out.push({ id: a.userData.character, at: [feet.x, feet.y, feet.z].map(v => +v.toFixed(1)), depth: +(hit.point.y - feet.y).toFixed(2), surface: hit.object.name || hit.object.geometry?.type, box: (() => { const b = new THREE.Box3().setFromObject(hit.object); return [b.min, b.max].map(v => [v.x, v.y, v.z].map(n => +n.toFixed(1))); })() });
+  }
+  return out;
+}
+window.__STORY__ = { ready: false, timeScale: 1, sunkActors, debug: (name, ...args) => adapter?.debug?.[name]?.(...args), snapshot: () => ({ number, mode, ready: !!story, inputProfile, cables: [...cables], elapsed, fade, story: story ? { index: story.index, control: story.control, finished: story.finished, mission: story.mission, choices: { ...story.choices }, log: [...story.log] } : null, adapter: adapter?.snapshot?.() ?? null, progress: structuredClone(progress), drawCalls: renderer.info.render.calls, camera: camera.position.toArray().map(v => +v.toFixed(1)) }) };
 boot().catch(error => { console.error(error); $('story-error').hidden = false; });
