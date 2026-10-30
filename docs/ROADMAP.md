@@ -190,6 +190,10 @@ O corpo do titã aceita o gancho e o cabo o acompanha; no ar, A/D giram em volta
 
 Fêmea, Blindado e Bestial golpeiam, pisam, arremessam e endurecem a nuca com aviso; cegueira e braços cortados encerram os ataques; a nuca do Bestial só abre por último.
 
+## Entrega intermediária 39 — Rostos
+
+Olhos no estilo do anime, queixo afinado, franjas, nove expressões automáticas pela pose e close de rosto na galeria.
+
 ## Fidelidade e jogabilidade (entregas 36–43)
 
 Pedido após a campanha completa: equipamento com a sensação do anime, personagens e titãs mais parecidos, cenários mais fiéis, celular melhor e uma página inicial que apresente o jogo. Tudo continua gerado em código, sem modelos, imagens ou músicas oficiais.
