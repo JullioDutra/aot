@@ -13,7 +13,7 @@ export function createChapter(args) {
     const outfit = { outfit: 'training' };
     const roof = world.buildings.reduce((best, b) => (Math.hypot(b.x + 20, b.z - 90) < Math.hypot(best.x + 20, best.z - 90) ? b : best));
     const armin = ctx.cast('armin', 'armin', roof.x, roof.z, Math.PI, { override: outfit, y: roof.h });
-    const watchers = ['mikasa', 'connie'].map((id, i) => ctx.cast(id, id, roof.x + 1.5 + i * 1.5, roof.z + 1, Math.PI, { override: outfit, y: roof.h }));
+    const watchers = ['mikasa', 'connie'].map((id, i) => ctx.cast(id, id, roof.x + 1.5 + i * 1.5, roof.z + 1, Math.PI, { override: outfit, y: world.roofAt(roof.x + 1.5 + i * 1.5, roof.z + 1) }));
     const eren = ctx.cast('eren', 'eren', 0, 0, 0, { override: outfit }); eren.rig.root.visible = false;
     const pilot = ctx.usePilot(armin.rig);
     const unknown = ctx.titanForm('ataque'); unknown.root.position.set(roof.x + 8, 0, roof.z - 34); ctx.scene.add(unknown.root); world.anchorRoots.push(unknown.root);

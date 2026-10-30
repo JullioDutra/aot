@@ -51,7 +51,7 @@ export function createChapter(args) {
         stage.after(.8, () => {
           ui.setFade(0); armin.rig.root.visible = false; jean.rig.root.visible = false; thugs.forEach(t => { t.rig.root.visible = false; }); carriage.visible = false;
           hange.rig.root.visible = true; stage.place(hange, -2, 12); spots.forEach(g => { g.visible = true; }); reporter.rig.root.visible = true;
-          hangeWalker = ctx.useWalker(hange, { bounds: { minX: -9, maxX: 9, minZ: 6, maxZ: 52 } }); hangeWalker.lookAt(-6, 20);
+          hangeWalker = ctx.useWalker(hange, { bounds: { minX: -9, maxX: 9, minZ: 6, maxZ: 52 }, colliders: spots.map(g => ({ minX: g.position.x - .5, maxX: g.position.x + .5, minZ: g.position.z - .5, maxZ: g.position.z + .5 })) }); hangeWalker.lookAt(-6, 20);
         });
       },
       gallows: () => { stage.setShot([GALLOWS[0] + 6, 4, GALLOWS[1] + 12], [GALLOWS[0], 3.4, GALLOWS[1]], 50); },

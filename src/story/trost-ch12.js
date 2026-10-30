@@ -20,7 +20,8 @@ export function createChapter(args) {
     const fx = createTransformationFx(ctx.scene, { height: 15, duration: 2.4 }); let fxAt = null;
     const outfit = { outfit: 'training' };
     const pixis = ctx.cast('pixis', 'pixis', -40, TROST.wallZ + 2, 0, { y: TOP });
-    const eren = ctx.cast('eren', 'eren', -42, TROST.wallZ + 2.5, 0, { override: outfit, y: TOP });
+    // Clear of the cannon at x = -42 (its carriage reaches wallZ + 2.5).
+    const eren = ctx.cast('eren', 'eren', -42, TROST.wallZ + 3.6, 0, { override: outfit, y: TOP });
     const mikasa = ctx.cast('mikasa', 'mikasa', -44, TROST.wallZ + 3, 0, { override: outfit, y: TOP });
     const armin = ctx.cast('armin', 'armin', -38, TROST.wallZ + 3, 0, { override: outfit, y: TOP });
     const elite = [

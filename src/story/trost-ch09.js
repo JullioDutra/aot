@@ -23,8 +23,8 @@ export function createChapter(args) {
     };
     const outfit = { outfit: 'training' };
     const jean = ctx.cast('jean', 'jean', S[0], S[2], 0, { override: outfit, y: start.h });
-    const named = ['mikasa', 'armin', 'connie', 'sasha', 'marco'].map((id, i) => ctx.cast(id, id, S[0] - 3 + i * 1.5, S[2] + 2, Math.PI, { override: outfit, y: start.h }));
-    const squad = ['Benedikt', 'Ruth', 'Tom'].map((name, i) => ({ name, alive: true, actor: ctx.cast(`cadete-${i}`, i === 1 ? 'soldier-f' : 'recruit-m', S[0] + 3 + i, S[2] - 2, Math.PI, { override: outfit, y: start.h }) }));
+    const named = ['mikasa', 'armin', 'connie', 'sasha', 'marco'].map((id, i) => ctx.cast(id, id, S[0] - 3 + i * 1.5, S[2] + 2, Math.PI, { override: outfit, y: world.roofAt(S[0] - 3 + i * 1.5, S[2] + 2) }));
+    const squad = ['Benedikt', 'Ruth', 'Tom'].map((name, i) => ({ name, alive: true, actor: ctx.cast(`cadete-${i}`, i === 1 ? 'soldier-f' : 'recruit-m', S[0] + 3 + i, S[2] - 2, Math.PI, { override: outfit, y: world.roofAt(S[0] + 3 + i, S[2] - 2) }) }));
     const pilot = ctx.usePilot(jean.rig, { gas: 42 });
     const unknown = ctx.titanForm('ataque'); unknown.root.position.set(UNKNOWN[0], 0, UNKNOWN[1]); ctx.scene.add(unknown.root);
     // Titans around the depot and along each route.

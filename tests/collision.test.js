@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { surfaceHeight, resolveMotion, segmentEntry, segmentObstructed, gableCollider } from '../src/collision.js';
+import { surfaceHeight, resolveMotion, segmentEntry, segmentObstructed, gableCollider, standHeight } from '../src/collision.js';
 
 const roof = { minX: -5, maxX: 5, minZ: -5, maxZ: 5, top: 10, roofRise: 4 };
 const wall = { minX: 0, maxX: 2, minZ: -5, maxZ: 5, top: 20 };
@@ -70,4 +70,11 @@ test('a gabled roof collider follows the drawn slopes, eaves included', () => {
   // Landing at the ridge puts the feet on the tiles, not inside the roof.
   const landed = resolveMotion([0, 15, 0], [0, 13.5, 0], [0, -5, 0], [c]);
   assert.ok(landed.grounded); assert.ok(Math.abs(landed.position[1] - (h + rise)) < 1e-9);
+});
+
+test('standing height is the highest platform top under a point, or the street', () => {
+  const pier = { minX: 0, maxX: 20, minZ: 0, maxZ: 3, top: .35 }, deck = { minX: 5, maxX: 10, minZ: 1, maxZ: 6, top: .4 };
+  assert.equal(standHeight([pier, deck], 2, 1), .35);
+  assert.equal(standHeight([pier, deck], 6, 2), .4);
+  assert.equal(standHeight([pier, deck], 30, 30), 0);
 });

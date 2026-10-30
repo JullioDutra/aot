@@ -15,7 +15,8 @@ export function createChapter(args) {
     const outfit = { outfit: 'training' };
     const eren = ctx.cast('eren', 'eren', 22, -198, Math.PI, { y: TOP, override: outfit });
     const crew = [['sasha', 'sasha', 25], ['connie', 'connie', 27.5], ['thomas', 'recruit-m', 19, { hair: { style: 'short', color: '#c9a35a' } }], ['mina', 'soldier-f', 16.5, { hair: { style: 'ponytail-low', color: '#2a2220' } }], ['samuel', 'recruit-m', 30, { hair: { style: 'buzz', color: '#3a2d22' } }]]
-      .map(([id, spec, x, extra]) => ctx.cast(id, spec, x, -197.5, Math.PI, { y: TOP, override: { ...outfit, ...(extra ?? {}) } }));
+      // One step back from the cannon line (carriages reach z = -197.5).
+      .map(([id, spec, x, extra]) => ctx.cast(id, spec, x, -196.4, Math.PI, { y: TOP, override: { ...outfit, ...(extra ?? {}) } }));
     const samuel = ctx.actors.samuel;
     const pilot = ctx.usePilot(eren.rig);
     let blast = 0, samuelFall = 0, samuelSaved = false, sweep = 7, sweepX = 0, nukeClock = 0, rising = false, vanished = false;
@@ -96,7 +97,7 @@ export function createChapter(args) {
       onEvent(event) { if (event.kind === 'mission' && event.id === 'nuca') { blast = 0; pilot.place(22, TOP + .1, -197.5, Math.atan2(COLOSSAL.x - 22, -(COLOSSAL.z + 197.5))); pilot.pitch = .35; sweep = 7; nukeClock = 0; } },
       onGoal(id) { if (id === 'vapor') blast = 0; },
       restore(snapshot) {
-        if (snapshot?.mission === 'vapor') { handlers['steam-blast'](); samuelSaved = false; samuel.rig.root.position.set(30, TOP, -197.5); }
+        if (snapshot?.mission === 'vapor') { handlers['steam-blast'](); samuelSaved = false; samuel.rig.root.position.set(30, TOP, -196.4); }
         if (snapshot?.mission === 'nuca') { pilot.place(22, TOP + .1, -197.5, 0); sweep = 7; nukeClock = 0; }
       },
       challenges() {

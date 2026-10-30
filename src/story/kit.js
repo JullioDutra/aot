@@ -34,7 +34,7 @@ export function createStage({ scene, camera, ui, audio, sky = '#c9d6d2', fog = [
   const actors = new Map(), timeline = [];
   const camPos = new THREE.Vector3(), camTarget = new THREE.Vector3();
   const stage = {
-    scene, camera, ui, audio, particles, actors, sun: sunLight, hemisphere, time: 0, shot: null, shakeAmount: 0, ground: () => 0,
+    scene, camera, ui, audio, particles, actors, sun: sunLight, hemisphere, time: 0, shot: null, shakeAmount: 0, ground: () => 0, colliders: null,
     after(seconds, fn) { timeline.push({ at: stage.time + seconds, fn }); },
     setShot(position, target, fov = 55) { stage.shot = { position: new THREE.Vector3(...position), target: new THREE.Vector3(...target), fov }; },
     clearShot() { stage.shot = null; },
@@ -77,7 +77,10 @@ export function createStage({ scene, camera, ui, audio, sky = '#c9d6d2', fog = [
     if (a.follow && !a.path) {
       // Followers keep a slot behind their leader.
       const lead = a.follow.rig.root.position, p = a.rig.root.position, d = Math.hypot(lead.x - p.x, lead.z - p.z);
-      if (d > (a.followGap ?? 2.4)) { const step = Math.min(d - 1.6, (a.followSpeed ?? 5) * dt * Math.min(1.8, d / 3)); p.x += (lead.x - p.x) / d * step; p.z += (lead.z - p.z) / d * step; p.y = stage.ground(p.x, p.z); a.rig.root.rotation.y = Math.atan2(lead.x - p.x, lead.z - p.z); a.pose = d > 5 ? 'run' : 'walk'; }
+      if (d > (a.followGap ?? 2.4)) { const step = Math.min(d - 1.6, (a.followSpeed ?? 5) * dt * Math.min(1.8, d / 3)); p.x += (lead.x - p.x) / d * step; p.z += (lead.z - p.z) / d * step;
+        // On ground-level worlds, followers slide around stalls, houses and trunks instead of walking through them.
+        if (stage.colliders) [p.x, p.z] = moveWithCollisions([p.x, p.z], [0, 0], .35, stage.colliders);
+        p.y = stage.ground(p.x, p.z); a.rig.root.rotation.y = Math.atan2(lead.x - p.x, lead.z - p.z); a.pose = d > 5 ? 'run' : 'walk'; }
       else if (a.pose === 'walk' || a.pose === 'run') a.pose = 'idle';
     }
     if (a.path?.length) {
