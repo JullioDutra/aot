@@ -112,8 +112,8 @@ const gamepadInput = createGamepadInput();
 let padFrame = gamepadInput.sample();
 let inputProfile = initialProfile({ coarsePointer: matchMedia('(pointer: coarse)').matches, hover: matchMedia('(hover: hover)').matches, maxTouchPoints: navigator.maxTouchPoints }), syncedMode = null;
 const touch = createTouchControls({ root: document.body, buttons: [
-  { action: 'left', label: '◀ CABO', className: 'cable-left', latch: true }, { action: 'right', label: 'CABO ▶', className: 'cable-right', latch: true },
-  { action: 'jump', label: 'GÁS', className: 'primary' }, { action: 'attack', label: 'LÂMINA', className: 'primary' },
+  { action: 'left', label: '◀ CABO', className: 'cable-left', latch: true }, { action: 'right', label: 'CABO ▶', className: 'cable-right', latch: true, drag: true },
+  { action: 'jump', label: 'GÁS', className: 'primary', drag: true, slideTo: ['attack'] }, { action: 'attack', label: 'LÂMINA', className: 'primary' },
   { action: 'interact', label: 'AGIR', context: true }, { action: 'supply', label: 'ABASTECER', context: true }, { action: 'release', label: 'SOLTAR', clears: ['left', 'right'] }, { action: 'menu', label: 'Ⅱ', className: 'menu' }], layout: 'odm' });
 const landingInput = { keyboard: 'TECLADO + MOUSE', gamepad: 'CONTROLE PADRÃO', touch: 'TOQUE · TELA CHEIA' };
 function syncInputProfile() {

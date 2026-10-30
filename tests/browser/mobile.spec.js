@@ -124,6 +124,32 @@ test('on touch, a cable stays hooked to the titan without the finger and the bla
   expect(errors).toEqual([]);
 });
 
+test('on touch, a finger on GÁS turns the camera as it slides and cuts when it reaches LÂMINA', async ({ page }) => {
+  test.setTimeout(240000);
+  const errors = []; page.on('pageerror', e => errors.push(e.message));
+  await page.setViewportSize({ width: 844, height: 390 });
+  await page.goto('/');
+  await page.click('#settings-button'); await page.selectOption('#quality', 'low'); await page.click('#close-settings');
+  await page.locator('#start-button').dispatchEvent('pointerdown', { pointerType: 'touch', pointerId: 1, isPrimary: true });
+  await page.locator('#start-button').dispatchEvent('click');
+  await expect.poll(async () => (await snap(page)).touchVisible).toBe(true);
+  await page.waitForFunction(() => window.__TROST__.snapshot().elapsed > .2);
+  const gas = page.locator('.touch-button[data-action="jump"]');
+  const g = await gas.boundingBox(), a = await page.locator('.touch-button[data-action="attack"]').boundingBox();
+  const at = (x, y) => ({ pointerType: 'touch', pointerId: 31, clientX: x, clientY: y });
+  const yaw = (await snap(page)).yaw;
+  await gas.dispatchEvent('pointerdown', at(g.x + g.width / 2, g.y + g.height / 2));
+  // Sliding up and left over the screen turns the camera with the gas still held.
+  await gas.dispatchEvent('pointermove', at(g.x - 40, g.y - 60));
+  await expect.poll(async () => Math.abs((await snap(page)).yaw - yaw), { timeout: 15000 }).toBeGreaterThan(.05);
+  expect((await snap(page)).bladePhase).toBe('ready');
+  // Reaching the blade cuts without lifting the finger.
+  await gas.dispatchEvent('pointermove', at(a.x + a.width / 2, a.y + a.height / 2));
+  await expect.poll(async () => (await snap(page)).bladePhase, { timeout: 15000 }).not.toBe('ready');
+  await gas.dispatchEvent('pointerup', at(a.x + a.width / 2, a.y + a.height / 2));
+  expect(errors).toEqual([]);
+});
+
 // Visible on-screen buttons: no overlap, at least 16 px apart, thumb sized and on screen.
 const layout = page => page.evaluate(() => {
   const boxes = [...document.querySelectorAll('.touch-button')].filter(b => b.offsetParent && getComputedStyle(b).display !== 'none' && !b.classList.contains('menu')).map(b => ({ action: b.dataset.action, rect: b.getBoundingClientRect() }));
