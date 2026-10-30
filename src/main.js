@@ -112,7 +112,7 @@ let inputProfile = initialProfile({ coarsePointer: matchMedia('(pointer: coarse)
 const touch = createTouchControls({ root: document.body, buttons: [
   { action: 'left', label: '◀ CABO', className: 'cable-left', latch: true }, { action: 'right', label: 'CABO ▶', className: 'cable-right', latch: true },
   { action: 'jump', label: 'GÁS', className: 'primary' }, { action: 'attack', label: 'LÂMINA', className: 'primary' },
-  { action: 'interact', label: 'AGIR' }, { action: 'supply', label: 'ABASTECER' }, { action: 'release', label: 'SOLTAR' }, { action: 'menu', label: 'Ⅱ', className: 'menu' }] });
+  { action: 'interact', label: 'AGIR', context: true }, { action: 'supply', label: 'ABASTECER', context: true }, { action: 'release', label: 'SOLTAR', clears: ['left', 'right'] }, { action: 'menu', label: 'Ⅱ', className: 'menu' }], layout: 'odm' });
 const landingInput = { keyboard: 'TECLADO + MOUSE', gamepad: 'CONTROLE PADRÃO', touch: 'TOQUE · TELA CHEIA' };
 function syncInputProfile() {
   document.body.dataset.input = inputProfile; document.body.dataset.playing = mode === 'playing'; syncedMode = mode;
@@ -526,6 +526,11 @@ function updateGamepad(dt) {
   }
   if (padFrame.pressed.release) clearHooks();
   touch.sync({ left: hooks[0].active, right: hooks[1].active });
+  const near = (point, radius) => player.position.distanceTo(point) < radius;
+  touch.setAvailable({
+    interact: (!rescued && !mission.escort && near(world.rescue, 9)) || (missionStage(mission) === 'extraction' && near(world.extraction, 9)),
+    supply: insideSupplyRadius(player.position.toArray(), world.supply.toArray()),
+  });
 }
 
 let previousTime = performance.now(), uiTimer = 0;

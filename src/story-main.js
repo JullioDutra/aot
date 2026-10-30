@@ -61,7 +61,7 @@ let padFrame = gamepad.sample();
 const touch = createTouchControls({ root: document.body, buttons: [
   { action: 'advance', label: 'CONTINUAR', className: 'primary' }, { action: 'interact', label: 'AGIR' }, { action: 'run', label: 'CORRER' },
   { action: 'attack', label: 'LÂMINA', className: 'primary story-combat' }, { action: 'left', label: '◀ CABO', className: 'cable-left story-combat', latch: true }, { action: 'right', label: 'CABO ▶', className: 'cable-right story-combat', latch: true },
-  { action: 'jump', label: 'GÁS', className: 'story-combat' }, { action: 'menu', label: 'Ⅱ', className: 'menu' }] });
+  { action: 'jump', label: 'GÁS', className: 'story-combat' }, { action: 'release', label: 'SOLTAR', className: 'story-combat', clears: ['left', 'right'] }, { action: 'menu', label: 'Ⅱ', className: 'menu' }], layout: 'odm' });
 const key = action => prompt(inputProfile, action);
 // On touch the finisher prompt is itself the button.
 document.getElementById('story-finisher').addEventListener('pointerdown', event => { event.preventDefault(); touch.press('attack'); });
@@ -83,6 +83,9 @@ const ui = { banner, toast, finisher: point => { finisherSeen = true; finisherPo
 function renderUI(view) {
   const line = view.kind === 'line', choice = view.kind === 'choice';
   $('story-dialogue').hidden = !line;
+  // Waiting for the player (a line to advance or a choice): on touch the box
+  // rises over the controls and only CONTINUAR stays. Auto lines play on.
+  document.body.classList.toggle('story-talking', (line && !view.auto) || choice); document.body.classList.toggle('story-choosing', choice);
   if (line) { $('story-speaker').textContent = view.speaker; $('story-text').textContent = view.text; $('story-advance-hint').hidden = view.auto; $('story-dialogue').dataset.speaker = view.speaker; }
   $('story-choice').hidden = !choice;
   if (choice && $('story-choice').dataset.id !== view.id) {

@@ -27,16 +27,18 @@ function capture(element, id) { try { element.setPointerCapture?.(id); } catch {
 // Short haptic tick where the device supports it; silently ignored elsewhere.
 function buzz(ms) { try { navigator.vibrate?.(ms); } catch { /* No vibration support. */ } }
 
-export function createTouchControls({ root, buttons }) {
+// layout: 'odm' places the buttons for two thumbs (touch-controls.css);
+// without it the buttons keep the compact grid (arena).
+export function createTouchControls({ root, buttons, layout = '' }) {
   const element = document.createElement('div');
-  element.className = 'touch-controls'; element.hidden = true; element.setAttribute('aria-hidden', 'true');
+  element.className = `touch-controls${layout ? ` touch-${layout}` : ''}`; element.hidden = true; element.setAttribute('aria-hidden', 'true');
   const stickZone = document.createElement('div'); stickZone.className = 'touch-stick-zone';
   const base = document.createElement('div'); base.className = 'touch-stick'; base.hidden = true;
   const knob = document.createElement('i'); base.append(knob); stickZone.append(base);
   const lookZone = document.createElement('div'); lookZone.className = 'touch-look-zone';
   const pad = document.createElement('div'); pad.className = 'touch-buttons';
   element.append(lookZone, stickZone, pad);
-  const held = new Set(), down = new Set(), latches = new Map();
+  const held = new Set(), down = new Set(), latches = new Map(), context = new Map(), clearers = [];
   let stick = null, look = null, move = [0, 0], lookDelta = [0, 0], previous = new Set();
 
   for (const spec of buttons) {
@@ -45,8 +47,13 @@ export function createTouchControls({ root, buttons }) {
     button.textContent = spec.label;
     const pointers = new Set();
     if (spec.latch) latches.set(spec.action, button);
+    // Context buttons show only while the page says they apply.
+    if (spec.context) { context.set(spec.action, button); button.classList.add('off'); }
+    // A clearing button (SOLTAR) lets go of latched cables and shows only while one holds.
+    if (spec.clears) { clearers.push({ button, actions: spec.clears }); button.classList.add('off'); }
     button.addEventListener('pointerdown', event => {
       event.preventDefault(); event.stopPropagation();
+      if (spec.clears) for (const action of spec.clears) { held.delete(action); latches.get(action)?.classList.remove('latched'); }
       if (spec.latch) {
         const tap = latchTap(held.has(spec.action));
         if (tap.press) { held.add(spec.action); down.add(spec.action); } else held.delete(spec.action);
@@ -108,7 +115,9 @@ export function createTouchControls({ root, buttons }) {
         if (!held.has(action) || latchSync(true, active?.[action])) continue;
         held.delete(action); button.classList.remove('latched');
       }
+      for (const c of clearers) c.button.classList.toggle('off', !c.actions.some(a => held.has(a)));
     },
+    setAvailable(map) { for (const [action, on] of Object.entries(map)) context.get(action)?.classList.toggle('off', !on); },
     suspend() {
       held.clear(); down.clear(); previous = new Set(); stick = null; look = null; move = [0, 0]; lookDelta = [0, 0];
       base.hidden = true; knob.style.transform = '';
