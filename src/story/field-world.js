@@ -12,12 +12,13 @@ export const FIELD = Object.freeze({
   road: 9, // half-width of the trail through the forest (x = 0)
   clearing: [0, -600], clearingRadius: 46,
   castle: [70, 230], village: [-120, -150],
+  wallZ: 330, wallHeight: 50, tower: [-300, 60], towerHeight: 24, towerRadius: 9,
   bounds: 760,
 });
 
 const rng = seed => () => { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; };
 
-export function createField(scene, { outline = true, forest = true, castle = true, village = true, seed = 77 } = {}) {
+export function createField(scene, { outline = true, forest = true, castle = true, village = true, wall = false, tower = false, seed = 77 } = {}) {
   const group = new THREE.Group(); scene.add(group);
   const colliders = [], anchorRoots = [], trunks = [];
   const line = outline ? outlineMaterial(.06) : null;
@@ -64,7 +65,7 @@ export function createField(scene, { outline = true, forest = true, castle = tru
   // Lone trees on the plain: few anchors, as the chapter warns.
   for (let i = 0; i < 60; i++) {
     const x = (rand() - .5) * 1300, z = 240 - rand() * 540;
-    if (Math.abs(x) < 14 || (castle && Math.hypot(x - FIELD.castle[0], z - FIELD.castle[1]) < 40)) continue;
+    if (Math.abs(x) < 14 || (castle && Math.hypot(x - FIELD.castle[0], z - FIELD.castle[1]) < 40) || (tower && Math.hypot(x - FIELD.tower[0], z - FIELD.tower[1]) < 45)) continue;
     tree(x, z, 11 + rand() * 7, .5 + rand() * .25, false);
   }
 
@@ -91,6 +92,23 @@ export function createField(scene, { outline = true, forest = true, castle = tru
     shape(mat.timber, new THREE.BoxGeometry(14, 4, 5), cx - 30, 2, cz - 22); shape(mat.roof, new THREE.BoxGeometry(15, .5, 6), cx - 30, 4.3, cz - 22);
     solid(cx - 37, cx - 23, cz - 24.5, cz - 19.5, 4.5, 'stable');
     shape(mat.stoneDark, new THREE.CylinderGeometry(1.4, 1.5, 1.1, 12), cx - 8, .55, cz - 26);
+  }
+
+  // ── Wall Rose behind the plain (chapters 21–24) ───────────────────────
+  if (wall) {
+    const H = FIELD.wallHeight;
+    shape(mat.stone, new THREE.BoxGeometry(1520, H, 10), 0, H / 2, FIELD.wallZ);
+    shape(mat.stoneDark, new THREE.BoxGeometry(1520, 1.4, 11), 0, H + .7, FIELD.wallZ);
+    solid(-760, 760, FIELD.wallZ - 5, FIELD.wallZ + 5, H + 1.4, 'wall');
+  }
+  // ── The ruined tower of Utgard (chapter 20) ────────────────────────────
+  if (tower) {
+    const [tx, tz] = FIELD.tower, H = FIELD.towerHeight, R = FIELD.towerRadius;
+    shape(mat.stone, new THREE.CylinderGeometry(R, R + .6, H, 20), tx, H / 2, tz);
+    for (let i = 0; i < 12; i++) { if (i % 2) continue; const a = i / 12 * Math.PI * 2; shape(mat.stoneDark, new THREE.BoxGeometry(2.4, 1.6, 1), tx + Math.cos(a) * (R - .5), H + .8, tz + Math.sin(a) * (R - .5), -a + Math.PI / 2); }
+    for (let i = 0; i < 4; i++) { const a = i * Math.PI / 2 + .4; shape(mat.stone, new THREE.BoxGeometry(14, 9 + i * 2, 2.4), tx + Math.cos(a) * 22, (9 + i * 2) / 2, tz + Math.sin(a) * 22, -a); }
+    shape(mat.timber, new THREE.BoxGeometry(2.4, 3.6, .3), tx, 1.8, tz + R + .2);
+    solid(tx - R, tx + R, tz - R, tz + R, H, 'tower');
   }
 
   const world = new THREE.Group(); group.add(world); anchorRoots.push(world);

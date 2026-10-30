@@ -252,7 +252,7 @@ Limites: o modelo do titã da arena ainda é o anterior às fases 19–20; os ra
 
 Controles do Modo História: WASD e mouse; Espaço avança e dá gás; G/R age; Shift corre; Q/E seguram os cabos; clique corta ou dispara o sinalizador. No controle: A avança/gás, X lâmina/sinalizador, Y age, B corre, gatilhos para os cabos. No toque: CONTINUAR, AGIR, CORRER e, nas fases de combate, ◀ CABO, CABO ▶, GÁS e LÂMINA.
 
-Limites: as fases 1–18 e 32 são jogáveis; as demais seguem planejadas no hub. Falas são paráfrases originais, sem dublagem. Os mapas são aproximações e não plantas conferidas episódio a episódio. Não há cinemáticas animadas à mão nem captura de movimento. A violência é estilizada (partículas, cortes de câmera). Testes de navegador usam ganchos de depuração para pular deslocamentos longos; o equilíbrio da carga e do duelo precisa de teste humano.
+Limites: as fases 1–24 e 32 são jogáveis; as demais seguem planejadas no hub. Falas são paráfrases originais, sem dublagem. Os mapas são aproximações e não plantas conferidas episódio a episódio. Não há cinemáticas animadas à mão nem captura de movimento. A violência é estilizada (partículas, cortes de câmera). Testes de navegador usam ganchos de depuração para pular deslocamentos longos; o equilíbrio da carga e do duelo precisa de teste humano.
 
 ## Ato I completo — fase 25 (fases 3, 4 e 5 da história)
 
@@ -311,6 +311,24 @@ Limites: o mundo de campo é procedural e sem relevo; a Fêmea usa o modelo da g
 **Fase 18 — Stohess:** como Armin, vá até a escada da passagem subterrânea; Annie recusa e se transforma. Como o titã de Eren, acerte 4 socos com as mesmas regras de duelo; cada prédio que os titãs atravessam conta como destruído. Annie corre para a muralha e escala com os dedos endurecidos: como Mikasa, corte as duas mãos — uma mão cortada sozinha volta a crescer em 3 s. Ela cai, se encerra em cristal e a muralha mostra um rosto de titã. Desafios: menos de dez prédios destruídos e cortar os dedos.
 
 Limites: Stohess reaproveita a cidade de Trost com o portão inteiro; os prédios contam como destruídos mas não desabam; o cristal e o rosto na muralha são formas simples.
+
+## Choque de Titãs — fase 30 (fases 19 a 24 da história)
+
+O mundo de campo ganhou a muralha Rose atrás da planície e a torre em ruínas de Utgard; capítulos noturnos e ao entardecer ajustam céu e luz. Regras puras novas em `src/story/act4-rules.js` (arco, cerco à torre, duelo contra o Blindado, chave de braço) com testes.
+
+**Fase 19 — As aldeias silenciosas:** como Mike, corte 4 titãs na aldeia enquanto os recrutas fogem; o Bestial fala, o cavalo foge e Mike é devorado. Como Sasha, leve a menina até o cavalo: o clique atira uma flecha no olho do titã à frente (cone estreito), que fica cego alguns segundos. Como Connie, ande até sua casa em Ragako e encontre o titã deitado sobre ela. Desafio: no máximo três flechas.
+
+**Fase 20 — Utgard:** no topo da torre, sem gás, ande de beirada em beirada e corte as mãos que sobem dos quatro lados por 40 s (o status diz o lado mais alto). Nanaba é arrastada; Reiner segura um titã com o braço. Como Ymir (titã de mandíbula), morda 5 nucas ao pé da torre enquanto agarrões gastam o corpo. O dia nasce e a Tropa chega. Desafio: nenhum titã passar de 85% da subida.
+
+**Fase 21 — Sobre a muralha:** a confissão de Reiner no alto da muralha; a escolha de rir ou pedir que repita converge; Mikasa ataca, os dois se transformam. Eren morde a mão e o soco de frente só bate na armadura.
+
+**Fase 22 — Contra o Blindado:** o duelo segue regras puras: socos na armadura só fazem barulho; segurar Shift na investida o desequilibra e G o derruba (2 derrubadas). Como Mikasa, corte atrás dos dois joelhos (pela frente a lâmina resvala). Na chave de braço, aperte o ataque sem parar antes do grito (12 s). O Colossal cai do céu sobre eles. Desafio: vencer sem socar a armadura.
+
+**Fase 23 — A perseguição ao entardecer:** a cavalo, siga Erwin com os titãs atrás até o Blindado, que carrega Eren e Bertholdt nas costas; um titã leva o braço de Erwin. Como Mikasa, alcance as costas do Blindado e solte Eren. Desafio: extração em menos de 40 s.
+
+**Fase 24 — O grito:** Eren, amarrado, não consegue se transformar; Hannes enfrenta o titã sorridente e é devorado. Soque a mão do titã e grite: os titãs atacam o sorridente e o Blindado; Ymir parte com Reiner. Volte a cavalo até a muralha.
+
+Limites: a torre e a muralha são formas simples; o titã de Ymir usa o modelo da Mandíbula; a escalada dos titãs na torre é encenada pela regra de cerco, sem física.
 
 ## Co-op local — fase 24
 

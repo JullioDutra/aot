@@ -10,9 +10,9 @@ import { FLARES } from './act3-rules.js';
 // expeditions): the plain, the forest of giant trees and the castle. Same
 // contract as the Trost adapter, plus riding (control 'ride'), mounted
 // soldiers, smoke flares and the Female Titan.
-export function createFieldChapter({ scene, camera, ui, audio, data, number }, plan, { sky = '#c4d2d6', fog = [160, 700], world: worldOptions = {} } = {}) {
+export function createFieldChapter({ scene, camera, ui, audio, data, number }, plan, { sky = '#c4d2d6', fog = [160, 700], world: worldOptions = {}, light, hemi } = {}) {
   document.body.classList.add('combat-chapter');
-  const stage = createStage({ scene, camera, ui, audio, sky, fog, sun: [-140, 190, 110], shadow: 170 });
+  const stage = createStage({ scene, camera, ui, audio, sky, fog, sun: [-140, 190, 110], shadow: 170, ...(light ? { light } : {}), ...(hemi ? { hemi } : {}) });
   const world = createField(scene, worldOptions);
   const horde = createHorde(stage, { anchorRoots: world.anchorRoots });
   const bounds = { minX: -FIELD.bounds, maxX: FIELD.bounds, minZ: -FIELD.bounds, maxZ: FIELD.bounds };
