@@ -400,6 +400,10 @@ Regras puras em `src/story/act8-rules.js` (artilharia de Pieck, desarmar Yeageri
 
 Com isso, as 47 fases estão jogáveis no Modo História.
 
+## Página inicial — fase 36
+
+A página inicial (`index.html`) agora rola sobre a cena viva de Trost. Na abertura aparecem três quadros de Eren e Mikasa renderizados com o elenco do jogo: **sob a árvore** (845), **o cachecol** (844) e **prontos para a batalha** (850). Eles são desenhados uma única vez num contexto WebGL temporário (`src/home-scenes.js`), que é liberado em seguida. Em telas baixas, como celular deitado, os quadros se alternam ao lado do título. Abaixo da abertura ficam o sumário das 47 fases por ato, com link direto para cada fase do Modo História, e o como jogar no teclado, no controle e no toque, com o perfil de entrada atual em destaque. O conteúdo fica em `src/home-content.js`, um módulo puro com testes.
+
 ## Co-op local — fase 24
 
 `coop.html` (no Modo História, em "Fora da continuidade") é um modo em tela dividida para dois jogadores, fora da história canônica. A dupla escolhe personagens do elenco e precisa limpar um campo de 12 titãs em 4 minutos usando ODM.
