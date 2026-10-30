@@ -404,6 +404,10 @@ Com isso, as 47 fases estão jogáveis no Modo História.
 
 A página inicial (`index.html`) agora rola sobre a cena viva de Trost. Na abertura aparecem três quadros de Eren e Mikasa renderizados com o elenco do jogo: **sob a árvore** (845), **o cachecol** (844) e **prontos para a batalha** (850). Eles são desenhados uma única vez num contexto WebGL temporário (`src/home-scenes.js`), que é liberado em seguida. Em telas baixas, como celular deitado, os quadros se alternam ao lado do título. Abaixo da abertura ficam o sumário das 47 fases por ato, com link direto para cada fase do Modo História, e o como jogar no teclado, no controle e no toque, com o perfil de entrada atual em destaque. O conteúdo fica em `src/home-content.js`, um módulo puro com testes.
 
+## Gancho no titã — fase 37
+
+O corpo dos titãs aceita o gancho em Trost, na arena do Modo História e no co-op: o cabo fica preso ao ponto atingido e acompanha o titã enquanto ele anda, e se solta quando ele morre. Preso a um cabo no ar, **A/D** (ou o analógico para os lados) giram em volta da ancoragem e **W/S** recolhem ou soltam o cabo, para dar a volta até as costas. Atrás da nuca, a até 9 m, dentro de 5 m de altura e a pelo menos 6 m/s (ou pendurado no próprio titã), aparece o botão **FINALIZAR** sobre a nuca; o ataque nesse instante mata o titã em câmera lenta. As regras ficam em `src/titan-hook.js` (`orbitControl`, `finisherWindow`), com testes.
+
 ## Co-op local — fase 24
 
 `coop.html` (no Modo História, em "Fora da continuidade") é um modo em tela dividida para dois jogadores, fora da história canônica. A dupla escolhe personagens do elenco e precisa limpar um campo de 12 titãs em 4 minutos usando ODM.

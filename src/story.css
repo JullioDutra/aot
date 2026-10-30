@@ -53,3 +53,9 @@ body.combat-chapter[data-input=touch] .touch-button.story-combat{display:block}
 @media(max-height:500px){.story-dialogue{bottom:8px;padding:10px 14px}.story-dialogue p{font-size:14px}.story-objective{top:52px}.story-banner{top:12%}.story-panel{padding:20px}}
 body[data-input=touch] .story-dialogue{width:min(820px,calc(100vw - 260px));left:calc(50% - 110px)}
 body[data-input=touch] .story-choice{width:min(680px,calc(100vw - 40px))}
+/* Finisher prompt over the nape (God of War style): a pulsing ring and the attack key. */
+.story-finisher{position:fixed;transform:translate(-50%,-50%);z-index:9;pointer-events:none;display:grid;place-items:center;gap:6px;text-align:center}
+.story-finisher b{display:grid;place-items:center;min-width:54px;height:54px;padding:0 10px;border-radius:50%;border:2px solid #ffd28b;background:#2a1a0fcc;color:#ffe7b8;font-size:12px;letter-spacing:1px;box-shadow:0 0 22px #f2b56c88;animation:finisher-pulse .7s ease-in-out infinite alternate}
+.story-finisher span{font-size:9px;letter-spacing:3px;color:#ffe0aa;text-shadow:0 2px 4px #000}
+@keyframes finisher-pulse{from{transform:scale(.92)}to{transform:scale(1.08);box-shadow:0 0 34px #ffcf8acc}}
+@media(prefers-reduced-motion:reduce){.story-finisher b{animation:none}}

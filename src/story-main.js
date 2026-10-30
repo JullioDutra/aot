@@ -73,7 +73,8 @@ function setInput(event) { const next = nextProfile(inputProfile, event); if (ne
 let bannerTime = 0, toastTime = 0;
 function banner(title, sub = '') { $('story-banner-title').textContent = title; $('story-banner-sub').textContent = sub; $('story-banner').classList.add('visible'); bannerTime = 3.2; }
 function toast(text, seconds = 3) { $('story-toast').textContent = text; $('story-toast').classList.add('visible'); toastTime = seconds; }
-const ui = { banner, toast, setFade: v => { fadeTarget = v; }, flash: (color = '#ffffff', strength = 1) => { const el = $('story-flash'); el.style.background = color; el.style.opacity = strength; requestAnimationFrame(() => { el.style.transition = 'opacity .9s'; el.style.opacity = 0; setTimeout(() => { el.style.transition = ''; }, 950); }); }, damage: amount => { damage += amount; } };
+let finisherPoint = null, finisherSeen = false, slow = 0;
+const ui = { banner, toast, finisher: point => { finisherSeen = true; finisherPoint = point; }, slowmo: seconds => { slow = Math.max(slow, seconds); }, setFade: v => { fadeTarget = v; }, flash: (color = '#ffffff', strength = 1) => { const el = $('story-flash'); el.style.background = color; el.style.opacity = strength; requestAnimationFrame(() => { el.style.transition = 'opacity .9s'; el.style.opacity = 0; setTimeout(() => { el.style.transition = ''; }, 950); }); }, damage: amount => { damage += amount; } };
 
 function renderUI(view) {
   const line = view.kind === 'line', choice = view.kind === 'choice';
@@ -228,10 +229,22 @@ function gatherInput(dt) {
   return frame;
 }
 
+// Finisher prompt over the nape; hidden on any frame the pilot did not ask for it.
+function renderFinisher() {
+  const el = $('story-finisher'), point = finisherSeen && mode === 'playing' ? finisherPoint : null; finisherSeen = false;
+  if (!point) { el.hidden = true; return; }
+  const screen = point.clone().project(camera);
+  if (screen.z > 1) { el.hidden = true; return; }
+  el.hidden = false; el.style.left = `${(screen.x + 1) * 50}%`; el.style.top = `${(1 - screen.y) * 50}%`;
+  el.querySelector('b').textContent = key('attack');
+}
+
 // ── Loop ──────────────────────────────────────────────────────────────────
 let last = performance.now();
 renderer.setAnimationLoop(now => {
-  const dt = Math.min(.05, (now - last) / 1000); last = now;
+  let dt = Math.min(.05, (now - last) / 1000); last = now;
+  // Finisher slow motion: the cut plays at a third of the speed for a moment.
+  if (slow > 0) { slow -= dt; dt *= .35; }
   const input = gatherInput(dt);
   // Browser tests raise timeScale to run several fixed steps per rendered
   // frame; players always get one step per frame.
@@ -257,6 +270,7 @@ renderer.setAnimationLoop(now => {
   if (bannerTime > 0 && (bannerTime -= dt) <= 0) $('story-banner').classList.remove('visible');
   if (toastTime > 0 && (toastTime -= dt) <= 0) $('story-toast').classList.remove('visible');
   fade += (fadeTarget - fade) * Math.min(1, dt * 3); $('story-fade').style.opacity = fade.toFixed(3);
+  renderFinisher();
   renderer.render(scene, camera);
 });
 
