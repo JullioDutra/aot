@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
-import { toon, outlineMaterial } from '../character-model.js';
+import { toon, outlineMaterial, emblemTexture } from '../character-model.js';
 import { gableCollider, surfaceHeight } from '../collision.js';
 
 // Trost district, 850. The outer wall (toward Maria) runs along z = -200 with
@@ -19,7 +19,7 @@ function stoneTexture() {
   const t = new THREE.CanvasTexture(canvas); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.colorSpace = THREE.SRGBColorSpace; return t;
 }
 
-export function createTrost(scene, { outline = true } = {}) {
+export function createTrost(scene, { outline = true, liberio = false } = {}) {
   const group = new THREE.Group(); scene.add(group);
   const colliders = [], anchorRoots = [];
   const line = outline ? outlineMaterial(.08) : null;
@@ -27,8 +27,16 @@ export function createTrost(scene, { outline = true } = {}) {
     ground: toon('#a99b80'), street: toon('#b9ae96'), plaster: [toon('#e6dcc6'), toon('#d9cbb0'), toon('#efe6d4'), toon('#cfc0a2')],
     timber: toon('#5b3f2b'), roof: [toon('#9f533c'), toon('#8a4a36'), toon('#7d5a45'), toon('#a5664a')], window: toon('#3b4a53'),
     wall: new THREE.MeshToonMaterial({ map: (() => { const t = stoneTexture(); t.repeat.set(40, 7); return t; })() }), wallTop: toon('#8d877a'),
-    gate: toon('#5e4a37'), iron: toon('#4a4642'), hq: toon('#c7b79a'), rock: toon('#8e8577'), cannon: toon('#3d3a36'),
+    gate: toon('#5e4a37'), iron: toon('#4a4642'), hq: toon('#c7b79a'), rock: toon('#8e8577'), cannon: toon('#3d3a36'), course: toon('#9a9282'),
   };
+  // Liberio (chapters 36–38): brick tenements, slate roofs and a concrete
+  // internment wall instead of Trost's plaster and tile.
+  if (liberio) {
+    mat.plaster = [toon('#a8664a'), toon('#94583f'), toon('#b5755a'), toon('#8a5442')];
+    mat.roof = [toon('#4a4e55'), toon('#555a60'), toon('#3f444a'), toon('#5d6168')];
+    mat.ground = toon('#9a9488'); mat.street = toon('#7f7a72'); mat.wallTop = toon('#7a7a76');
+    mat.wall = toon('#a3a19a');
+  }
   const ground = new THREE.Mesh(new THREE.PlaneGeometry(700, 700), mat.ground); ground.rotation.x = -Math.PI / 2; ground.receiveShadow = true; group.add(ground);
   const avenue = new THREE.Mesh(new THREE.PlaneGeometry(18, 400), mat.street); avenue.rotation.x = -Math.PI / 2; avenue.position.y = .02; avenue.receiveShadow = true; group.add(avenue);
   const solid = (minX, maxX, minZ, maxZ, top, tag) => { const c = { minX, maxX, minZ, maxZ, top, tag }; colliders.push(c); return c; };
@@ -88,6 +96,27 @@ export function createTrost(scene, { outline = true } = {}) {
     if (gap) { const lintel = new THREE.Mesh(new THREE.BoxGeometry(gap * 2, H - 18, 10), mat.wall); lintel.position.set(0, 18 + (H - 18) / 2, z); walls.add(lintel); solid(-gap, gap, z - 5, z + 5, H + 1.4, 'lintel').bottom = 18; }
   }
   wallRun(TROST.wallZ, 9); wallRun(200, 9);
+  // Stone courses and buttresses on the inner face, rails for the cannons on
+  // top and an arch around each gate: visual detail, no extra colliders.
+  const detail = new THREE.Group(); walls.add(detail);
+  for (const z of [TROST.wallZ + 5.2, 200 - 5.2]) {
+    for (const y of [12, 26, 40]) { const band = new THREE.Mesh(new THREE.BoxGeometry(480, .9, .6), mat.course); band.position.set(0, y, z); detail.add(band); }
+    for (let x = -220; x <= 220; x += 40) { if (Math.abs(x) < 20) continue; const b = new THREE.Mesh(new THREE.BoxGeometry(4, H, 2.4), mat.wallTop); b.position.set(x, H / 2, z + Math.sign(-z) * .8); b.castShadow = true; detail.add(b); }
+    for (const dx of [-1.2, 1.2]) { const rail = new THREE.Mesh(new THREE.BoxGeometry(480, .25, .25), mat.iron); rail.position.set(0, H + 1.55, z + Math.sign(z) * 5.2 + dx); detail.add(rail); }
+    // Gate arch: two pillars and a keystone frame the opening.
+    for (const sx of [-1, 1]) { const pillar = new THREE.Mesh(new THREE.BoxGeometry(3, 20, 1.6), mat.wallTop); pillar.position.set(sx * 10.5, 10, z); detail.add(pillar); }
+    const arch = new THREE.Mesh(new THREE.TorusGeometry(10.5, 1.2, 8, 20, Math.PI), mat.wallTop); arch.position.set(0, 18, z); detail.add(arch);
+    const key = new THREE.Mesh(new THREE.BoxGeometry(2.4, 3.2, 1.8), mat.course); key.position.set(0, 29.4, z); detail.add(key);
+  }
+  // Garrison banners hang from the wall top (Marley flags in Liberio).
+  const flagMaterial = new THREE.MeshBasicMaterial({ map: liberio ? null : emblemTexture('roses'), color: liberio ? '#b8322c' : '#ffffff', side: THREE.DoubleSide });
+  const cloth = new THREE.MeshToonMaterial({ color: liberio ? '#e9e2d0' : '#6f2a2a', side: THREE.DoubleSide });
+  for (let x = -200; x <= 200; x += 50) {
+    if (Math.abs(x) < 30) continue;
+    const banner = new THREE.Mesh(new THREE.PlaneGeometry(6, 12), cloth); banner.position.set(x, H - 7, 200 - 5.6); banner.rotation.y = Math.PI; detail.add(banner);
+    const mark = new THREE.Mesh(new THREE.PlaneGeometry(4.5, 4.5), flagMaterial); mark.position.set(x, H - 5, 200 - 5.7); mark.rotation.y = Math.PI; detail.add(mark);
+  }
+  detail.traverse(o => { if (o.isMesh) { o.receiveShadow = true; o.userData.noAnchor = true; } });
   for (const x of [-240, 240]) { const m = new THREE.Mesh(new THREE.BoxGeometry(10, H, 400), mat.wall); m.position.set(x, H / 2, 0); walls.add(m); solid(x - 5, x + 5, -200, 200, H, 'wall'); }
   const gate = new THREE.Group(); gate.position.set(0, 0, TROST.wallZ); walls.add(gate);
   const door = new THREE.Mesh(new THREE.BoxGeometry(18, 18, 3), mat.gate); door.position.y = 9; gate.add(door);
