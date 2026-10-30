@@ -8,13 +8,14 @@ import { createStage, createWalker, createOdmPilot, createHorde, createTitanPilo
 // player's titan; each chapter plugs a plan with its events and rules:
 //   plan(ctx) → { script, par, start(), handlers, update(dt, input, mode, view) → fail?,
 //                 status(), challenges(), checkpoint(), restore(snapshot), debug, snapshot() }
-export function createTrostChapter({ scene, camera, ui, audio, data, number }, plan) {
+// Stohess (chapter 18) reuses the city with its gate intact: options.breach.
+export function createTrostChapter({ scene, camera, ui, audio, data, number }, plan, { breach = number > 6 } = {}) {
   document.body.classList.add('combat-chapter');
   const stage = createStage({ scene, camera, ui, audio, sky: '#c8d3d4', fog: [180, 640], sun: [-120, 170, 90], shadow: 170 });
   const world = createTrost(scene);
   stage.ground = (x, z) => 0;
   // The Colossal kicked the gate in chapter 6; later chapters start with the breach.
-  if (number > 6) world.breakGate();
+  if (breach) world.breakGate();
   const horde = createHorde(stage, { anchorRoots: world.anchorRoots });
   const actors = {};
   const ctx = {

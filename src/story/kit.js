@@ -4,10 +4,11 @@ import { createCharacter } from '../character-model.js';
 import { characterPose, applyPose } from '../character-animation.js';
 import { TITAN_FORMS, createTitanForm } from '../titan-forms.js';
 import { canStrikeNape } from '../mechanics.js';
-import { createParticles } from './props.js';
+import { createParticles, createHorse } from './props.js';
 import { createOdm } from './odm-controller.js';
 import { moveWithCollisions } from './shiganshina-world.js';
 import { titanIntent, titanSpeed, grabReach } from './story-rules.js';
+import { rideSpeed, HORSE } from './act3-rules.js';
 
 // Building blocks shared by the story chapters from 3 on: lights and camera
 // shots, actors that walk scripted paths, a walking player, an ODM pilot with
@@ -106,6 +107,40 @@ export function createWalker(stage, a, { colliders = [], bounds = { minX: -1e4, 
     lookAt(x, z) { const p = a.rig.root.position; w.yaw = Math.atan2(x - p.x, -(z - p.z)); },
   };
   return w;
+}
+
+// A rig on horseback steered by the player: {move} turns and spurs, sprint on
+// run, mouse or stick turns too. Trunks and walls stop the horse.
+export function createRider(stage, actor, { colliders = [], bounds = { minX: -1e4, maxX: 1e4, minZ: -1e4, maxZ: 1e4 }, color = '#5a3f2c' } = {}) {
+  const horse = createHorse(color); stage.scene.add(horse.root);
+  horse.saddle.add(actor.rig.root); actor.rig.root.position.set(0, -.95, 0); actor.rig.root.rotation.set(0, 0, 0); actor.pose = 'ride';
+  const r = {
+    horse, actor, yaw: 0, pitch: .18, speed: 0, bumped: 0, colliders, bounds, auto: null,
+    get position() { return horse.root.position; },
+    place(x, z, yaw = r.yaw) { horse.root.position.set(x, 0, z); r.yaw = yaw; r.speed = 0; horse.root.rotation.y = Math.atan2(Math.sin(yaw), -Math.cos(yaw)); },
+    step(dt, input, enabled = true) {
+      // Test autopilot: `auto()` returns [x, z] to ride toward for real.
+      if (r.auto && enabled) {
+        const [tx, tz] = r.auto(), p = horse.root.position, want = Math.atan2(tx - p.x, -(tz - p.z)), diff = Math.atan2(Math.sin(want - r.yaw), Math.cos(want - r.yaw));
+        input = { ...input, move: [Math.max(-1, Math.min(1, diff * 3)), Math.hypot(tx - p.x, tz - p.z) > 3 ? -1 : 0], run: Math.hypot(tx - p.x, tz - p.z) > 8 };
+      }
+      r.yaw += input.look[0] * .8 + (enabled ? input.move[0] * 1.5 * dt : 0); r.pitch = Math.max(0, Math.min(.7, r.pitch + input.look[1] * .5));
+      r.speed = rideSpeed(r.speed, enabled ? -input.move[1] : -1, dt, enabled && input.run);
+      const f = forwardOf(r.yaw), p = horse.root.position, want = r.speed * dt;
+      const [x, z] = moveWithCollisions([p.x, p.z], [f.x * want, f.z * want], 1.3, r.colliders, r.bounds);
+      const moved = Math.hypot(x - p.x, z - p.z);
+      r.bumped = Math.max(0, r.bumped - dt);
+      if (want > .05 && moved < want * .5) { r.speed *= .3; r.bumped = .6; }
+      p.set(x, 0, z); horse.root.rotation.y = Math.atan2(f.x, f.z);
+      horse.animate(stage.time, Math.min(1.2, r.speed / HORSE.gallop));
+      return { speed: r.speed, position: p };
+    },
+    view() {
+      const p = horse.root.position, f = forwardOf(r.yaw), d = 7.5;
+      return { position: new THREE.Vector3(p.x - f.x * d, 3.6 + r.pitch * 6, p.z - f.z * d), target: new THREE.Vector3(p.x + f.x * 12, 2, p.z + f.z * 12) };
+    },
+  };
+  return r;
 }
 
 // ODM flight with blades for a rig. Mirrors chapter 32: cables on Q/E or the
