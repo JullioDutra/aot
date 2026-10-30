@@ -12,6 +12,15 @@ const EXTRAS = {
   ian: ['soldier-m', { outfit: 'garrison', hair: { style: 'ponytail-low', color: '#4a3424' } }],
   floch: ['recruit-m', { hair: { style: 'middlepart', color: '#3b2c22' } }],
   messenger: ['soldier-m', { hair: { style: 'buzz', color: '#5c4a3a' } }],
+  porco: ['soldier-m', { outfit: 'marley', hair: { style: 'cropped', color: '#d9c58a' }, face: { eyes: 'narrow', brows: 'angry', mouth: 'smirk' }, extras: ['armband'] }],
+  magath: ['soldier-m', { outfit: 'marley', height: 1.86, hair: { style: 'buzz', color: '#9c968a' }, face: { brows: 'thick', marks: ['mustache', 'wrinkles'] } }],
+  colt: ['soldier-m', { outfit: 'marley', hair: { style: 'sidepart', color: '#e0c98a' }, face: { eyes: 'round', mouth: 'smile' }, extras: ['armband'] }],
+  willy: ['civilian-m', { outfit: 'civilian-coat', height: 1.85, hair: { style: 'sidepart', color: '#c9b07a' }, face: { mouth: 'firm' } }],
+  lara: ['civilian-f', { outfit: 'civilian-coat', hair: { style: 'longStraight', color: '#d9c99a' }, face: { eyes: 'calm' } }],
+  kenny: ['civilian-m', { outfit: 'commander', height: 1.92, hair: { style: 'long', color: '#2a2420' }, face: { marks: ['stubble'], eyes: 'narrow', brows: 'flat' }, extras: [] }],
+  yelena: ['soldier-f', { outfit: 'marley', height: 1.95, hair: { style: 'cropped', color: '#e8e2d0' }, face: { eyes: 'narrow', mouth: 'smirk' } }],
+  onyankopon: ['soldier-m', { outfit: 'marley', skin: '#5a3a28', hair: { style: 'buzz', color: '#1b1614' }, face: { mouth: 'smile' } }],
+  kiyomi: ['civilian-f', { outfit: 'civilian-dress', hair: { style: 'bun', color: '#1b1614' } }],
 };
 
 export function castExtra(ctx, id, x, z, yaw = 0, options = {}) {

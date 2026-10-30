@@ -252,7 +252,7 @@ Limites: o modelo do titã da arena ainda é o anterior às fases 19–20; os ra
 
 Controles do Modo História: WASD e mouse; Espaço avança e dá gás; G/R age; Shift corre; Q/E seguram os cabos; clique corta ou dispara o sinalizador. No controle: A avança/gás, X lâmina/sinalizador, Y age, B corre, gatilhos para os cabos. No toque: CONTINUAR, AGIR, CORRER e, nas fases de combate, ◀ CABO, CABO ▶, GÁS e LÂMINA.
 
-Limites: as fases 1–34 são jogáveis; as demais seguem planejadas no hub. Falas são paráfrases originais, sem dublagem. Os mapas são aproximações e não plantas conferidas episódio a episódio. Não há cinemáticas animadas à mão nem captura de movimento. A violência é estilizada (partículas, cortes de câmera). Testes de navegador usam ganchos de depuração para pular deslocamentos longos; o equilíbrio da carga e do duelo precisa de teste humano.
+Limites: as fases 1–38 são jogáveis; as demais seguem planejadas no hub. Falas são paráfrases originais, sem dublagem. Os mapas são aproximações e não plantas conferidas episódio a episódio. Não há cinemáticas animadas à mão nem captura de movimento. A violência é estilizada (partículas, cortes de câmera). Testes de navegador usam ganchos de depuração para pular deslocamentos longos; o equilíbrio da carga e do duelo precisa de teste humano.
 
 ## Ato I completo — fase 25 (fases 3, 4 e 5 da história)
 
@@ -359,6 +359,20 @@ As fases 29 e 34 voltam ao mapa do prólogo (`src/story/shiganshina-return.js`),
 **Fase 34 — O porão e o mar:** a dose de soro entre Erwin e Armin (as duas escolhas terminam com Erwin descansando); Armin herda o Colossal; nas ruínas da casa, a chave abre a gaveta e os livros de Grisha; um ano depois, a caminhada até o mar.
 
 Com isso, as fases 1–34 (Atos I a VI) estão jogáveis. O kit passou a deitar de costas qualquer personagem na pose `lie`, o que corrige corpos que ficavam em pé nas fases 16–31.
+
+## O outro lado do mar — fase 33 (fases 35 a 38 da história)
+
+Regras puras em `src/story/act7-rules.js` (ninhos de metralhadora, espinhos do Martelo de Guerra e o cabo de carne) com testes; elenco de Marley (Porco, Magath, Colt, Willy, Lara e outros) em `src/story/extras.js`.
+
+**Fase 35 — Fort Slava:** à noite, nas trincheiras, como Gabi, avance de saco de areia em saco de areia sob as metralhadoras (linha vermelha) e prenda as granadas nos trilhos do trem blindado. Como Porco (Mandíbula), morda 4 ninhos enquanto o fogo deles gasta o corpo (andando, recebe metade). O couraçado derruba o Mandíbula e o Bestial cai do dirigível sobre o navio. Desafio: Gabi sem ser atingida.
+
+**Fase 36 — Liberio:** como Falco, atravesse a feira da zona de internamento com Gabi e ouça as conversas; leve as cartas para "Kruger" no banco do hospital; a lembrança de Reiner dos candidatos a guerreiro, em sépia. Desafio: ouvir todas as conversas.
+
+**Fase 37 — A declaração:** no porão sob o palco, Eren conversa com Reiner enquanto Willy declara guerra (as duas respostas convergem). Eren atravessa o palco e agarra Willy. O Martelo de Guerra ergue espinhos do chão (o círculo vermelho avisa); a usuária não está na nuca: pise no cabo de carne para revelá-lo, siga até o cristal e quebre-o com 3 socos. Desafio: achar o cabo em menos de 60 s.
+
+**Fase 38 — A extração:** como Mikasa, derrube as 6 equipes de lanças antititã nos telhados antes que acertem Eren; como Armin, voe até o porto e vire o Colossal sobre a frota; proteja as cordas do dirigível dos atiradores; Gabi entra no dirigível e Sasha morre. Desafio: nenhuma lança acertar Eren.
+
+Limites: Liberio reaproveita a cidade murada; Fort Slava é um campo plano com sacos de areia; os navios são blocos.
 
 ## Co-op local — fase 24
 
