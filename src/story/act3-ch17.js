@@ -3,6 +3,7 @@ import { createFieldChapter } from './field-chapter.js';
 import { castExtra } from './extras.js';
 import { createTitanDuel, titanDuelStep, rescueCut, RESCUE_ORDER } from './act3-rules.js';
 import { CHAPTER_17 } from './act3-scripts.js';
+import { createBossThreat } from './boss-threat.js';
 
 // Chapter 17: Levi's squad flies back toward the horses and dies to the
 // Female Titan one by one. Eren transforms and loses the duel; she carries
@@ -22,6 +23,7 @@ export function createChapter(args) {
     const levi = ctx.cast('levi', 'levi', 0, 0, 0, { blades: true }); levi.rig.root.visible = false;
     const mikasa = ctx.cast('mikasa', 'mikasa', 0, 0, 0, { pose: 'odm', blades: true }); mikasa.rig.root.visible = false;
     const female = ctx.useFemale(); female.root.visible = false;
+    const threat = createBossThreat(stage, female.titan, 'female', { track: false, blind: () => cuts.includes('olho-e') && cuts.includes('olho-d'), disarmed: () => cuts.includes('braco-e') && cuts.includes('braco-d') });
     let duel = createTitanDuel(), carried = false, cuts = [], rescueTime = 0, mikasaHit = false, fleeing = false, flight = 0;
     const tmp = new THREE.Vector3(), up = new THREE.Vector3();
 
@@ -147,6 +149,8 @@ export function createChapter(args) {
       }
       if (control === 'odm' && ctx.mission === 'resgate') {
         const r = pilot.step(dt, input); rescueTime += dt;
+        threat.update(dt, pilot);
+        if (pilot.odm.player.health <= 0) return 'A Titã Fêmea derrubou Levi. Corte os olhos primeiro: cega, ela não acerta mais.';
         if (r.strike) {
           // The blade meets the nearest weak point; out of order it glances off.
           const near = RESCUE_ORDER.filter(id => !cuts.includes(id)).map(id => ({ id, d: female.point(id, tmp).distanceTo(r.position) })).sort((a, b) => a.d - b.d)[0];
@@ -170,21 +174,21 @@ export function createChapter(args) {
       markerHeight: () => 14,
       status() {
         if (ctx.control === 'titan') return `Corpo ${Math.max(0, Math.round(duel.health))}% · Socos ${duel.landed} / ${DUEL_HITS} · Ela: ${{ stance: 'em guarda', tell: 'preparando', strike: 'chutando!', recover: 'recuando' }[duel.phase]}`;
-        if (ctx.control === 'odm' && ctx.mission === 'resgate') return `Gás ${Math.round(pilot.odm.player.gas)}% · Próximo corte: ${RESCUE_ORDER.find(id => !cuts.includes(id)) ?? '—'} · Borda da floresta: ${Math.max(0, Math.round(F().z - ESCAPE_Z))} m`;
+        if (ctx.control === 'odm' && ctx.mission === 'resgate') return `Gás ${Math.round(pilot.odm.player.gas)}% · Vida ${Math.max(0, Math.round(pilot.odm.player.health))}% · Próximo corte: ${RESCUE_ORDER.find(id => !cuts.includes(id)) ?? '—'} · Borda da floresta: ${Math.max(0, Math.round(F().z - ESCAPE_Z))} m`;
         if (ctx.control === 'odm') return `Gás ${Math.round(pilot.odm.player.gas)}%`;
         return '';
       },
       restore(snapshot) {
         if (snapshot?.mission === 'esquadrao') pilot.place(0, 0, -370, 0);
         if (snapshot?.mission === 'duelo') { duel = createTitanDuel(); if (ctx.titan) { ctx.titan.titan.head.visible = true; ctx.titan.titan.root.rotation.x = 0; } }
-        if (snapshot?.mission === 'resgate') { cuts = []; rescueTime = 0; fleeing = true; female.place(0, -560, Math.PI); pilot.place(6, 22, -530, 0); }
+        if (snapshot?.mission === 'resgate') { threat.reset(); pilot.odm.player.health = 100; cuts = []; rescueTime = 0; fleeing = true; female.place(0, -560, Math.PI); pilot.place(6, 22, -530, 0); }
       },
       challenges: () => (ctx.goals.has('resgate') && !mikasaHit ? [ctx.data.challenges[0]] : []),
       debug: {
         cut(id) { female.point(id, tmp); pilot.place(tmp.x, tmp.y - .4, tmp.z + .6); pilot.strikeNow(); },
         landed() { duel = { ...duel, phase: 'recover', t: 0 }; if (ctx.titan) ctx.titan.punchQueued = true; },
       },
-      snapshot: () => ({ duel: { phase: duel.phase, landed: duel.landed, health: duel.health }, cuts: [...cuts], carried, mikasaHit, female: [Math.round(F().x), Math.round(F().z)], squad: squad.map(a => a.pose) }),
+      snapshot: () => ({ duel: { phase: duel.phase, landed: duel.landed, health: duel.health }, boss: threat.snapshot(), health: pilot.odm.player.health, cuts: [...cuts], carried, mikasaHit, female: [Math.round(F().x), Math.round(F().z)], squad: squad.map(a => a.pose) }),
     };
   }, { sky: '#aebcaa', fog: [70, 420] });
 }

@@ -4,6 +4,7 @@ import { createTrostChapter } from './trost-chapter.js';
 import { castExtra } from './extras.js';
 import { detonate, SPEARS } from './act6-rules.js';
 import { CHAPTER_31 } from './act6-scripts.js';
+import { createBossThreat } from './boss-threat.js';
 
 // Chapter 31: thunder spears. As Hange, blind the Armored Titan, then plant a
 // spear in its nape while the squad plants theirs; pull the cord in time and
@@ -21,6 +22,7 @@ export function createChapter(args) {
     const squad = [0, 1, 2, 3, 4].map(i => ctx.cast(`squad-${i}`, i % 2 ? 'soldier-f' : 'soldier-m', SPOT[0] - 12 + i * 6, SPOT[1] + 26, Math.PI, { pose: 'odm', y: 14 + i * 2, blades: true }));
     const armored = ctx.titanForm('blindado'); armored.root.position.set(SPOT[0], 0, SPOT[1]); ctx.scene.add(armored.root); world.anchorRoots.push(armored.root);
     const spearMat = toon('#5a4a3a'), spearGeo = new THREE.CylinderGeometry(.08, .08, 1.6, 6);
+    const threat = createBossThreat(stage, armored, 'armored', { blind: () => eyes.size === 2 });
     const spears = []; let eyes = new Set(), pull = null, result = null, mine = false, barrel = null, wave = null, plantClock = 0;
     const tmp = new THREE.Vector3(), nape = new THREE.Vector3();
 
@@ -59,6 +61,8 @@ export function createChapter(args) {
       if (control !== 'odm') return null;
       const r = pilot.step(dt, input);
       if (ctx.mission === 'cegar') {
+        threat.update(dt, pilot);
+        if (pilot.odm.player.health <= 0) return 'O Blindado acertou Hange. Ataque os olhos pelos lados, longe dos braços e dos pés.';
         if (r.strike) for (const side of [-1, 1]) if (!eyes.has(side) && eye(side, tmp).distanceTo(r.position) < r.reach) { eyes.add(side); stage.particles.burst(tmp, 'blood', 30, 4); ui.toast(`Olho cortado · ${eyes.size} / 2`, 1.2); break; }
         if (eyes.size === 2) { armored.head.rotation.x = .3; ctx.goals.add('cegar'); }
         return null;
@@ -84,20 +88,21 @@ export function createChapter(args) {
       markerHeight: () => 12,
       status() {
         if (ctx.control !== 'odm') return '';
-        if (ctx.mission === 'cegar') return `Gás ${Math.round(pilot.odm.player.gas)}% · Olhos ${eyes.size} / 2`;
+        if (ctx.mission === 'cegar') return `Gás ${Math.round(pilot.odm.player.gas)}% · Vida ${Math.max(0, Math.round(pilot.odm.player.health))}% · Olhos ${eyes.size} / 2`;
         return `Gás ${Math.round(pilot.odm.player.gas)}% · Lanças na nuca ${spears.length} / ${SPEARS.needed}${mine ? ' · a sua está cravada: G puxa a corda' : ''}`;
       },
       restore(snapshot) {
         pilot.place(SPOT[0] + 20, 0, SPOT[1] + 40, -.4);
-        if (snapshot?.mission === 'cegar') { eyes.clear(); armored.head.rotation.x = 0; }
+        if (snapshot?.mission === 'cegar') { threat.reset(); pilot.odm.player.health = 100; eyes.clear(); armored.head.rotation.x = 0; }
         if (snapshot?.mission === 'lancas') { spears.forEach(s => ctx.scene.remove(s.mesh)); spears.length = 0; mine = false; pull = null; result = null; plantClock = 0; }
       },
       challenges: () => (result?.together ? [ctx.data.challenges[0]] : []),
       debug: {
         eye(side) { eye(side, tmp); pilot.place(tmp.x, tmp.y - .4, tmp.z + 1); pilot.strikeNow(); },
+        feet() { const y = armored.root.rotation.y; pilot.place(armored.root.position.x + Math.sin(y) * 3, 0, armored.root.position.z + Math.cos(y) * 3); },
         plant() { armored.nape.getWorldPosition(nape); pilot.place(nape.x, nape.y + .5, nape.z - 1.5); pilot.strikeNow(); },
       },
-      snapshot: () => ({ eyes: eyes.size, spears: spears.length, mine, pulled: pull !== null, result, moblit: moblit.pose }),
+      snapshot: () => ({ boss: threat.snapshot(), health: pilot.odm.player.health, eyes: eyes.size, spears: spears.length, mine, pulled: pull !== null, result, moblit: moblit.pose }),
     };
   }, { breach: false });
 }

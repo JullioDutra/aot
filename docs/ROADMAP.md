@@ -186,6 +186,10 @@ Três quadros de Eren e Mikasa na abertura, sumário das 47 fases e como jogar p
 
 O corpo do titã aceita o gancho e o cabo o acompanha; no ar, A/D giram em volta da ancoragem e W/S controlam o cabo; atrás da nuca aparece FINALIZAR.
 
+## Entrega intermediária 38 — Chefes
+
+Fêmea, Blindado e Bestial golpeiam, pisam, arremessam e endurecem a nuca com aviso; cegueira e braços cortados encerram os ataques; a nuca do Bestial só abre por último.
+
 ## Fidelidade e jogabilidade (entregas 36–43)
 
 Pedido após a campanha completa: equipamento com a sensação do anime, personagens e titãs mais parecidos, cenários mais fiéis, celular melhor e uma página inicial que apresente o jogo. Tudo continua gerado em código, sem modelos, imagens ou músicas oficiais.
