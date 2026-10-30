@@ -30,6 +30,6 @@ export const HOW_TO_PLAY = Object.freeze({
   inputs: [
     { id: 'keyboard', title: 'Teclado e mouse', keys: [['Q / E', 'cabo esquerdo / direito'], ['ESPAÇO', 'gás e salto'], ['W A S D', 'mover e girar no cabo'], ['CLIQUE', 'atacar'], ['G', 'interagir'], ['R', 'abastecer'], ['ESC', 'pausa']] },
     { id: 'gamepad', title: 'Controle', keys: [['LT / RT', 'cabos'], ['A / ×', 'gás e salto'], ['LS / RS', 'mover / câmera'], ['X / □', 'atacar'], ['Y / △', 'interagir'], ['RB / R1', 'abastecer'], ['START', 'pausa']] },
-    { id: 'touch', title: 'Toque', keys: [['analógico', 'mover'], ['arrastar à direita', 'câmera'], ['◀ CABO / CABO ▶', 'segurar cada cabo'], ['GÁS', 'impulso e salto'], ['LÂMINA', 'atacar'], ['AGIR', 'interagir']] },
+    { id: 'touch', title: 'Toque', keys: [['analógico', 'mover'], ['arrastar à direita', 'câmera'], ['◀ CABO / CABO ▶', 'tocar prende, tocar de novo solta'], ['GÁS', 'impulso e salto'], ['LÂMINA', 'atacar'], ['AGIR', 'interagir']] },
   ],
 });

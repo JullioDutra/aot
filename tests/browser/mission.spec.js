@@ -62,6 +62,9 @@ test('a saved cleared route restores defeated titans and still requires extracti
   await walkTo(page, [0, -139], 7); await page.keyboard.press('g');
   await expect(page.locator('#result')).toBeVisible();
   expect((await page.evaluate(() => window.__TROST__.snapshot())).stage).toBe('complete');
+  // The operation is a standalone prototype; its end points to the campaign.
+  await expect(page.locator('#result-story')).toBeVisible();
+  await expect(page.locator('#result-story')).toHaveAttribute('href', './story.html?fase=1');
   await page.reload(); await page.waitForFunction(() => window.__TROST__?.snapshot().drawCalls > 0);
   await expect(page.locator('#continue-button')).toBeHidden();
 });

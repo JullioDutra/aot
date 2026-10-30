@@ -219,6 +219,10 @@ Pedido após a campanha completa: equipamento com a sensação do anime, persona
 7. **42 — Celular:** controles de toque redesenhados para o gancho no titã, o giro e a finalização, com mira assistida.
 8. **43 — Cenários:** Shiganshina, Trost, a floresta de árvores gigantes e Liberio com mais detalhe e marcos reconhecíveis.
 
+## Celular, segunda rodada (C1–C5)
+
+Controles de toque com cabo fixo (tocar prende, tocar de novo solta), ações divididas entre os dois polegares, arrastar a partir dos botões, ajustes de toque e arena no toque. Só o perfil de toque muda. Detalhes em [MOBILE_PLAN.md](MOBILE_PLAN.md).
+
 ## Marco 4 — demonstração de produção
 
 Uma operação de 15–20 minutos com arte e animação próprias de produção, referências verificadas, missão legível, resgate, abastecimento, destruição controlada e conclusão narrativa. Não será construída a campanha completa antes da aprovação desse marco.

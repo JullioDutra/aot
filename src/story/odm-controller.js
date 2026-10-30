@@ -9,6 +9,10 @@ import { aimOffsets } from '../aim-assist.js';
 // can hook a moving object, such as a titan, and follows it every frame.
 const raycaster = new THREE.Raycaster();
 // Hidden parents (a titan off stage) hide their meshes from the cables too.
+// Cables of the rig that flew since the last call, so the touch layer knows
+// which latched cable buttons still hold something.
+let flown = null;
+export function takeFlownHooks() { const hooks = flown; flown = null; return hooks; }
 const shown = object => { for (let o = object; o; o = o.parent) if (!o.visible) return false; return true; };
 
 export function createOdm({ scene, camera, colliders = [], anchorRoots = [], gas = 100, blades = 100, bounds = 300 }) {
@@ -51,7 +55,7 @@ export function createOdm({ scene, camera, colliders = [], anchorRoots = [], gas
 
   // input: { move: [x, y], boost, jump, yaw, pitch }
   function step(dt, input) {
-    const yaw = input.yaw;
+    const yaw = input.yaw; flown = hooks;
     for (const hook of hooks) if (hook.active) {
       if (!hook.object?.parent || !hook.object.visible) { hook.active = false; hook.line.visible = false; continue; }
       hook.object.updateWorldMatrix(true, false); hook.point.copy(hook.local).applyMatrix4(hook.object.matrixWorld);

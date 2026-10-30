@@ -26,3 +26,6 @@ body[data-input=touch] .story-finisher b{min-width:72px;height:72px;font-size:13
 /* Keep the tappable finisher above the touch layer (the HUD itself stays click-through). */
 body[data-input=touch] .story-finisher{z-index:22}
 body[data-input=touch][data-playing=true] #hud{z-index:21}
+/* Latched cable: hooked without the finger until the next tap. */
+.touch-button.latched{background:#d9b46ccc;color:#152025;border:2px solid #fff0c8;box-shadow:0 0 0 4px #d9b46c55,0 4px 18px #0007}
+.touch-button.latched::after{content:'PRESO';display:block;font-size:7px;letter-spacing:1px;margin-top:2px}

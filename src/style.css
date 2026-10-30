@@ -22,3 +22,4 @@ body[data-input=touch] .touch-button.menu{right:auto;left:calc(50% + 110px)}
 .story-entry{display:flex;align-items:center;justify-content:space-between;gap:12px;max-width:290px;margin-top:15px;color:#f0d9a6;font-size:8px;font-weight:700;text-decoration:none;letter-spacing:1.4px;padding:11px 0;border-bottom:1px solid #d2ac6c88}.story-entry:hover{color:#ffe2a6}.story-entry span{font-size:15px}.has-checkpoint .story-entry{margin-top:8px}
 .nape-marker.finisher{width:44px;height:44px;border-width:3px;background:#2a1a0f99;box-shadow:0 0 30px #ffcf8acc;animation:nape-finisher .6s ease-in-out infinite alternate}.nape-marker.finisher span{top:44px;left:26px;white-space:nowrap;font-size:10px;font-weight:700;color:#ffe7b8}
 @keyframes nape-finisher{from{box-shadow:0 0 14px #f2b56c88}to{box-shadow:0 0 40px #ffd28bee}}
+a.primary-button{text-decoration:none}
