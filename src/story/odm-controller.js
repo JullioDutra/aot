@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { cableAcceleration, clamp } from '../mechanics.js';
 import { resolveMotion } from '../collision.js';
 import { orbitControl } from '../titan-hook.js';
+import { aimOffsets } from '../aim-assist.js';
 
 // Omni-directional mobility gear for story chapters. Same physics as Trost
 // (pull-only cables, gas boost, drag, collisions) with one addition: a cable
@@ -22,9 +23,9 @@ export function createOdm({ scene, camera, colliders = [], anchorRoots = [], gas
   function origin(side, yaw) { return player.position.clone().add(new THREE.Vector3(Math.cos(yaw) * side * .3, 1.1, Math.sin(yaw) * side * .3)); }
 
   // Aim through the screen slightly left/right of center for each cable.
-  function aim(side, assisted = true) {
+  function aim(side, assisted = 1) {
     camera.updateMatrixWorld();
-    const offsets = assisted ? [[0, 0], [0, .04], [side * .04, 0], [0, -.04], [side * .04, .04]] : [[0, 0]];
+    const offsets = aimOffsets(side, assisted === true ? 1 : Number(assisted) || 0);
     for (const [dx, dy] of offsets) {
       raycaster.setFromCamera(new THREE.Vector2(side * .05 + dx, dy), camera); raycaster.far = 95;
       const hit = raycaster.intersectObjects(anchorRoots, true).find(h => shown(h.object) && !h.object.userData.noAnchor);
@@ -36,10 +37,10 @@ export function createOdm({ scene, camera, colliders = [], anchorRoots = [], gas
     return null;
   }
 
-  function attach(side, yaw) {
+  function attach(side, yaw, assist = 1) {
     const hook = hooks[side === -1 ? 0 : 1];
     if (hook.active || player.gas < 1) return null;
-    const hit = aim(side);
+    const hit = aim(side, assist);
     if (!hit) return null;
     hook.active = true; hook.object = hit.object; hook.local = hit.object.worldToLocal(hit.point.clone());
     hook.point.copy(hit.point); hook.length = Math.max(3, player.position.distanceTo(hit.point) * .65); hook.line.visible = true; player.gas -= .5;

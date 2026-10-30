@@ -190,7 +190,7 @@ function hookOrigin(side) {
 }
 function aimHit(index) {
   const other = hooks[1 - index];
-  return selectAnchor(camera, hookOrigin(hooks[index].side), hooks[index].side, world.anchors, world.colliders, assistedAnchors, other.active ? other.point : null, titans.filter(t => t.alive && t.root.visible).map(t => t.root));
+  return selectAnchor(camera, hookOrigin(hooks[index].side), hooks[index].side, world.anchors, world.colliders, assistedAnchors ? (inputProfile === 'touch' ? 2 : 1) : 0, other.active ? other.point : null, titans.filter(t => t.alive && t.root.visible).map(t => t.root));
 }
 function validateCables() {
   let blocked = false;
@@ -440,14 +440,14 @@ function updateHUD() {
     marker.style.left = `${(screen.x + 1) * 50}%`; marker.style.top = `${(1 - screen.y) * 50}%`;
     marker.classList.toggle('attached', hooks[i].active); marker.textContent = `${inputProfile === 'keyboard' ? (i === 0 ? 'Q' : 'E') : (i === 0 ? '◀' : '▶')} · ${Math.round(hit.distance)} m`;
   });
-  $('nape-marker').hidden = true;
+  $('nape-marker').hidden = true; document.body.classList.remove('finisher-ready');
   for (const t of titans) {
     if (!strikeAvailable(t)) continue;
     const finisher = finisherReady(t), screen = napePosition.clone().project(camera);
     if (Math.abs(screen.x) <= 1 && Math.abs(screen.y) <= 1 && screen.z > -1 && screen.z < 1) {
       $('nape-marker').hidden = false; $('nape-marker').style.left = `${(screen.x + 1) * 50}%`; $('nape-marker').style.top = `${(1 - screen.y) * 50}%`;
     }
-    $('nape-marker').classList.toggle('finisher', finisher); $('nape-marker').querySelector('span').textContent = finisher ? `${inputPrompt(inputProfile, 'attack').toUpperCase()} · FINALIZAR` : 'NUCA';
+    $('nape-marker').classList.toggle('finisher', finisher); document.body.classList.toggle('finisher-ready', finisher); $('nape-marker').querySelector('span').textContent = finisher ? `${inputPrompt(inputProfile, 'attack').toUpperCase()} · FINALIZAR` : 'NUCA';
     hint = finisher ? 'FINALIZAÇÃO · ATAQUE AGORA' : 'NUCA EXPOSTA · CLIQUE PARA ATACAR'; break;
   }
   if (insideSupplyRadius(player.position.toArray(), world.supply.toArray())) hint = 'R · REABASTECER EQUIPAMENTO';
@@ -463,6 +463,8 @@ $('settings-button').addEventListener('click', () => { if (mode === 'playing') p
 $('close-settings').addEventListener('click', () => { $('settings').hidden = true; });
 $('sensitivity').addEventListener('input', e => { sensitivity = Number(e.target.value); });
 $('anchor-assist').addEventListener('change', e => { assistedAnchors = e.target.checked; });
+// On touch the finisher marker itself is the button.
+$('nape-marker').addEventListener('pointerdown', event => { if (!$('nape-marker').classList.contains('finisher')) return; event.preventDefault(); attack(); });
 $('fov-effect').addEventListener('change', e => { fovEffect = e.target.checked; });
 $('audio-enabled').addEventListener('change', e => { soundEnabled = e.target.checked; titanAudio.setEnabled(soundEnabled); if (!soundEnabled) silenceAudio(); else if (mode === 'playing') { void titanAudio.start(); audioContext = titanAudio.context; } });
 $('quality').addEventListener('change', e => { graphics.apply(e.target.value); updateGraphicsDescription(); });

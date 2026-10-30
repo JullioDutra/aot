@@ -424,6 +424,10 @@ O elenco do Modo História se veste de acordo com a fase (`src/campaign/wardrobe
 
 Os rostos dos titãs (`src/titan-forms.js`) ganharam sombreamento: órbitas fundas, maçãs do rosto e linha da mandíbula, narinas, e lábios em volta do sorriso dos titãs puros. As bocas fechadas ficaram largas, com a sombra do lábio inferior. **Titã de Ataque:** sombra pesada da testa sobre olhos verdes fundos e as fibras do músculo da bochecha dos cantos da boca até a orelha. **Colossal:** só a cavidade do nariz, sem cartilagem. **Fêmea:** faixas de músculo exposto em volta dos olhos. A galeria mostra o rosto de cada titã de perto (caixa "rosto" no modo titãs).
 
+## Celular — fase 42
+
+No toque, a mira dos cabos procura num raio maior em volta de cada retícula (`src/aim-assist.js`, com testes): três anéis de oito pontos, do mais perto para o mais longe, em vez dos cinco pontos do mouse. Isso vale em Trost, no Modo História e na carga da fase 32. O botão **FINALIZAR** sobre a nuca é tocável e fica acima da camada de toque; enquanto a janela de finalização está aberta, o botão LÂMINA brilha e pulsa. Os botões passaram a 70 px (60 px em telas baixas), e cada toque dá uma vibração curta onde o aparelho permite. A página inicial (fase 36) já mostra os comandos de toque em "como jogar".
+
 ## Co-op local — fase 24
 
 `coop.html` (no Modo História, em "Fora da continuidade") é um modo em tela dividida para dois jogadores, fora da história canônica. A dupla escolhe personagens do elenco e precisa limpar um campo de 12 titãs em 4 minutos usando ODM.
