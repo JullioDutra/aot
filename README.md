@@ -252,7 +252,7 @@ Limites: o modelo do titã da arena ainda é o anterior às fases 19–20; os ra
 
 Controles do Modo História: WASD e mouse; Espaço avança e dá gás; G/R age; Shift corre; Q/E seguram os cabos; clique corta ou dispara o sinalizador. No controle: A avança/gás, X lâmina/sinalizador, Y age, B corre, gatilhos para os cabos. No toque: CONTINUAR, AGIR, CORRER e, nas fases de combate, ◀ CABO, CABO ▶, GÁS e LÂMINA.
 
-Limites: as fases 1–42 são jogáveis; as demais seguem planejadas no hub. Falas são paráfrases originais, sem dublagem. Os mapas são aproximações e não plantas conferidas episódio a episódio. Não há cinemáticas animadas à mão nem captura de movimento. A violência é estilizada (partículas, cortes de câmera). Testes de navegador usam ganchos de depuração para pular deslocamentos longos; o equilíbrio da carga e do duelo precisa de teste humano.
+Limites: as 47 fases são jogáveis; as demais seguem planejadas no hub. Falas são paráfrases originais, sem dublagem. Os mapas são aproximações e não plantas conferidas episódio a episódio. Não há cinemáticas animadas à mão nem captura de movimento. A violência é estilizada (partículas, cortes de câmera). Testes de navegador usam ganchos de depuração para pular deslocamentos longos; o equilíbrio da carga e do duelo precisa de teste humano.
 
 ## Ato I completo — fase 25 (fases 3, 4 e 5 da história)
 
@@ -385,6 +385,20 @@ Regras puras em `src/story/act8-rules.js` (artilharia de Pieck, desarmar Yeageri
 **Fase 41 — O grito e os Caminhos:** o grito transforma Colt, Pyxis e os soldados; Porco se entrega a Falco. Nos Caminhos (areia, céu noturno e a árvore de luz), ande pelas lembranças de Grisha com Zeke (pedir que pare ou continue converge) até Ymir; o Estrondo começa.
 
 **Fase 42 — A aliança:** a fogueira com ex-inimigos; Jean e Reiner (o soco vem nas duas escolhas); depois leve o equipamento da carroça até os cavalos.
+
+## Desfecho — fase 35 (fases 43 a 47 da história)
+
+**Fase 43 — O porto:** os Yeageristas atiram na aliança no cais de Odiha; por trás a lâmina só desarma, pela frente mata. Depois, detenha os 4 que correm com facas para o casco do hidroavião; Mikasa atira em Floch. Desafio: ninguém morto pela sua lâmina.
+
+**Fase 44 — O estrondo:** os Colossais chegam pelo continente; Magath e Shadis explodem o navio. Como Hange, corte os dois tornozelos para derrubar um Colossal e fique longe do corpo (o vapor queima mais perto e mais alto) por 35 s, até o avião decolar. Desafio: derrubar três.
+
+**Fase 45 — Sobre o Fundador:** a coluna esquelética do Fundador (`src/story/founder.js`) anda a 70 m do chão. Só osso segura o cabo: um gancho em carne rasga em 0,6 s. Pouse na coluna e corte 8 titãs dos Caminhos que andam pelas vértebras até o avião. Desafio: nunca usar a carne.
+
+**Fase 46 — A última travessia:** como Falco alado, voe com Mikasa até a cabeça do Titã de Ataque (W sobe e perde velocidade, S mergulha e ganha) sem bater na coluna. Levi corta a cabeça de Zeke; Mikasa entra na boca do titã e alcança Eren.
+
+**Fase 47 — Depois da batalha:** Mikasa sobe a colina da fase 1 até a árvore; os embaixadores partem; os anos passam e a árvore cresce.
+
+Com isso, as 47 fases estão jogáveis no Modo História.
 
 ## Co-op local — fase 24
 

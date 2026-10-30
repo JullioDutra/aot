@@ -174,6 +174,10 @@ Fases 35 (Fort Slava), 36 (Liberio), 37 (a declaração e o Martelo de Guerra) e
 
 Fases 39 (a floresta de Levi), 40 (Shiganshina em guerra), 41 (o grito e os Caminhos) e 42 (a aliança).
 
+## Entrega intermediária 35 — Desfecho
+
+Fases 43 (o porto de Odiha), 44 (o Estrondo e Hange), 45 (sobre o Fundador), 46 (a última travessia) e 47 (depois da batalha). As 47 fases do Modo História estão jogáveis; o próximo passo é revisão humana de ritmo, câmera e dificuldade em GPU real e no celular.
+
 ## Marco 4 — demonstração de produção
 
 Uma operação de 15–20 minutos com arte e animação próprias de produção, referências verificadas, missão legível, resgate, abastecimento, destruição controlada e conclusão narrativa. Não será construída a campanha completa antes da aprovação desse marco.
