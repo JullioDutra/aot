@@ -154,6 +154,10 @@ Mundo fora das muralhas (planície, aldeia, floresta de árvores gigantes, caste
 
 Fases 16 (arpões, nuca endurecida, o grito e a fuga), 17 (a queda do esquadrão de Levi, o duelo de titãs e o resgate em ordem) e 18 (Stohess, a escalada da muralha e o cristal). O Ato III está jogável por inteiro (fases 13–18).
 
+## Entrega intermediária 30 — Choque de Titãs
+
+Muralha Rose e torre de Utgard no mundo de campo; fases 19 (Mike, o arco de Sasha, Ragako), 20 (o cerco da torre e Ymir), 21 (a confissão na muralha), 22 (o duelo contra o Blindado, os joelhos e a chave de braço), 23 (a carga de Erwin e a extração) e 24 (Hannes e o grito). O Ato IV está jogável por inteiro.
+
 ## Marco 4 — demonstração de produção
 
 Uma operação de 15–20 minutos com arte e animação próprias de produção, referências verificadas, missão legível, resgate, abastecimento, destruição controlada e conclusão narrativa. Não será construída a campanha completa antes da aprovação desse marco.
