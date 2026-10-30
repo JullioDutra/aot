@@ -56,6 +56,11 @@ export const OUTFITS = Object.freeze({
   training: { jacket: '#8b5b37', shirt: '#d9cdb2', pants: '#e9e4d8', boots: '#3a2a20', straps: '#2e1f17', emblem: 'swords', gear: true },
   garrison: { jacket: '#865a39', shirt: '#cfc6b0', pants: '#e2ddcf', boots: '#3a2a20', straps: '#2e1f17', emblem: 'roses', gear: true },
   commander: { jacket: '#3c3d36', shirt: '#e6e2d6', pants: '#e2ddcf', boots: '#2d241e', straps: null, emblem: 'roses', coat: true },
+  // Military Police: same cut, unicorn emblem.
+  police: { jacket: '#8b5b37', shirt: '#d9cdb2', pants: '#e9e4d8', boots: '#3a2a20', straps: '#2e1f17', emblem: 'unicorn', gear: true },
+  // Paradis 854: dark jacket and long coat over the anti-personnel gear.
+  'survey-854': { jacket: '#2b2b2d', shirt: '#e6e2d8', pants: '#3b3934', boots: '#1d1916', straps: '#151210', emblem: 'wings', gear: true, coat: true },
+  royal: { jacket: null, shirt: '#f1ede2', pants: '#f1ede2', boots: '#6b5a48', straps: null, emblem: null, skirt: '#e9e4d6', apron: '#c9d6e6' },
   marley: { jacket: '#7d7655', shirt: '#7d7655', pants: '#6f694c', boots: '#3a2c22', straps: '#3a2c22', emblem: null },
   'marley-civilian': { jacket: '#3a3732', shirt: '#cdc4b0', pants: '#3a3a36', boots: '#2b231d', straps: null, emblem: null, coat: true },
   'child-eren': { jacket: null, shirt: '#ddd3c1', pants: '#6f5a45', boots: '#4a3526', straps: null, emblem: null },

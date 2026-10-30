@@ -4,6 +4,7 @@ import './gallery.css';
 import { CHARACTER_SPECS } from './character-specs.js';
 import { createCharacter, setExpression } from './character-model.js';
 import { EXPRESSIONS } from './face-expressions.js';
+import { ERAS, eraOf, dressFor } from './campaign/wardrobe.js';
 import { characterPose, applyPose, POSES } from './character-animation.js';
 import { TITAN_FORMS, createTitanForm } from './titan-forms.js';
 import { toggleFullscreen } from './platform.js';
@@ -26,7 +27,7 @@ ground.rotation.x = -Math.PI / 2; ground.receiveShadow = true; scene.add(ground)
 const CAST = ['eren', 'mikasa', 'armin', 'levi', 'erwin', 'hange', 'jean', 'sasha', 'connie', 'reiner', 'bertholdt', 'annie', 'historia', 'ymir', 'marco', 'hannes', 'pixis', 'shadis', 'zeke', 'pieck', 'falco', 'gabi', 'eren-s4'];
 const CHILDHOOD = ['eren-child', 'mikasa-child', 'armin-child', 'carla', 'grisha', 'hannes'];
 const params = new URLSearchParams(location.search);
-let mode = params.get('modo') === 'titas' ? 'titans' : 'cast', selected = params.get('id'), pose = 'idle', closeUp = params.get('rosto') === '1', expression = EXPRESSIONS.includes(params.get('expressao')) ? params.get('expressao') : 'neutral';
+let mode = params.get('modo') === 'titas' ? 'titans' : 'cast', selected = params.get('id'), pose = 'idle', era = Number(params.get('fase')) || 0, closeUp = params.get('rosto') === '1', expression = EXPRESSIONS.includes(params.get('expressao')) ? params.get('expressao') : 'neutral';
 const actors = [];
 const stage = new THREE.Group(); scene.add(stage);
 
@@ -38,7 +39,7 @@ function lineup(ids) {
   clear();
   const gap = .75;
   ids.forEach((id, i) => {
-    const rig = createCharacter(CHARACTER_SPECS[id], { blades: pose === 'strike' });
+    const rig = createCharacter(dressFor(CHARACTER_SPECS[id], era), { blades: pose === 'strike' });
     rig.root.position.x = (i - (ids.length - 1) / 2) * gap; rig.id = id;
     stage.add(rig.root); actors.push(rig);
   });
@@ -47,7 +48,7 @@ function lineup(ids) {
 }
 function single(id) {
   clear();
-  const rig = createCharacter(CHARACTER_SPECS[id], { blades: ['strike', 'odm'].includes(pose) }); rig.id = id;
+  const rig = createCharacter(dressFor(CHARACTER_SPECS[id], era), { blades: ['strike', 'odm'].includes(pose) }); rig.id = id;
   stage.add(rig.root); actors.push(rig);
   const h = CHARACTER_SPECS[id].height;
   if (closeUp) { const head = rig.proportions.H - rig.proportions.headH * .55; controls.target.set(0, head, 0); camera.position.set(.12, head + .02, rig.proportions.headH * 3.4); }
@@ -97,6 +98,8 @@ $('gallery-pose').addEventListener('change', event => { pose = event.target.valu
 const EXPRESSION_NAMES = { neutral: 'neutra', angry: 'raiva', shout: 'grito', cry: 'choro', sad: 'tristeza', smile: 'sorriso', closed: 'olhos fechados', determined: 'determinação', shock: 'susto' };
 $('gallery-expression').replaceChildren(...EXPRESSIONS.map(e => { const o = document.createElement('option'); o.value = e; o.textContent = EXPRESSION_NAMES[e]; o.selected = e === expression; return o; }));
 $('gallery-expression').addEventListener('change', event => { expression = event.target.value; });
+$('gallery-era').replaceChildren(...[{ from: 0, label: 'Padrão' }, ...ERAS].map(e => { const o = document.createElement('option'); o.value = e.from; o.textContent = e.year ? `${e.label} (${e.year})` : e.label; o.selected = e.from === (era ? eraOf(era).from : 0); return o; }));
+$('gallery-era').addEventListener('change', event => { era = Number(event.target.value); build(); });
 $('gallery-face').checked = closeUp;
 $('gallery-face').addEventListener('change', event => { closeUp = event.target.checked; build(); });
 $('gallery-fullscreen').addEventListener('click', () => void toggleFullscreen(document, document.documentElement));
@@ -115,4 +118,4 @@ renderer.setAnimationLoop(() => {
   }
   controls.update(); renderer.render(scene, camera);
 });
-window.__GALLERY__ = Object.freeze({ snapshot: () => ({ mode, selected, pose, expression, actors: actors.map(a => a.id ?? a.spec?.id), drawCalls: renderer.info.render.calls }) });
+window.__GALLERY__ = Object.freeze({ snapshot: () => ({ mode, selected, pose, expression, era, actors: actors.map(a => a.id ?? a.spec?.id), drawCalls: renderer.info.render.calls }) });

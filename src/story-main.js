@@ -9,6 +9,7 @@ import { createTouchControls } from './touch-controls.js';
 import { initialProfile, nextProfile, mergeFrames, toggleFullscreen, fullscreenState, prompt } from './platform.js';
 import { ArenaAudio } from './arena-audio.js';
 import { clamp } from './mechanics.js';
+import { setChapterEra } from './story/kit.js';
 
 // Shell shared by every story chapter: renderer, input for keyboard/mouse,
 // controller and touch, dialogue, choices, objectives, pause, failure with a
@@ -110,6 +111,7 @@ function renderUI(view) {
 // ── Flow ──────────────────────────────────────────────────────────────────
 async function boot() {
   const module = await ADAPTERS[number]();
+  setChapterEra(number);
   adapter = module.createChapter({ scene, camera, renderer, number, ui, audio, data });
   story = createStoryState(adapter.script);
   window.__STORY_SCRIPT__ = adapter.script;
