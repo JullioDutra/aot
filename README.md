@@ -252,7 +252,7 @@ Limites: o modelo do titã da arena ainda é o anterior às fases 19–20; os ra
 
 Controles do Modo História: WASD e mouse; Espaço avança e dá gás; G/R age; Shift corre; Q/E seguram os cabos; clique corta ou dispara o sinalizador. No controle: A avança/gás, X lâmina/sinalizador, Y age, B corre, gatilhos para os cabos. No toque: CONTINUAR, AGIR, CORRER e, nas fases de combate, ◀ CABO, CABO ▶, GÁS e LÂMINA.
 
-Limites: as fases 1–28 e 32 são jogáveis; as demais seguem planejadas no hub. Falas são paráfrases originais, sem dublagem. Os mapas são aproximações e não plantas conferidas episódio a episódio. Não há cinemáticas animadas à mão nem captura de movimento. A violência é estilizada (partículas, cortes de câmera). Testes de navegador usam ganchos de depuração para pular deslocamentos longos; o equilíbrio da carga e do duelo precisa de teste humano.
+Limites: as fases 1–34 são jogáveis; as demais seguem planejadas no hub. Falas são paráfrases originais, sem dublagem. Os mapas são aproximações e não plantas conferidas episódio a episódio. Não há cinemáticas animadas à mão nem captura de movimento. A violência é estilizada (partículas, cortes de câmera). Testes de navegador usam ganchos de depuração para pular deslocamentos longos; o equilíbrio da carga e do duelo precisa de teste humano.
 
 ## Ato I completo — fase 25 (fases 3, 4 e 5 da história)
 
@@ -343,6 +343,22 @@ Inimigos humanos: o esquadrão antipessoal (`src/story/gunmen.js`) mira com uma 
 **Fase 28 — O titã de Rod Reiss:** mire três canhões em Orvud (o calor anula os tiros); empurre os barris quando a boca abrir (boca fechada faz os barris voltarem); como Historia, ache o fragmento que brilha entre os pedaços em brasa; Kenny entrega a caixa a Levi sob a árvore e morre; Historia é coroada. Desafio: barris na primeira tentativa.
 
 Limites: o bar é uma sala simples no meio da avenida; Orvud reaproveita Trost; o rosto de Rod repousa sobre a muralha sem animação de boca além da cabeça.
+
+## Retorno a Shiganshina — fase 32 (fases 29, 30, 31, 33 e 34 da história)
+
+As fases 29 e 34 voltam ao mapa do prólogo (`src/story/shiganshina-return.js`), cinco anos depois; 30, 31 e 33 usam a cidade grande como Shiganshina para o ODM. Regras puras em `src/story/act6-rules.js` (barulho da marcha, pedras sobre os rebanhos, janela das lanças do trovão, a pegada de Armin) com testes.
+
+**Fase 29 — De volta para casa:** à noite, puxe o cavalo pela cidade vazia até o portão externo sem correr: correr enche a barra de barulho e acorda os titãs que dormem nas ruas. Eren endurece o portão (aperte sem parar). Depois reencontre o sino, a ponte e o barco do prólogo.
+
+**Fase 30 — A armadilha:** como Armin, golpeie a parede trincada da muralha e Reiner sai de dentro. Depois as pedras do Bestial: cada pedra é anunciada pela sombra; leve os rebanhos para trás das casas (G) antes do impacto e saia da sombra. Desafio: salvar mais da metade dos cavalos.
+
+**Fase 31 — Lanças do trovão:** como Hange, corte os olhos do Blindado, crave sua lança na nuca enquanto o esquadrão crava as deles e puxe a corda (G): lanças não puxadas explodem sozinhas no pavio, e o desafio é todas na mesma janela de 1,5 s. O barril de Bertholdt cruza a muralha; Moblit empurra Hange para o poço antes da onda.
+
+**Fase 33 — O plano de Armin:** observe o Colossal emagrecer queimando vapor (30 a 70 m); como Armin, segure nos dentes dele por 18 s apertando sem parar; como Eren, saia da carcaça endurecida e corte a nuca para arrancar Bertholdt.
+
+**Fase 34 — O porão e o mar:** a dose de soro entre Erwin e Armin (as duas escolhas terminam com Erwin descansando); Armin herda o Colossal; nas ruínas da casa, a chave abre a gaveta e os livros de Grisha; um ano depois, a caminhada até o mar.
+
+Com isso, as fases 1–34 (Atos I a VI) estão jogáveis. O kit passou a deitar de costas qualquer personagem na pose `lie`, o que corrige corpos que ficavam em pé nas fases 16–31.
 
 ## Co-op local — fase 24
 

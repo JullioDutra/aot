@@ -162,6 +162,10 @@ Muralha Rose e torre de Utgard no mundo de campo; fases 19 (Mike, o arco de Sash
 
 Atiradores humanos com linha de visada; fases 25 (o bar e os telhados), 26 (a troca, a investigação e o golpe), 27 (a caverna de cristal e o endurecimento) e 28 (Orvud, os barris, Historia, Kenny e a coroação). O Ato V está jogável por inteiro.
 
+## Entrega intermediária 32 — Retorno a Shiganshina
+
+Fases 29 (a marcha noturna e o portão), 30 (Reiner na muralha e as pedras sobre os cavalos), 31 (lanças do trovão e a explosão), 33 (o plano de Armin) e 34 (o soro, o porão e o mar). Com a fase 32 já existente, o Ato VI está jogável por inteiro (fases 1–34).
+
 ## Marco 4 — demonstração de produção
 
 Uma operação de 15–20 minutos com arte e animação próprias de produção, referências verificadas, missão legível, resgate, abastecimento, destruição controlada e conclusão narrativa. Não será construída a campanha completa antes da aprovação desse marco.

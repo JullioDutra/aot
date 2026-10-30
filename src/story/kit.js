@@ -76,6 +76,13 @@ export function createStage({ scene, camera, ui, audio, sky = '#c9d6d2', fog = [
       if (d < .3) { a.path.shift(); if (!a.path.length) { a.path = null; if (a.pose === 'walk' || a.pose === 'run') a.pose = 'idle'; a.onArrive?.(a); } }
       else { const step = Math.min(d, a.speed * dt); p.x += dx / d * step; p.z += dz / d * step; a.rig.root.rotation.y = Math.atan2(dx, dz); p.y = stage.ground(p.x, p.z); }
     }
+    // 'lie' lays the body on its back once; any other pose stands it up again.
+    const lying = a.pose === 'lie', root = a.rig.root;
+    if (lying !== !!a.lying) {
+      a.lying = lying;
+      if (lying && Math.abs(root.rotation.x + Math.PI / 2) > .1) { root.rotation.x = -Math.PI / 2; root.position.y += .25; a.laid = true; }
+      else if (!lying && a.laid) { root.rotation.x = 0; root.position.y -= .25; a.laid = false; }
+    }
     if (a.pose !== 'manual') applyPose(a.rig, characterPose(a.pose, a.t, { speed: a.pose === 'run' || a.pose === 'walk' ? a.speed / 3 : 1, progress: a.progress }));
   }
   return stage;
