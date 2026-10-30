@@ -117,6 +117,8 @@ export function createFieldChapter({ scene, camera, ui, audio, data, number }, p
         else if (control === 'ride' && ctx.rider) ctx.rider.place(x, z);
         else if (ctx.player?.rig.root.parent === scene) stage.place(ctx.player, x, z);
       },
+      // Review hook: frame a fixed camera shot.
+      shot(position, target, fov = 55) { stage.setShot(position, target, fov); },
       // Test hook: put the pilot just behind a living titan's nape, flying at it.
       finisher() {
         const t = horde.alive().find(x => x.titan.root.visible); if (!t || !ctx.pilot) return false;

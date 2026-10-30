@@ -25,13 +25,15 @@ export function createField(scene, { outline = true, forest = true, castle = tru
   const rand = rng(seed);
   const mat = {
     grass: toon(groundColor), meadow: toon('#a8ae74'), path: toon('#b4a67f'), bark: toon('#6a4e38'), barkDark: toon('#5a3f2d'),
-    leaves: [toon('#4d6b3a'), toon('#5b7a40'), toon('#456236')], stone: toon('#9d968a'), stoneDark: toon('#7f786d'), roof: toon('#6e4436'), plaster: toon('#d8ccb2'), timber: toon('#5b3f2b'),
+    leaves: [toon('#4d6b3a'), toon('#5b7a40'), toon('#456236')], moss: toon('#5f7a3c'), fern: toon('#4f6e34'), floor: toon('#6e7448'), stone: toon('#9d968a'), stoneDark: toon('#7f786d'), roof: toon('#6e4436'), plaster: toon('#d8ccb2'), timber: toon('#5b3f2b'),
   };
   const ground = new THREE.Mesh(new THREE.PlaneGeometry(1800, 1800), mat.grass); ground.rotation.x = -Math.PI / 2; ground.receiveShadow = true; group.add(ground);
   if (trees) { const trail = new THREE.Mesh(new THREE.PlaneGeometry(FIELD.road * 2, 1200), mat.path); trail.rotation.x = -Math.PI / 2; trail.position.set(0, .02, -260); trail.receiveShadow = true; group.add(trail); }
   // Patches of lighter meadow break up the plain.
   if (trees) for (let i = 0; i < 26; i++) { const p = new THREE.Mesh(new THREE.CircleGeometry(20 + rand() * 40, 12), mat.meadow); p.rotation.x = -Math.PI / 2; p.position.set((rand() - .5) * 900, .01, 250 - rand() * 560); p.receiveShadow = true; group.add(p); }
   const solid = (minX, maxX, minZ, maxZ, top, tag) => { const c = { minX, maxX, minZ, maxZ, top, tag }; colliders.push(c); return c; };
+  // Shaded forest floor under the canopy.
+  if (forest) { const f = FIELD.forest, floor = new THREE.Mesh(new THREE.PlaneGeometry(f.maxX - f.minX + 40, f.maxZ - f.minZ + 40), mat.floor); floor.rotation.x = -Math.PI / 2; floor.position.set((f.minX + f.maxX) / 2, .015, (f.minZ + f.maxZ) / 2); floor.receiveShadow = true; group.add(floor); }
 
   const buckets = new Map(); const push = (m, g) => { if (!buckets.has(m)) buckets.set(m, []); buckets.get(m).push(g); };
   const shape = (m, g, x, y, z, ry = 0) => { if (ry) g.rotateY(ry); g.translate(x, y, z); push(m, g); return g; };
@@ -42,6 +44,16 @@ export function createField(scene, { outline = true, forest = true, castle = tru
     shape(bark, new THREE.CylinderGeometry(radius * .7, radius * 1.25, height, giant ? 12 : 8), x, height / 2, z);
     // Root flare at the base.
     if (giant) for (let i = 0; i < 4; i++) { const a = i * Math.PI / 2 + rand(); const r = new THREE.BoxGeometry(radius * .9, radius * 1.4, radius * 2.6); shape(bark, r, x + Math.cos(a) * radius, radius * .5, z + Math.sin(a) * radius, a); }
+    if (giant) {
+      // Moss climbing the lower trunk, and thick horizontal limbs where the
+      // squads perch and hook, as in the forest of giant trees.
+      shape(mat.moss, new THREE.CylinderGeometry(radius * 1.02, radius * 1.3, height * .22, 12, 1, true), x, height * .11, z);
+      for (let i = 0; i < 3; i++) {
+        const a = rand() * Math.PI * 2, y = height * (.28 + i * .12), len = radius * (4 + rand() * 2);
+        const limbGeometry = new THREE.CylinderGeometry(radius * .22, radius * .38, len, 7); limbGeometry.rotateZ(Math.PI / 2 - .12);
+        shape(bark, limbGeometry, x + Math.cos(a) * len / 2, y, z - Math.sin(a) * len / 2, a);
+      }
+    }
     const crownFrom = giant ? height * .45 : height * .4;
     const blobs = giant ? 4 : 2;
     for (let i = 0; i < blobs; i++) {
@@ -59,6 +71,12 @@ export function createField(scene, { outline = true, forest = true, castle = tru
     if (Math.abs(px) < FIELD.road + 5) continue;
     if (Math.hypot(px - FIELD.clearing[0], pz - FIELD.clearing[1]) < FIELD.clearingRadius) continue;
     tree(px, pz, 68 + rand() * 24, 2.4 + rand() * 1.6, true);
+  }
+  // Undergrowth: ferns between the trunks.
+  if (forest) for (let i = 0; i < 220; i++) {
+    const px = minX + rand() * (maxX - minX), pz = minZ + rand() * (maxZ - minZ);
+    if (Math.abs(px) < FIELD.road + 2) continue;
+    const g = new THREE.ConeGeometry(1.2 + rand(), 1.4 + rand(), 5); shape(mat.fern, g, px, .7, pz, rand() * 3);
   }
   // Giants right at the edge of the trail.
   if (forest) for (let z = -360; z > -700; z -= 46) { const side = rand() > .5 ? 1 : -1; const pz = z + rand() * 10; if (Math.abs(pz - FIELD.clearing[1]) > FIELD.clearingRadius + 8) tree(side * (FIELD.road + 3 + rand() * 2), pz, 70 + rand() * 16, 2.2, true); }
@@ -112,6 +130,15 @@ export function createField(scene, { outline = true, forest = true, castle = tru
   }
 
   const world = new THREE.Group(); group.add(world); anchorRoots.push(world);
+  // Shafts of light through the canopy: visual only, never an anchor.
+  if (forest) {
+    const shaftMaterial = new THREE.MeshBasicMaterial({ color: '#fff3c8', transparent: true, opacity: .08, depthWrite: false, blending: THREE.AdditiveBlending, side: THREE.DoubleSide });
+    for (let i = 0; i < 14; i++) {
+      const shaft = new THREE.Mesh(new THREE.CylinderGeometry(2.5, 7, 70, 10, 1, true), shaftMaterial);
+      shaft.position.set(minX + 20 + rand() * (maxX - minX - 40), 35, minZ + 20 + rand() * (maxZ - minZ - 40)); shaft.rotation.z = .25; shaft.raycast = () => {};
+      group.add(shaft);
+    }
+  }
   for (const [m, list] of buckets) {
     const merged = mergeGeometries(list); list.forEach(g => g.dispose());
     const mesh = new THREE.Mesh(merged, m); mesh.castShadow = mesh.receiveShadow = true; world.add(mesh);
