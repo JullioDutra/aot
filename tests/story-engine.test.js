@@ -9,6 +9,7 @@ import { TROST_FINAL_SCRIPTS } from '../src/story/trost-final-scripts.js';
 import { ACT3_SCRIPTS } from '../src/story/act3-scripts.js';
 import { ACT4_SCRIPTS } from '../src/story/act4-scripts.js';
 import { ACT5_SCRIPTS } from '../src/story/act5-scripts.js';
+import { ACT6_SCRIPTS } from '../src/story/act6-scripts.js';
 
 const decisionsOf = n => Object.fromEntries(chapter(n).decisions.map(d => [d.id, d]));
 
@@ -117,7 +118,7 @@ test('flares widen the barrage and the Beast exposes every part Levi must cut', 
 });
 
 // Chapters with a script follow their plan: same sub-missions in the same order.
-const SCRIPTED = { ...ACT1_SCRIPTS, ...TROST_SCRIPTS, ...TROST_FINAL_SCRIPTS, ...ACT3_SCRIPTS, ...ACT4_SCRIPTS, ...ACT5_SCRIPTS };
+const SCRIPTED = { ...ACT1_SCRIPTS, ...TROST_SCRIPTS, ...TROST_FINAL_SCRIPTS, ...ACT3_SCRIPTS, ...ACT4_SCRIPTS, ...ACT5_SCRIPTS, ...ACT6_SCRIPTS };
 
 test('scripted chapters validate and play their planned sub-missions in order', () => {
   for (const [n, script] of Object.entries(SCRIPTED)) {
