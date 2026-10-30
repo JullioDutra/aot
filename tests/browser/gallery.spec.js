@@ -16,6 +16,9 @@ test('gallery renders the cast lineup, single characters, poses and the titan fo
   await page.locator('#gallery-pose').selectOption('odm');
   await expect.poll(async () => (await snapshot(page)).pose).toBe('odm');
   await expect(page.locator('#gallery-caption')).toContainText('Levi Ackerman · 1.6 m');
+  await page.locator('#gallery-face').check();
+  await page.locator('#gallery-expression').selectOption('shout');
+  await expect.poll(async () => (await snapshot(page)).expression).toBe('shout');
 
   await page.locator('[data-mode="titans"]').click();
   await expect.poll(async () => (await snapshot(page)).mode).toBe('titans');
