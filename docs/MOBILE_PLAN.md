@@ -29,8 +29,8 @@ Nenhuma fonte oficial descreve um esquema de toque de equipamento de manobra 3D;
 - **Tocar no CABO prende; tocar de novo no mesmo CABO solta.** O dedo pode sair do botão: o gancho continua no titã ou no prédio.
 - O cabo também solta sozinho quando o jogo já soltaria hoje: gás acabou, titã morreu, obstáculo cortou o cabo, ou o botão SOLTAR (solta os dois).
 - Se o disparo não encontrar ancoragem, o botão não fica preso (aviso "Sem ancoragem" como hoje e vibração dupla curta).
-- O botão mostra o estado: aro aceso e texto **PRESO** enquanto o gancho estiver ativo; cor própria quando preso a um titã.
-- **Proposta: vale para qualquer ancoragem (titã, prédio, árvore)**, para o comportamento ser sempre o mesmo. Alternativa: só no titã, mantendo segurar nos prédios — fica uma opção nos ajustes se preferir.
+- O botão mostra o estado: aro aceso e texto **PRESO** enquanto o gancho estiver ativo. (Uma cor própria para "preso ao titã" fica para a C2: o Modo História ainda não marca quais malhas são titãs.)
+- **Decidido: vale para qualquer ancoragem (titã, prédio, árvore).** A opção de voltar a segurar fica para os ajustes (C4).
 - Como funciona sem tocar nos outros modos: o botão de toque continua informando "segurado" enquanto estiver preso, então `kit.js`, `last-charge-chapter.js` e `main.js` não mudam a regra. A página só informa a cada quadro quais ganchos estão ativos (`touch.sync({ left, right })`), para o botão destravar quando o jogo soltar o cabo.
 
 ### 2. Nova distribuição (dois polegares)
@@ -86,7 +86,7 @@ Cada entrega é empilhada sobre a anterior (a primeira sobre a 42) e tem PR pró
 
 | Entrega | Conteúdo | Validação específica |
 |---|---|---|
-| **C1 — Cabo fixo** | Seção 1 em Trost e no Modo História | Teste puro do estado preso/solto; navegador com toque: tocar prende, soltar o dedo mantém, tocar de novo solta; preso ao titã + LÂMINA finaliza; titã morto ou gás zerado destrava o botão |
+| **C1 — Cabo fixo** ✅ | Seção 1 em Trost e no Modo História | Teste puro do estado preso/solto; navegador com toque: tocar prende, soltar o dedo mantém, tocar de novo solta; preso ao titã + LÂMINA finaliza; titã morto ou gás zerado destrava o botão |
 | **C2 — Distribuição** | Seção 2 (posições, tamanhos, contexto, CONTINUAR fora do bloco) | Em 844×390, 667×375, 740×360 e 1024×768: nenhum botão sobreposto, folga ≥ 16 px, tamanho ≥ 56 px, nada fora da área segura; capturas de tela anexadas ao PR |
 | **C3 — Arrastar** | Seção 3 | Navegador: segurar GÁS e deslizar gira a câmera com gás ativo; deslizar do GÁS para a LÂMINA corta |
 | **C4 — Ajustes** | Seção 4 | Teste puro das escolhas salvas; navegador: canhoto espelha, tamanho muda, cabo fixo desligado volta ao segurar |

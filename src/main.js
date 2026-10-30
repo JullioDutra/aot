@@ -110,7 +110,7 @@ const gamepadInput = createGamepadInput();
 let padFrame = gamepadInput.sample();
 let inputProfile = initialProfile({ coarsePointer: matchMedia('(pointer: coarse)').matches, hover: matchMedia('(hover: hover)').matches, maxTouchPoints: navigator.maxTouchPoints }), syncedMode = null;
 const touch = createTouchControls({ root: document.body, buttons: [
-  { action: 'left', label: '◀ CABO', className: 'cable-left' }, { action: 'right', label: 'CABO ▶', className: 'cable-right' },
+  { action: 'left', label: '◀ CABO', className: 'cable-left', latch: true }, { action: 'right', label: 'CABO ▶', className: 'cable-right', latch: true },
   { action: 'jump', label: 'GÁS', className: 'primary' }, { action: 'attack', label: 'LÂMINA', className: 'primary' },
   { action: 'interact', label: 'AGIR' }, { action: 'supply', label: 'ABASTECER' }, { action: 'release', label: 'SOLTAR' }, { action: 'menu', label: 'Ⅱ', className: 'menu' }] });
 const landingInput = { keyboard: 'TECLADO + MOUSE', gamepad: 'CONTROLE PADRÃO', touch: 'TOQUE · TELA CHEIA' };
@@ -179,9 +179,9 @@ function finish(victory) {
   mode = victory ? 'won' : 'dead'; silenceAudio(); clearInput(); if (document.pointerLockElement) document.exitPointerLock();
   $('result-label').textContent = victory ? 'OPERAÇÃO CONCLUÍDA' : 'OPERAÇÃO INTERROMPIDA';
   $('result-title').textContent = victory ? 'O distrito respira.' : 'Ainda podemos lutar.';
-  $('result-description').textContent = victory ? 'Civis encaminhados, abastecimento recuperado e retirada confirmada. Este ensaio é uma missão original inspirada em Trost, fora da continuidade canônica.' : 'Você foi derrubado. Retome o checkpoint com os objetivos e abates já registrados, ou inicie uma nova operação.';
+  $('result-description').textContent = victory ? 'Civis encaminhados, abastecimento recuperado e retirada confirmada. Este ensaio é uma missão original inspirada em Trost, fora da continuidade canônica; a campanha segue no Modo História.' : 'Você foi derrubado. Retome o checkpoint com os objetivos e abates já registrados, ou inicie uma nova operação.';
   $('result-stats').textContent = `${kills} / 3 titãs · ${formatTime(elapsed)} · Civis ${rescued ? 'resgatados' : 'não resgatados'}`;
-  $('result').hidden = false;
+  $('result-story').hidden = !victory; $('result').hidden = false;
   refreshCheckpointButtons();
 }
 function forward() { return new THREE.Vector3(Math.sin(yaw) * Math.cos(pitch), Math.sin(pitch), -Math.cos(yaw) * Math.cos(pitch)); }
@@ -525,6 +525,7 @@ function updateGamepad(dt) {
     if (previous.held[name] && !padFrame.held[name] && !keys.has(key)) releaseHook(hooks[i]);
   }
   if (padFrame.pressed.release) clearHooks();
+  touch.sync({ left: hooks[0].active, right: hooks[1].active });
 }
 
 let previousTime = performance.now(), uiTimer = 0;

@@ -10,6 +10,7 @@ import { initialProfile, nextProfile, mergeFrames, toggleFullscreen, fullscreenS
 import { ArenaAudio } from './arena-audio.js';
 import { clamp } from './mechanics.js';
 import { setChapterEra } from './story/kit.js';
+import { takeFlownHooks } from './story/odm-controller.js';
 
 // Shell shared by every story chapter: renderer, input for keyboard/mouse,
 // controller and touch, dialogue, choices, objectives, pause, failure with a
@@ -59,7 +60,7 @@ const gamepad = createGamepadInput({ advance: 0, jump: 0, run: 1, attack: 2, int
 let padFrame = gamepad.sample();
 const touch = createTouchControls({ root: document.body, buttons: [
   { action: 'advance', label: 'CONTINUAR', className: 'primary' }, { action: 'interact', label: 'AGIR' }, { action: 'run', label: 'CORRER' },
-  { action: 'attack', label: 'LÂMINA', className: 'primary story-combat' }, { action: 'left', label: '◀ CABO', className: 'cable-left story-combat' }, { action: 'right', label: 'CABO ▶', className: 'cable-right story-combat' },
+  { action: 'attack', label: 'LÂMINA', className: 'primary story-combat' }, { action: 'left', label: '◀ CABO', className: 'cable-left story-combat', latch: true }, { action: 'right', label: 'CABO ▶', className: 'cable-right story-combat', latch: true },
   { action: 'jump', label: 'GÁS', className: 'story-combat' }, { action: 'menu', label: 'Ⅱ', className: 'menu' }] });
 const key = action => prompt(inputProfile, action);
 // On touch the finisher prompt is itself the button.
@@ -246,7 +247,7 @@ function renderFinisher() {
 }
 
 // ── Loop ──────────────────────────────────────────────────────────────────
-let last = performance.now();
+let last = performance.now(), cables = [false, false];
 renderer.setAnimationLoop(now => {
   let dt = Math.min(.05, (now - last) / 1000); last = now;
   // Finisher slow motion: the cut plays at a third of the speed for a moment.
@@ -272,6 +273,8 @@ renderer.setAnimationLoop(now => {
       if (mode === 'playing' || mode === 'finished') renderUI(result.ui);
     } else if (adapter) adapter.idle?.(dt);
   }
+  // Latched touch cables stay lit only while the rig that flew still hooks.
+  if (mode === 'playing') { const hooks = takeFlownHooks(); cables = [!!hooks?.[0].active, !!hooks?.[1].active]; touch.sync({ left: cables[0], right: cables[1] }); }
   if (mode === 'failed') { failTimer -= dt; $('story-fail-retry').disabled = failTimer > 1.4; }
   if (bannerTime > 0 && (bannerTime -= dt) <= 0) $('story-banner').classList.remove('visible');
   if (toastTime > 0 && (toastTime -= dt) <= 0) $('story-toast').classList.remove('visible');
@@ -280,5 +283,5 @@ renderer.setAnimationLoop(now => {
   renderer.render(scene, camera);
 });
 
-window.__STORY__ = { ready: false, timeScale: 1, debug: (name, ...args) => adapter?.debug?.[name]?.(...args), snapshot: () => ({ number, mode, ready: !!story, inputProfile, elapsed, fade, story: story ? { index: story.index, control: story.control, finished: story.finished, mission: story.mission, choices: { ...story.choices }, log: [...story.log] } : null, adapter: adapter?.snapshot?.() ?? null, progress: structuredClone(progress), drawCalls: renderer.info.render.calls, camera: camera.position.toArray().map(v => +v.toFixed(1)) }) };
+window.__STORY__ = { ready: false, timeScale: 1, debug: (name, ...args) => adapter?.debug?.[name]?.(...args), snapshot: () => ({ number, mode, ready: !!story, inputProfile, cables: [...cables], elapsed, fade, story: story ? { index: story.index, control: story.control, finished: story.finished, mission: story.mission, choices: { ...story.choices }, log: [...story.log] } : null, adapter: adapter?.snapshot?.() ?? null, progress: structuredClone(progress), drawCalls: renderer.info.render.calls, camera: camera.position.toArray().map(v => +v.toFixed(1)) }) };
 boot().catch(error => { console.error(error); $('story-error').hidden = false; });

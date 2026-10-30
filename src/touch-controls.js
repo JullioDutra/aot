@@ -13,6 +13,14 @@ export function stickVector(origin, point, radius = STICK_RADIUS) {
   return [dx * scale, dy * scale];
 }
 
+// Latched buttons (the cables on touch): a tap fires and holds without the
+// finger, a second tap lets go. Only the firing tap is a press, so letting go
+// never asks the game to fire again.
+export function latchTap(latched) { return { latched: !latched, press: !latched }; }
+// The game drops a cable on its own (no anchor, gas out, titan dead); the
+// button follows so the next tap fires again.
+export function latchSync(latched, active) { return latched && !!active; }
+
 // Capture keeps a finger bound to its control when it slides off; it may fail
 // for pointers the browser no longer tracks, which must not drop the input.
 function capture(element, id) { try { element.setPointerCapture?.(id); } catch { /* Input still works without capture. */ } }
@@ -28,7 +36,7 @@ export function createTouchControls({ root, buttons }) {
   const lookZone = document.createElement('div'); lookZone.className = 'touch-look-zone';
   const pad = document.createElement('div'); pad.className = 'touch-buttons';
   element.append(lookZone, stickZone, pad);
-  const held = new Set(), down = new Set();
+  const held = new Set(), down = new Set(), latches = new Map();
   let stick = null, look = null, move = [0, 0], lookDelta = [0, 0], previous = new Set();
 
   for (const spec of buttons) {
@@ -36,11 +44,20 @@ export function createTouchControls({ root, buttons }) {
     button.type = 'button'; button.className = `touch-button ${spec.className ?? ''}`; button.dataset.action = spec.action;
     button.textContent = spec.label;
     const pointers = new Set();
+    if (spec.latch) latches.set(spec.action, button);
     button.addEventListener('pointerdown', event => {
-      event.preventDefault(); event.stopPropagation(); capture(button, event.pointerId);
+      event.preventDefault(); event.stopPropagation();
+      if (spec.latch) {
+        const tap = latchTap(held.has(spec.action));
+        if (tap.press) { held.add(spec.action); down.add(spec.action); } else held.delete(spec.action);
+        button.classList.toggle('latched', tap.latched); buzz(tap.press ? 10 : 6);
+        return;
+      }
+      capture(button, event.pointerId);
       pointers.add(event.pointerId); held.add(spec.action); down.add(spec.action); button.classList.add('active'); buzz(10);
     });
     const up = event => {
+      if (spec.latch) return;
       pointers.delete(event.pointerId);
       if (!pointers.size) { held.delete(spec.action); button.classList.remove('active'); }
     };
@@ -85,10 +102,17 @@ export function createTouchControls({ root, buttons }) {
     setVisible(visible) { element.hidden = !visible; if (!visible) this.suspend(); },
     // One-frame press from another on-screen element (the finisher prompt).
     press(action) { if (element.hidden) return; down.add(action); buzz(25); },
+    // active: { action: cable still hooked } from the page after each step.
+    sync(active) {
+      for (const [action, button] of latches) {
+        if (!held.has(action) || latchSync(true, active?.[action])) continue;
+        held.delete(action); button.classList.remove('latched');
+      }
+    },
     suspend() {
       held.clear(); down.clear(); previous = new Set(); stick = null; look = null; move = [0, 0]; lookDelta = [0, 0];
       base.hidden = true; knob.style.transform = '';
-      for (const b of pad.children) b.classList.remove('active');
+      for (const b of pad.children) b.classList.remove('active', 'latched');
     },
     sample() {
       const frame = emptyFrame();
