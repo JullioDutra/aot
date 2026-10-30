@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { toon } from '../character-model.js';
 import { createFieldChapter } from './field-chapter.js';
+import { standHeight } from '../collision.js';
 import { createGunmen } from './gunmen.js';
 import { castExtra } from './extras.js';
 import { strikeOutcome } from './act8-rules.js';
@@ -20,6 +21,10 @@ export function createChapter(args) {
     const box = (m, x, y, z, w, h, d, solid = true) => { const b = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), m); b.position.set(x, y, z); b.castShadow = b.receiveShadow = true; port.add(b); if (solid) world.colliders.push({ minX: x - w / 2, maxX: x + w / 2, minZ: z - d / 2, maxZ: z + d / 2, top: y + h / 2 }); return b; };
     box(concrete, 0, .5, -40, 220, 1, 30, false);
     for (const x of [-40, 0, 40]) box(wood, x, .6, -80, 8, .4, 60, false);
+    // The quay (top 1 m) and the piers (0.8 m) are walked on: they set the
+    // ground height and the pilot lands on them, without walling walkers off.
+    const decks = [{ minX: -110, maxX: 110, minZ: -55, maxZ: -25, top: 1 }, ...[-40, 0, 40].map(x => ({ minX: x - 4, maxX: x + 4, minZ: -110, maxZ: -50, top: .8 }))];
+    stage.ground = (x, z) => standHeight(decks, x, z);
     [[-60, 0], [-24, 4], [24, 2], [62, -2]].forEach(([x, z]) => box(concrete, x, 7, z, 22, 14, 16));
     // The seaplane moored at the end of the middle pier.
     const plane = new THREE.Group(); plane.position.set(PLANE[0], 2, PLANE[1]); ctx.scene.add(plane);
@@ -27,7 +32,7 @@ export function createChapter(args) {
     const wing = new THREE.Mesh(new THREE.BoxGeometry(22, .3, 2.6), toon('#b8b0a0')); wing.position.y = 1.4; plane.add(wing);
     for (const s of [-1, 1]) { const flt = new THREE.Mesh(new THREE.BoxGeometry(1, .8, 6), toon('#8a8478')); flt.position.set(s * 4, -1.6, 0); plane.add(flt); }
     const mikasa = ctx.cast('mikasa', 'mikasa', 0, 0, 0, { blades: true });
-    const pilot = ctx.usePilot(mikasa.rig); pilot.place(ALLY[0] + 6, 0, ALLY[1] - 4, Math.PI * .9);
+    const pilot = ctx.usePilot(mikasa.rig, { colliders: [...world.colliders, ...decks] }); pilot.place(ALLY[0] + 6, stage.ground(ALLY[0] + 6, ALLY[1] - 4), ALLY[1] - 4, Math.PI * .9);
     const allies = ['armin', 'jean', 'connie', 'hange'].map((id, i) => ctx.cast(id, id, ALLY[0] + i * 2, ALLY[1] + (i % 2) * 2, Math.PI));
     const gunmen = createGunmen(stage, { colliders: world.colliders });
     const posts = [[-50, -12], [-14, -18], [10, -20], [36, -14], [58, -24], [-34, -30], [20, -34]];
@@ -92,7 +97,7 @@ export function createChapter(args) {
         return `Gás ${Math.round(pilot.odm.player.gas)}% · Corredores detidos ${runners.filter(r => r.down).length} / 4`;
       },
       restore(snapshot) {
-        if (snapshot?.mission === 'cais') { allyHits = 0; pilot.place(ALLY[0] + 6, 0, ALLY[1] - 4, Math.PI * .9); }
+        if (snapshot?.mission === 'cais') { allyHits = 0; pilot.place(ALLY[0] + 6, stage.ground(ALLY[0] + 6, ALLY[1] - 4), ALLY[1] - 4, Math.PI * .9); }
         if (snapshot?.mission === 'aviao') { runners.forEach(r => { r.a.rig.root.visible = false; }); runners.length = 0; reached = false; }
       },
       challenges: () => (ctx.goals.has('aviao') && killed === 0 ? [ctx.data.challenges[0]] : []),

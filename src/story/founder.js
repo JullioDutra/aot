@@ -13,8 +13,11 @@ export function createFounder(scene, world) {
   const tagged = (mesh, tag) => { mesh.userData.tag = tag; mesh.castShadow = true; group.add(mesh); return mesh; };
   const vertebrae = [];
   for (let z = FOUNDER.from, i = 0; z > FOUNDER.to; z -= 9, i++) {
-    const v = tagged(new THREE.Mesh(new THREE.CylinderGeometry(FOUNDER.radius, FOUNDER.radius * 1.1, 7, 10), bone), 'bone');
+    const v = tagged(new THREE.Mesh(new THREE.CylinderGeometry(FOUNDER.radius, FOUNDER.radius, 7, 10), bone), 'bone');
     v.rotation.x = Math.PI / 2; v.position.set(Math.sin(i * .3) * 2, FOUNDER.y, z); vertebrae.push(v);
+    // A flat dorsal plate, flush with the collider top and as long as the
+    // spacing, so whoever stands on the spine stands on bone, not inside it.
+    const plate = tagged(new THREE.Mesh(new THREE.BoxGeometry(8, .8, 9), bone), 'bone'); plate.position.set(v.position.x, FOUNDER.y + FOUNDER.radius - .4, z);
     const spike = tagged(new THREE.Mesh(new THREE.ConeGeometry(1.6, 7, 6), bone), 'bone'); spike.position.set(v.position.x, FOUNDER.y + 7, z);
     world.colliders.push({ minX: v.position.x - FOUNDER.radius, maxX: v.position.x + FOUNDER.radius, minZ: z - 4.5, maxZ: z + 4.5, top: FOUNDER.y + FOUNDER.radius, bottom: FOUNDER.y - FOUNDER.radius, tag: 'bone' });
     if (i % 2 === 0) for (const s of [-1, 1]) {
