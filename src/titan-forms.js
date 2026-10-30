@@ -37,8 +37,18 @@ function muscleTexture(tone) {
 // Titan faces: staring eyes, grins and teeth drawn on a front patch.
 function titanFace(spec) {
   return canvasTexture(`titan-face-${spec.id}`, 512, (c) => {
-    const f = spec.face;
+    const f = spec.face, k = spec.kind;
     const eyeY = 232, eyeX = 122 * (f.eyeSpread ?? 1), eyeR = 62 * (f.eyeSize ?? 1);
+    // Shading: sunken sockets, cheekbones and the jaw line give the faces the
+    // heavy, too-human look of the anime instead of flat stickers.
+    const shade = (x, y, rx, ry, alpha) => { const g = c.createRadialGradient(x, y, 0, x, y, Math.max(rx, ry)); g.addColorStop(0, `rgba(60,25,20,${alpha})`); g.addColorStop(1, 'rgba(60,25,20,0)'); c.save(); c.translate(x, y); c.scale(rx / Math.max(rx, ry), ry / Math.max(rx, ry)); c.translate(-x, -y); c.fillStyle = g; c.beginPath(); c.arc(x, y, Math.max(rx, ry), 0, Math.PI * 2); c.fill(); c.restore(); };
+    for (const s of [-1, 1]) {
+      shade(256 + s * eyeX, eyeY - 6, eyeR * 1.9, eyeR * 1.5, k === 'attack' || k === 'colossal' ? .55 : .3);
+      shade(256 + s * (eyeX + 40), 340, 70, 50, .18);
+    }
+    if (k === 'attack' || f.brows === 'angry') { c.fillStyle = 'rgba(40,18,14,.45)'; c.beginPath(); c.moveTo(256 - eyeX - eyeR * 1.6, eyeY - eyeR * 1.2); c.quadraticCurveTo(256, eyeY - eyeR * .55, 256 + eyeX + eyeR * 1.6, eyeY - eyeR * 1.2); c.lineTo(256 + eyeX + eyeR * 1.6, eyeY - eyeR * 1.8); c.lineTo(256 - eyeX - eyeR * 1.6, eyeY - eyeR * 1.8); c.fill(); }
+    // Female: bands of exposed muscle around the eyes and down the nose.
+    if (k === 'female') { c.strokeStyle = 'rgba(170,60,55,.55)'; c.lineWidth = 7; for (const s of [-1, 1]) for (let i = 0; i < 4; i++) { c.beginPath(); c.ellipse(256 + s * eyeX, eyeY, eyeR * (1.45 + i * .14), eyeR * (1.15 + i * .12), 0, Math.PI * (s > 0 ? .9 : -1.1), Math.PI * (s > 0 ? 2.1 : .1)); c.stroke(); } }
     for (const s of [-1, 1]) {
       c.save(); c.translate(256 + s * eyeX, eyeY);
       c.fillStyle = f.lids ?? '#00000030'; c.beginPath(); c.ellipse(0, 0, eyeR * 1.35, eyeR * 1.05, 0, 0, Math.PI * 2); c.fill();
@@ -50,21 +60,33 @@ function titanFace(spec) {
       if (f.brows) { c.lineWidth = 12; c.beginPath(); c.moveTo(-eyeR * 1.1, -eyeR * 1.15 - s * 0); c.lineTo(eyeR * 1.1, -eyeR * (f.brows === 'angry' ? .7 : 1.25)); c.stroke(); }
       c.restore();
     }
-    // Nose
-    c.strokeStyle = '#6b4535'; c.lineWidth = 6; c.beginPath(); c.moveTo(256, 260); c.lineTo(256 - 14 * (f.nose ?? 1), 330 + 30 * ((f.nose ?? 1) - 1)); c.lineTo(256 + 10, 336 + 30 * ((f.nose ?? 1) - 1)); c.stroke();
+    // Nose: bridge, nostrils; the Colossal has only the bare cavity.
+    if (k === 'colossal') { c.fillStyle = '#2a0e0c'; for (const s of [-1, 1]) { c.beginPath(); c.ellipse(256 + s * 16, 320, 11, 30, s * .2, 0, Math.PI * 2); c.fill(); } }
+    else {
+      const n = f.nose ?? 1;
+      c.strokeStyle = '#6b4535'; c.lineWidth = 6; c.beginPath(); c.moveTo(256, 260); c.lineTo(256 - 14 * n, 330 + 30 * (n - 1)); c.lineTo(256 + 10, 336 + 30 * (n - 1)); c.stroke();
+      c.fillStyle = '#4a2a22'; for (const s of [-1, 1]) { c.beginPath(); c.ellipse(256 + s * 16 * n, 338 + 30 * (n - 1), 9 * n, 5 * n, 0, 0, Math.PI * 2); c.fill(); }
+    }
     // Mouth: a grin with teeth, or a lipless jaw that shows teeth to the hinge.
     const mw = 175 * (f.grin ?? .6), my = 405;
     if (f.lipless) {
       c.fillStyle = '#5a1f1c'; c.beginPath(); c.ellipse(256, my, 210, 44, 0, 0, Math.PI * 2); c.fill();
       c.fillStyle = '#efe6cf'; for (let i = -9; i <= 9; i++) { c.fillRect(256 + i * 22 - 9, my - 34, 18, 30); c.fillRect(256 + i * 22 - 9, my + 4, 18, 30); }
       c.strokeStyle = '#7d2f28'; c.lineWidth = 4; for (let i = -9; i <= 9; i++) { c.beginPath(); c.moveTo(256 + i * 22, my - 60); c.lineTo(256 + i * 22 * 1.08, my - 38); c.stroke(); }
+      // Cheek muscle fibers from the corners of the mouth toward the ears.
+      c.strokeStyle = 'rgba(150,50,45,.75)'; c.lineWidth = 5;
+      for (const s of [-1, 1]) for (let i = 0; i < 6; i++) { c.beginPath(); c.moveTo(256 + s * 200, my - 30 + i * 12); c.quadraticCurveTo(256 + s * 236, my - 60 + i * 8, 256 + s * 250, my - 110 + i * 10); c.stroke(); }
     } else if (f.grin > .3) {
       c.fillStyle = '#3e1d19'; c.beginPath(); c.moveTo(256 - mw, my - 10); c.quadraticCurveTo(256, my + 70 * f.grin, 256 + mw, my - 10); c.quadraticCurveTo(256, my + 20, 256 - mw, my - 10); c.fill();
       c.fillStyle = '#eee4cd'; const teeth = Math.round(10 * f.grin + 4);
       for (let i = 0; i < teeth; i++) { const t = (i + .5) / teeth, x = 256 - mw + t * mw * 2, depth = Math.sin(t * Math.PI); c.fillRect(x - mw / teeth + 2, my - 8 + depth * 8, mw * 2 / teeth - 4, 18 + depth * 14 * f.grin); }
       c.strokeStyle = '#2a1410'; c.lineWidth = 5; c.beginPath(); c.moveTo(256 - mw - 10, my - 18); c.quadraticCurveTo(256, my + 76 * f.grin, 256 + mw + 10, my - 18); c.stroke();
+      c.strokeStyle = '#a0584a'; c.lineWidth = 9; c.beginPath(); c.moveTo(256 - mw - 6, my - 14); c.quadraticCurveTo(256, my + 84 * f.grin, 256 + mw + 6, my - 14); c.stroke();
+      c.lineWidth = 6; c.beginPath(); c.moveTo(256 - mw * .8, my - 4); c.quadraticCurveTo(256, my - 18, 256 + mw * .8, my - 4); c.stroke();
     } else {
-      c.strokeStyle = '#4a2621'; c.lineWidth = 8; c.beginPath(); c.moveTo(256 - mw, my); c.quadraticCurveTo(256, my + 10, 256 + mw, my); c.stroke();
+      // Closed mouth: a wide flat line with a lower lip shadow.
+      const cw = Math.max(mw, 70); c.strokeStyle = '#4a2621'; c.lineWidth = 8; c.beginPath(); c.moveTo(256 - cw, my); c.quadraticCurveTo(256, my + 10, 256 + cw, my); c.stroke();
+      c.strokeStyle = 'rgba(120,60,50,.35)'; c.lineWidth = 10; c.beginPath(); c.moveTo(256 - cw * .6, my + 20); c.quadraticCurveTo(256, my + 30, 256 + cw * .6, my + 20); c.stroke();
     }
     if (f.beard) { c.fillStyle = f.beard; c.globalAlpha = .95; c.beginPath(); c.moveTo(110, 330); c.quadraticCurveTo(256, 560, 402, 330); c.quadraticCurveTo(330, 380, 256, 372); c.quadraticCurveTo(182, 380, 110, 330); c.fill(); c.globalAlpha = 1; }
     if (f.creases) { c.strokeStyle = '#00000035'; c.lineWidth = 4; for (const s of [-1, 1]) { c.beginPath(); c.moveTo(256 + s * 110, 320); c.quadraticCurveTo(256 + s * 150, 380, 256 + s * (mw + 30), 430); c.stroke(); } }

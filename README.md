@@ -420,6 +420,10 @@ Os rostos são desenhados em 512 px com proporções de anime: olhos maiores, co
 
 O elenco do Modo História se veste de acordo com a fase (`src/campaign/wardrobe.js`, com testes). **845:** crianças e roupas civis. **Fases 4–12:** o 104º veste o uniforme de cadete (espadas cruzadas, sem capa) até Trost. **Fases 13–34:** Tropa de Exploração com a capa verde; Annie usa o uniforme da Polícia Militar (emblema do unicórnio) até Stohess, e Historia veste roupa de rainha a partir da coroação. **Fases 35–47 (854):** o novo uniforme escuro de Paradis, com casaco longo, para a Tropa; Eren com cabelo comprido, barba por fazer, olheiras e casaco civil; Mikasa com a cicatriz embaixo do olho; Reiner com o uniforme de Marley e a braçadeira. **Marcas no tempo:** Hange com tapa-olho a partir da fase 32; Levi com os cortes no rosto depois da explosão da lança (fase 40 em diante). O shell do Modo História informa a fase ao kit (`setChapterEra`), então todas as fases aplicam isso sozinhas. A galeria ganhou o seletor **época**, e o quadro "prontos para a batalha" da página inicial mostra os dois ainda cadetes.
 
+## Rostos dos titãs — fase 41
+
+Os rostos dos titãs (`src/titan-forms.js`) ganharam sombreamento: órbitas fundas, maçãs do rosto e linha da mandíbula, narinas, e lábios em volta do sorriso dos titãs puros. As bocas fechadas ficaram largas, com a sombra do lábio inferior. **Titã de Ataque:** sombra pesada da testa sobre olhos verdes fundos e as fibras do músculo da bochecha dos cantos da boca até a orelha. **Colossal:** só a cavidade do nariz, sem cartilagem. **Fêmea:** faixas de músculo exposto em volta dos olhos. A galeria mostra o rosto de cada titã de perto (caixa "rosto" no modo titãs).
+
 ## Co-op local — fase 24
 
 `coop.html` (no Modo História, em "Fora da continuidade") é um modo em tela dividida para dois jogadores, fora da história canônica. A dupla escolhe personagens do elenco e precisa limpar um campo de 12 titãs em 4 minutos usando ODM.
