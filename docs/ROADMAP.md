@@ -158,6 +158,10 @@ Fases 16 (arpões, nuca endurecida, o grito e a fuga), 17 (a queda do esquadrão
 
 Muralha Rose e torre de Utgard no mundo de campo; fases 19 (Mike, o arco de Sasha, Ragako), 20 (o cerco da torre e Ymir), 21 (a confissão na muralha), 22 (o duelo contra o Blindado, os joelhos e a chave de braço), 23 (a carga de Erwin e a extração) e 24 (Hannes e o grito). O Ato IV está jogável por inteiro.
 
+## Entrega intermediária 31 — A revolta
+
+Atiradores humanos com linha de visada; fases 25 (o bar e os telhados), 26 (a troca, a investigação e o golpe), 27 (a caverna de cristal e o endurecimento) e 28 (Orvud, os barris, Historia, Kenny e a coroação). O Ato V está jogável por inteiro.
+
 ## Marco 4 — demonstração de produção
 
 Uma operação de 15–20 minutos com arte e animação próprias de produção, referências verificadas, missão legível, resgate, abastecimento, destruição controlada e conclusão narrativa. Não será construída a campanha completa antes da aprovação desse marco.
