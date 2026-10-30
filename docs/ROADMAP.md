@@ -206,6 +206,10 @@ Rostos de titã com órbitas fundas, narinas, lábios, fibras da bochecha no Tit
 
 Mira assistida larga no toque, FINALIZAR tocável, lâmina pulsando na janela de finalização, botões maiores e vibração.
 
+## Entrega intermediária 43 — Cenários
+
+Floresta com musgo, galhos, samambaias e fachos de luz; muralhas de Trost com faixas, contrafortes, trilhos, arcos e estandartes; Liberio em tijolo, ardósia e concreto.
+
 ## Fidelidade e jogabilidade (entregas 36–43)
 
 Pedido após a campanha completa: equipamento com a sensação do anime, personagens e titãs mais parecidos, cenários mais fiéis, celular melhor e uma página inicial que apresente o jogo. Tudo continua gerado em código, sem modelos, imagens ou músicas oficiais.

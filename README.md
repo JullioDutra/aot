@@ -428,6 +428,10 @@ Os rostos dos titãs (`src/titan-forms.js`) ganharam sombreamento: órbitas fund
 
 No toque, a mira dos cabos procura num raio maior em volta de cada retícula (`src/aim-assist.js`, com testes): três anéis de oito pontos, do mais perto para o mais longe, em vez dos cinco pontos do mouse. Isso vale em Trost, no Modo História e na carga da fase 32. O botão **FINALIZAR** sobre a nuca é tocável e fica acima da camada de toque; enquanto a janela de finalização está aberta, o botão LÂMINA brilha e pulsa. Os botões passaram a 70 px (60 px em telas baixas), e cada toque dá uma vibração curta onde o aparelho permite. A página inicial (fase 36) já mostra os comandos de toque em "como jogar".
 
+## Cenários — fase 43
+
+**Floresta das árvores gigantes:** chão sombreado sob as copas, musgo subindo o tronco, três galhos grossos por árvore gigante (são ancoragens, como no anime), samambaias entre os troncos e fachos de luz atravessando as copas (só visuais, sem gancho). **Muralhas de Trost:** faixas de pedra e contrafortes na face interna, trilhos dos canhões no alto, arco com pilares e chave em cada portão e estandartes da Guarnição com o emblema das rosas. **Liberio** (fases 36–38): a cidade murada troca o reboco e a telha por tijolo, ardósia e um muro de concreto, com bandeiras vermelhas e brancas. Os detalhes não acrescentam colisões, então as rotas das fases não mudam. Para revisão, `__STORY__.debug('shot', [x, y, z], [x, y, z])` enquadra uma câmera fixa.
+
 ## Co-op local — fase 24
 
 `coop.html` (no Modo História, em "Fora da continuidade") é um modo em tela dividida para dois jogadores, fora da história canônica. A dupla escolhe personagens do elenco e precisa limpar um campo de 12 titãs em 4 minutos usando ODM.

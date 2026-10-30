@@ -9,10 +9,10 @@ import { createStage, createWalker, createOdmPilot, createHorde, createTitanPilo
 //   plan(ctx) → { script, par, start(), handlers, update(dt, input, mode, view) → fail?,
 //                 status(), challenges(), checkpoint(), restore(snapshot), debug, snapshot() }
 // Stohess (chapter 18) reuses the city with its gate intact: options.breach.
-export function createTrostChapter({ scene, camera, ui, audio, data, number }, plan, { breach = number > 6, sky = '#c8d3d4', fog = [180, 640], light, hemi } = {}) {
+export function createTrostChapter({ scene, camera, ui, audio, data, number }, plan, { breach = number > 6, sky = '#c8d3d4', fog = [180, 640], light, hemi, liberio = number >= 36 && number <= 38 } = {}) {
   document.body.classList.add('combat-chapter');
   const stage = createStage({ scene, camera, ui, audio, sky, fog, sun: [-120, 170, 90], shadow: 170, ...(light ? { light } : {}), ...(hemi ? { hemi } : {}) });
-  const world = createTrost(scene);
+  const world = createTrost(scene, { liberio });
   stage.ground = (x, z) => 0;
   // The Colossal kicked the gate in chapter 6; later chapters start with the breach.
   if (breach) world.breakGate();
@@ -75,6 +75,8 @@ export function createTrostChapter({ scene, camera, ui, audio, data, number }, p
         else if ((control === 'titan' || control === 'carry') && ctx.titan) ctx.titan.place(x, z);
         else if (ctx.player) ctx.onRoof(ctx.player, x, z);
       },
+      // Review hook: frame a fixed camera shot.
+      shot(position, target, fov = 55) { stage.setShot(position, target, fov); },
       // Test hook: put the pilot just behind a living titan's nape, flying at it.
       finisher() {
         const t = horde.alive().find(x => x.titan.root.visible); if (!t || !ctx.pilot) return false;
