@@ -18,19 +18,19 @@ export const FIELD = Object.freeze({
 
 const rng = seed => () => { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; };
 
-export function createField(scene, { outline = true, forest = true, castle = true, village = true, wall = false, tower = false, seed = 77 } = {}) {
+export function createField(scene, { outline = true, forest = true, castle = true, village = true, wall = false, tower = false, trees = true, ground: groundColor = '#93a06a', seed = 77 } = {}) {
   const group = new THREE.Group(); scene.add(group);
   const colliders = [], anchorRoots = [], trunks = [];
   const line = outline ? outlineMaterial(.06) : null;
   const rand = rng(seed);
   const mat = {
-    grass: toon('#93a06a'), meadow: toon('#a8ae74'), path: toon('#b4a67f'), bark: toon('#6a4e38'), barkDark: toon('#5a3f2d'),
+    grass: toon(groundColor), meadow: toon('#a8ae74'), path: toon('#b4a67f'), bark: toon('#6a4e38'), barkDark: toon('#5a3f2d'),
     leaves: [toon('#4d6b3a'), toon('#5b7a40'), toon('#456236')], stone: toon('#9d968a'), stoneDark: toon('#7f786d'), roof: toon('#6e4436'), plaster: toon('#d8ccb2'), timber: toon('#5b3f2b'),
   };
   const ground = new THREE.Mesh(new THREE.PlaneGeometry(1800, 1800), mat.grass); ground.rotation.x = -Math.PI / 2; ground.receiveShadow = true; group.add(ground);
-  const trail = new THREE.Mesh(new THREE.PlaneGeometry(FIELD.road * 2, 1200), mat.path); trail.rotation.x = -Math.PI / 2; trail.position.set(0, .02, -260); trail.receiveShadow = true; group.add(trail);
+  if (trees) { const trail = new THREE.Mesh(new THREE.PlaneGeometry(FIELD.road * 2, 1200), mat.path); trail.rotation.x = -Math.PI / 2; trail.position.set(0, .02, -260); trail.receiveShadow = true; group.add(trail); }
   // Patches of lighter meadow break up the plain.
-  for (let i = 0; i < 26; i++) { const p = new THREE.Mesh(new THREE.CircleGeometry(20 + rand() * 40, 12), mat.meadow); p.rotation.x = -Math.PI / 2; p.position.set((rand() - .5) * 900, .01, 250 - rand() * 560); p.receiveShadow = true; group.add(p); }
+  if (trees) for (let i = 0; i < 26; i++) { const p = new THREE.Mesh(new THREE.CircleGeometry(20 + rand() * 40, 12), mat.meadow); p.rotation.x = -Math.PI / 2; p.position.set((rand() - .5) * 900, .01, 250 - rand() * 560); p.receiveShadow = true; group.add(p); }
   const solid = (minX, maxX, minZ, maxZ, top, tag) => { const c = { minX, maxX, minZ, maxZ, top, tag }; colliders.push(c); return c; };
 
   const buckets = new Map(); const push = (m, g) => { if (!buckets.has(m)) buckets.set(m, []); buckets.get(m).push(g); };
@@ -63,7 +63,7 @@ export function createField(scene, { outline = true, forest = true, castle = tru
   // Giants right at the edge of the trail.
   if (forest) for (let z = -360; z > -700; z -= 46) { const side = rand() > .5 ? 1 : -1; const pz = z + rand() * 10; if (Math.abs(pz - FIELD.clearing[1]) > FIELD.clearingRadius + 8) tree(side * (FIELD.road + 3 + rand() * 2), pz, 70 + rand() * 16, 2.2, true); }
   // Lone trees on the plain: few anchors, as the chapter warns.
-  for (let i = 0; i < 60; i++) {
+  if (trees) for (let i = 0; i < 60; i++) {
     const x = (rand() - .5) * 1300, z = 240 - rand() * 540;
     if (Math.abs(x) < 14 || (castle && Math.hypot(x - FIELD.castle[0], z - FIELD.castle[1]) < 40) || (tower && Math.hypot(x - FIELD.tower[0], z - FIELD.tower[1]) < 45)) continue;
     tree(x, z, 11 + rand() * 7, .5 + rand() * .25, false);
