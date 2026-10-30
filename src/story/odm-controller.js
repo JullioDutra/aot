@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { cableAcceleration, clamp } from '../mechanics.js';
 import { resolveMotion } from '../collision.js';
+import { orbitControl } from '../titan-hook.js';
 
 // Omni-directional mobility gear for story chapters. Same physics as Trost
 // (pull-only cables, gas boost, drag, collisions) with one addition: a cable
@@ -58,12 +59,18 @@ export function createOdm({ scene, camera, colliders = [], anchorRoots = [], gas
     const forward = new THREE.Vector3(Math.sin(yaw), 0, -Math.cos(yaw)), right = new THREE.Vector3(Math.cos(yaw), 0, Math.sin(yaw));
     const move = new THREE.Vector3().addScaledVector(right, input.move[0]).addScaledVector(forward, -input.move[1]);
     if (move.lengthSq() > 1) move.normalize();
-    const acc = new THREE.Vector3(0, -22, 0).addScaledVector(move, player.grounded ? 55 : 14);
+    // On a cable in the air, sideways input swings around the anchor and
+    // forward/back reels the cable; otherwise input steers relative to the camera.
+    const swinging = attached && !player.grounded, anchor = new THREE.Vector3();
+    if (swinging) { let n = 0; for (const hook of hooks) if (hook.active) { anchor.add(hook.point); n++; } anchor.divideScalar(n); }
+    const orbit = swinging ? orbitControl(player.position.toArray(), anchor.toArray(), input.move) : null;
+    const acc = new THREE.Vector3(0, -22, 0);
+    if (orbit) acc.add(new THREE.Vector3(...orbit.acceleration)); else acc.addScaledVector(move, player.grounded ? 55 : 14);
     if (input.jump && player.grounded) { player.velocity.y = 10; player.grounded = false; }
     for (const hook of hooks) {
       if (!hook.active) continue;
       if (player.gas <= 0) { releaseAll(); break; }
-      hook.length = Math.max(2.5, hook.length - dt * (boost ? 16 : 8));
+      hook.length = Math.max(2.5, hook.length - dt * (boost ? 16 : 8) + dt * (orbit?.reel ?? 0));
       acc.add(new THREE.Vector3(...cableAcceleration(player.position.toArray(), player.velocity.toArray(), hook.point.toArray(), hook.length, boost)));
     }
     if (attached) { player.gas = Math.max(0, player.gas - dt * (boost ? 5 : 1.2)); if (boost) acc.addScaledVector(new THREE.Vector3(Math.sin(yaw) * Math.cos(input.pitch), Math.sin(input.pitch), -Math.cos(yaw) * Math.cos(input.pitch)), 16); }
@@ -84,5 +91,8 @@ export function createOdm({ scene, camera, colliders = [], anchorRoots = [], gas
     return { attached, boost };
   }
 
-  return { player, hooks, aim, attach, release, releaseAll, step, hookWorld };
+  // True when an active cable is hooked somewhere inside root (a titan).
+  function hookedTo(root) { return hooks.some(h => { if (!h.active) return false; for (let o = h.object; o; o = o.parent) if (o === root) return true; return false; }); }
+
+  return { player, hooks, aim, attach, release, releaseAll, step, hookWorld, hookedTo };
 }

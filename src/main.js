@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import './style.css';
 import { createWorld, createCadet, createTitan } from './world.js';
 import { createGamepadInput } from './gamepad-input.js';
-import { initialProfile, nextProfile, mergeFrames, defaultQuality, toggleFullscreen, fullscreenState, localizeKeys } from './platform.js';
+import { initialProfile, nextProfile, mergeFrames, defaultQuality, toggleFullscreen, fullscreenState, localizeKeys, prompt as inputPrompt } from './platform.js';
 import { createTouchControls } from './touch-controls.js';
 import './touch-controls.css';
 import { createGraphicsQuality } from './graphics-quality.js';
@@ -16,6 +16,7 @@ import { resolveMotion, segmentObstructed } from './collision.js';
 import { stepEscort, escortPosition, escortProgress, ESCORT_ROUTE } from './civilian-escort.js';
 import { animateCivilians } from './civilian-model.js';
 import { selectAnchor } from './targeting.js';
+import { orbitControl, finisherWindow } from './titan-hook.js';
 import { LOCATIONS, createMission, missionStage, missionObjective, advanceMission, createCheckpoint, checkpointSpawn, loadCheckpoint, saveCheckpoint } from './trost-mission.js';
 
 const $ = id => document.getElementById(id);
@@ -124,7 +125,7 @@ const boosting = () => keys.has('Space') || !!padFrame.held.jump;
 const hooks = [-1, 1].map(side => {
   const line = new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(), new THREE.Vector3()]), new THREE.LineBasicMaterial({ color: '#e5ddbf' })); line.visible = false; line.frustumCulled = false; scene.add(line);
   const tip = new THREE.Mesh(new THREE.OctahedronGeometry(.16), new THREE.MeshBasicMaterial({ color: '#ead5a5' })); tip.visible = false; scene.add(tip);
-  return { side, point: new THREE.Vector3(), length: 0, active: false, line, tip, releasedBy: null };
+  return { side, point: new THREE.Vector3(), length: 0, active: false, line, tip, releasedBy: null, object: null, local: null, titan: null };
 });
 const particleGeometry = new THREE.SphereGeometry(1, 6, 4);
 const particleMaterials = { steam: new THREE.MeshBasicMaterial({ color: '#e3e6da', transparent: true, opacity: .3, depthWrite: false }), spark: new THREE.MeshBasicMaterial({ color: '#ffe1a0', transparent: true }), blood: new THREE.MeshBasicMaterial({ color: '#943f31', transparent: true }) };
@@ -151,14 +152,14 @@ function playTitanSound(kind, source) {
   titanAudio.play(kind, mix.distance, mix.pan, mix.level);
 }
 function toast(message, duration = 3) { $('toast').textContent = localizeKeys(message, inputProfile); $('toast').classList.add('visible'); toastTime = duration; }
-function releaseHook(h, reason = 'manual') { h.active = false; h.line.visible = h.tip.visible = false; h.releasedBy = reason; }
+function releaseHook(h, reason = 'manual') { h.active = false; h.line.visible = h.tip.visible = false; h.releasedBy = reason; h.object = h.titan = null; }
 function clearHooks() { hooks.forEach(h => releaseHook(h)); }
 function clearInput() { gamepadInput.suspend(); touch.suspend(); padFrame = { ...padFrame, move: [0, 0], look: [0, 0], held: {}, pressed: {} }; keys.clear(); dragging = false; jumpQueued = false; clearHooks(); }
 function lockMouse() {
   try { const result = canvas.requestPointerLock?.(); result?.catch(() => toast('Arraste a cena para olhar; Q/E continuam prendendo os cabos.')); } catch { toast('Arraste a cena para controlar a câmera.'); }
 }
 function start(lock = true) {
-  $('landing').hidden = true; $('operation-card').hidden = true; $('landing-footer').hidden = true; $('pause').hidden = true; $('result').hidden = true; $('hud').hidden = false;
+  $('home').hidden = true; $('landing').hidden = true; $('operation-card').hidden = true; $('landing-footer').hidden = true; $('pause').hidden = true; $('result').hidden = true; $('hud').hidden = false;
   document.body.classList.add('playing'); mode = 'playing'; clearInput();
   void titanAudio.start(); audioContext = titanAudio.context; syncInputProfile();
   if (inputProfile === 'touch') { if (!fullscreenState(document).active) void toggleFullscreen(document, document.documentElement); } else if (lock) lockMouse(); toast(`${missionObjective(mission).title}. ${missionObjective(mission).detail}`, 6);
@@ -189,7 +190,7 @@ function hookOrigin(side) {
 }
 function aimHit(index) {
   const other = hooks[1 - index];
-  return selectAnchor(camera, hookOrigin(hooks[index].side), hooks[index].side, world.anchors, world.colliders, assistedAnchors, other.active ? other.point : null);
+  return selectAnchor(camera, hookOrigin(hooks[index].side), hooks[index].side, world.anchors, world.colliders, assistedAnchors, other.active ? other.point : null, titans.filter(t => t.alive && t.root.visible).map(t => t.root));
 }
 function validateCables() {
   let blocked = false;
@@ -212,9 +213,24 @@ function attach(side) {
   if (player.gas < 1) { toast('Sem gás. Procure a caixa azul na praça e pressione R.'); return; }
   const h = hooks[side]; if (h.active) return;
   const hit = aimHit(side);
-  if (!hit) { toast('Mire em uma fachada, telhado ou muralha a até 90 m.', 1.8); return; }
+  if (!hit) { toast('Mire em uma fachada, telhado, muralha ou no corpo de um titã a até 90 m.', 1.8); return; }
+  h.object = hit.object; h.local = hit.object ? hit.object.worldToLocal(hit.point.clone()) : null; h.titan = hit.object ? titans.find(t => isInside(hit.object, t.root)) : null;
   h.point.copy(hit.point); h.length = Math.max(3, player.position.distanceTo(h.point) * .65); h.active = true; h.releasedBy = null; h.line.visible = h.tip.visible = true; h.tip.position.copy(h.point); player.gas -= .6; sound(720, .12, 'sawtooth', .025);
 }
+const isInside = (object, root) => { for (let o = object; o; o = o.parent) if (o === root) return true; return false; };
+// Cables hooked on a titan ride along with it and drop when it dies.
+function followHooks() {
+  for (const h of hooks) if (h.active && h.object) {
+    if (!h.titan?.alive) { releaseHook(h, 'titan'); continue; }
+    h.object.updateWorldMatrix(true, false); h.point.copy(h.local).applyMatrix4(h.object.matrixWorld); h.tip.position.copy(h.point);
+  }
+}
+// Behind the nape, close and fast (or hanging on that titan): the finisher.
+function finisherReady(t) {
+  if (!t.alive || !strikeAvailable(t, player.blades, true)) return false;
+  return finisherWindow(player.position.clone().setY(player.position.y + 1).toArray(), player.velocity.toArray(), napePosition.toArray(), [Math.sin(t.yaw), 0, Math.cos(t.yaw)], { blades: player.blades, onTitan: hooks.some(h => h.active && h.titan === t) }).ready;
+}
+let slowTime = 0;
 function attack() {
   if (mode !== 'playing' || bladeStrike.active) return;
   if (player.blades <= 0) { toast('Lâminas esgotadas. Abasteça na caixa azul com R.'); return; }
@@ -233,6 +249,7 @@ function resolveBladeImpact() {
       return;
     }
     if (strikeAvailable(t, 1)) { // This swing was already paid for at preparation.
+      if (finisherReady(t) || hooks.some(h => h.active && h.titan === t)) { slowTime = .5; particles(napePosition, 'steam', 10, 6); }
       t.alive = false; t.deathTime = 0; kills++; struck = true; particles(napePosition, 'spark', 12, 12); particles(napePosition, 'blood', 14, 7); playTitanSound('defeat', napePosition);
       missionEvent({ type: 'defeat', id: t.index });
       break;
@@ -309,18 +326,23 @@ function updateCivilians(dt) {
 }
 
 function integratePlayer(dt) {
+  followHooks();
   validateCables();
   const wasGrounded = player.grounded;
   const dir = new THREE.Vector3(Math.sin(yaw), 0, -Math.cos(yaw)); const right = new THREE.Vector3(Math.cos(yaw), 0, Math.sin(yaw));
   const move = new THREE.Vector3();
   if (keys.has('KeyW')) move.add(dir); if (keys.has('KeyS')) move.sub(dir); if (keys.has('KeyD')) move.add(right); if (keys.has('KeyA')) move.sub(right); move.addScaledVector(right, padFrame.move[0]); move.addScaledVector(dir, -padFrame.move[1]); if (move.lengthSq() > 1) move.normalize();
   const attached = hooks.some(h => h.active), boost = boosting() && attached && player.gas > 0;
-  const acc = new THREE.Vector3(0, -22, 0); acc.addScaledVector(move, wasGrounded ? 55 : 16);
+  // On a cable in the air, A/D swing around the anchor and W/S reel the cable.
+  const swing = attached && !wasGrounded ? [(keys.has('KeyD') ? 1 : 0) - (keys.has('KeyA') ? 1 : 0) + padFrame.move[0], (keys.has('KeyS') ? 1 : 0) - (keys.has('KeyW') ? 1 : 0) + padFrame.move[1]] : null;
+  const anchor = new THREE.Vector3(); if (swing) { const active = hooks.filter(h => h.active); for (const h of active) anchor.add(h.point); anchor.divideScalar(active.length); }
+  const orbit = swing ? orbitControl(player.position.toArray(), anchor.toArray(), swing) : null;
+  const acc = new THREE.Vector3(0, -22, 0); if (orbit) acc.add(new THREE.Vector3(...orbit.acceleration)); else acc.addScaledVector(move, wasGrounded ? 55 : 16);
   if (jumpQueued && wasGrounded) { player.velocity.y = 10; player.grounded = false; } jumpQueued = false;
   for (const hook of hooks) {
     if (!hook.active) continue;
     if (player.gas <= 0) { clearHooks(); toast('Gás esgotado. Procure o abastecimento.'); break; }
-    hook.length = Math.max(2.5, hook.length - dt * (boost ? 16 : 8));
+    hook.length = Math.max(2.5, hook.length - dt * (boost ? 16 : 8) + dt * (orbit?.reel ?? 0));
     acc.add(new THREE.Vector3(...cableAcceleration(player.position.toArray(), player.velocity.toArray(), hook.point.toArray(), hook.length, boost)));
   }
   if (attached) { player.gas = Math.max(0, player.gas - dt * (boost ? 5.5 : 1.4)); if (boost) acc.addScaledVector(forward(), 16); }
@@ -344,7 +366,7 @@ function updateTitans(dt, time, active) {
       if (t.deathTime > 5) t.root.visible = false; continue;
     }
     let walking = false;
-    if (active) {
+    if (active && !t.held) {
       const visible = !segmentObstructed(
         [t.root.position.x, t.height * .55, t.root.position.z],
         [player.position.x, player.position.y + 1, player.position.z], world.colliders, .05);
@@ -421,11 +443,12 @@ function updateHUD() {
   $('nape-marker').hidden = true;
   for (const t of titans) {
     if (!strikeAvailable(t)) continue;
-    const screen = napePosition.clone().project(camera);
+    const finisher = finisherReady(t), screen = napePosition.clone().project(camera);
     if (Math.abs(screen.x) <= 1 && Math.abs(screen.y) <= 1 && screen.z > -1 && screen.z < 1) {
       $('nape-marker').hidden = false; $('nape-marker').style.left = `${(screen.x + 1) * 50}%`; $('nape-marker').style.top = `${(1 - screen.y) * 50}%`;
     }
-    hint = 'NUCA EXPOSTA · CLIQUE PARA ATACAR'; break;
+    $('nape-marker').classList.toggle('finisher', finisher); $('nape-marker').querySelector('span').textContent = finisher ? `${inputPrompt(inputProfile, 'attack').toUpperCase()} · FINALIZAR` : 'NUCA';
+    hint = finisher ? 'FINALIZAÇÃO · ATAQUE AGORA' : 'NUCA EXPOSTA · CLIQUE PARA ATACAR'; break;
   }
   if (insideSupplyRadius(player.position.toArray(), world.supply.toArray())) hint = 'R · REABASTECER EQUIPAMENTO';
   if (!rescued && !mission.escort && player.position.distanceTo(world.rescue) < 9) hint = 'G · RESGATAR CIVIS';
@@ -504,7 +527,7 @@ function updateGamepad(dt) {
 
 let previousTime = performance.now(), uiTimer = 0;
 function animate(now) {
-  requestAnimationFrame(animate); const dt = Math.min((now - previousTime) / 1000, .05); previousTime = now; const time = now / 1000;
+  requestAnimationFrame(animate); let dt = Math.min((now - previousTime) / 1000, .05); previousTime = now; if (slowTime > 0) { slowTime -= dt; dt *= .35; } const time = now / 1000;
   updateGamepad(dt);
   waypoint.rotation.y = time * .7; world.extractionBeacon.visible = missionStage(mission) === 'extraction';
   world.marker.position.y = 5 + Math.sin(time * 2) * .3; world.marker.rotation.y = time;
@@ -547,4 +570,11 @@ function animate(now) {
 requestAnimationFrame(animate);
 
 // Read-only diagnostics are available for smoke tests; no teleport or combat cheats ship.
-window.__TROST__ = Object.freeze({ snapshot: () => ({ mode, audio: { ...titanAudio.snapshot(), activeTones: toneSources.size }, controller: { connected: padFrame.connected, armed: padFrame.armed }, inputProfile, touchVisible: !touch.element.hidden, fullscreen: fullscreenState(document), graphics: graphics.snapshot(), bladeStrike: { ...bladeStrike }, bladePhase: bladeStrikePhase(bladeStrike), elapsed, kills, rescued, mission: structuredClone(mission), stage: missionStage(mission), checkpoint: checkpoint ? structuredClone(checkpoint) : null, checkpointPersistent, escortStatus, civilianPosition: world.civilians.position.toArray(), grounded: player.grounded, yaw, pitch, assistedAnchors, fovEffect, health: player.health, gas: player.gas, blades: player.blades, position: player.position.toArray(), velocity: player.velocity.toArray(), hooks: hooks.map(h => ({ active: h.active, point: h.point.toArray(), releasedBy: h.releasedBy })), titans: titans.map(t => ({ alive: t.alive, napeProtected: napeProtected(t), guardWeight: napeGuardWeight(t), awareness: t.awareness ?? 'idle', memory: t.memory ?? 0, lastSeen: t.lastSeen ? [...t.lastSeen] : null, phase: t.phase, attackTimer: t.attackTimer, yaw: t.yaw, telegraphVisible: t.telegraph.visible, position: t.root.position.toArray() })), drawCalls: renderer.info.render.calls, triangles: renderer.info.render.triangles }) });
+// Test hooks: place the cadet, aim the camera at a point and read a nape.
+const debug = Object.freeze({
+  place(x, y, z, velocity = [0, 0, 0]) { player.position.set(x, y, z); player.velocity.fromArray(velocity); player.grounded = y <= 0; },
+  face(x, y, z) { const dx = x - player.position.x, dy = y - player.position.y - 1.1, dz = z - player.position.z; yaw = Math.atan2(dx, -dz); pitch = Math.atan2(dy, Math.hypot(dx, dz)); cameraInitialized = false; },
+  nape(i) { titans[i].root.updateWorldMatrix(true, true); return titans[i].nape.getWorldPosition(new THREE.Vector3()).toArray(); },
+  hold(i, still = true) { titans[i].held = still; },
+});
+window.__TROST__ = Object.freeze({ debug, snapshot: () => ({ mode, audio: { ...titanAudio.snapshot(), activeTones: toneSources.size }, controller: { connected: padFrame.connected, armed: padFrame.armed }, inputProfile, touchVisible: !touch.element.hidden, fullscreen: fullscreenState(document), graphics: graphics.snapshot(), bladeStrike: { ...bladeStrike }, bladePhase: bladeStrikePhase(bladeStrike), elapsed, kills, rescued, mission: structuredClone(mission), stage: missionStage(mission), checkpoint: checkpoint ? structuredClone(checkpoint) : null, checkpointPersistent, escortStatus, civilianPosition: world.civilians.position.toArray(), grounded: player.grounded, yaw, pitch, assistedAnchors, fovEffect, health: player.health, gas: player.gas, blades: player.blades, position: player.position.toArray(), velocity: player.velocity.toArray(), hooks: hooks.map(h => ({ active: h.active, point: h.point.toArray(), releasedBy: h.releasedBy, titan: h.titan ? titans.indexOf(h.titan) : null })), finisher: titans.some(t => finisherReady(t)), slowTime, titans: titans.map(t => ({ alive: t.alive, napeProtected: napeProtected(t), guardWeight: napeGuardWeight(t), awareness: t.awareness ?? 'idle', memory: t.memory ?? 0, lastSeen: t.lastSeen ? [...t.lastSeen] : null, phase: t.phase, attackTimer: t.attackTimer, yaw: t.yaw, telegraphVisible: t.telegraph.visible, position: t.root.position.toArray() })), drawCalls: renderer.info.render.calls, triangles: renderer.info.render.triangles }) });

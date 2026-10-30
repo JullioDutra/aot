@@ -142,6 +142,79 @@ Fases 3 (a retirada e o Blindado), 4 (cerimônia, equilíbrio com o cinto quebra
 
 Cidade de Trost compartilhada (muralhas, portões, quartel, praça da pedra, quarteirões mesclados por material) e as fases 6 (Colossal na muralha), 7 (esquadrão 34), 8 (Mikasa, cabana e o anormal no portão) e 9 (rotas táticas e o comando de Jean). Os pontos de retorno passam a guardar a sub-fase que começa.
 
+## Entrega intermediária 27 — Trost, parte 2
+
+Fases 10 (o titã desconhecido visto de fora e de dentro), 11 (o elevador e os sete cortes sincronizados; Marco) e 12 (Pyxis, a perda de controle, Armin na nuca, a pedra carregada, a guarda de elite, o portão selado, Levi e o tribunal). Os Atos I e II estão jogáveis por inteiro (fases 1–12).
+
+## Entrega intermediária 28 — A Titã Fêmea, parte 1
+
+Mundo fora das muralhas (planície, aldeia, floresta de árvores gigantes, castelo), cavalgada, sinalizadores e a Titã Fêmea. Fases 13 (castelo e formação de longo alcance), 14 (os padrões da Fêmea; Jean e Reiner) e 15 (a cavalgada pela floresta e a armadilha).
+
+## Entrega intermediária 29 — A Titã Fêmea, parte 2
+
+Fases 16 (arpões, nuca endurecida, o grito e a fuga), 17 (a queda do esquadrão de Levi, o duelo de titãs e o resgate em ordem) e 18 (Stohess, a escalada da muralha e o cristal). O Ato III está jogável por inteiro (fases 13–18).
+
+## Entrega intermediária 30 — Choque de Titãs
+
+Muralha Rose e torre de Utgard no mundo de campo; fases 19 (Mike, o arco de Sasha, Ragako), 20 (o cerco da torre e Ymir), 21 (a confissão na muralha), 22 (o duelo contra o Blindado, os joelhos e a chave de braço), 23 (a carga de Erwin e a extração) e 24 (Hannes e o grito). O Ato IV está jogável por inteiro.
+
+## Entrega intermediária 31 — A revolta
+
+Atiradores humanos com linha de visada; fases 25 (o bar e os telhados), 26 (a troca, a investigação e o golpe), 27 (a caverna de cristal e o endurecimento) e 28 (Orvud, os barris, Historia, Kenny e a coroação). O Ato V está jogável por inteiro.
+
+## Entrega intermediária 32 — Retorno a Shiganshina
+
+Fases 29 (a marcha noturna e o portão), 30 (Reiner na muralha e as pedras sobre os cavalos), 31 (lanças do trovão e a explosão), 33 (o plano de Armin) e 34 (o soro, o porão e o mar). Com a fase 32 já existente, o Ato VI está jogável por inteiro (fases 1–34).
+
+## Entrega intermediária 33 — O outro lado do mar
+
+Fases 35 (Fort Slava), 36 (Liberio), 37 (a declaração e o Martelo de Guerra) e 38 (a extração e Sasha). O Ato VII está jogável por inteiro (fases 1–38).
+
+## Entrega intermediária 34 — Guerra por Paradis, parte 1
+
+Fases 39 (a floresta de Levi), 40 (Shiganshina em guerra), 41 (o grito e os Caminhos) e 42 (a aliança).
+
+## Entrega intermediária 35 — Desfecho
+
+Fases 43 (o porto de Odiha), 44 (o Estrondo e Hange), 45 (sobre o Fundador), 46 (a última travessia) e 47 (depois da batalha). As 47 fases do Modo História estão jogáveis; o próximo passo é revisão humana de ritmo, câmera e dificuldade em GPU real e no celular.
+
+## Entrega intermediária 36 — Página inicial
+
+Três quadros de Eren e Mikasa na abertura, sumário das 47 fases e como jogar por tipo de entrada.
+
+## Entrega intermediária 37 — Gancho no titã
+
+O corpo do titã aceita o gancho e o cabo o acompanha; no ar, A/D giram em volta da ancoragem e W/S controlam o cabo; atrás da nuca aparece FINALIZAR.
+
+## Entrega intermediária 38 — Chefes
+
+Fêmea, Blindado e Bestial golpeiam, pisam, arremessam e endurecem a nuca com aviso; cegueira e braços cortados encerram os ataques; a nuca do Bestial só abre por último.
+
+## Entrega intermediária 39 — Rostos
+
+Olhos no estilo do anime, queixo afinado, franjas, nove expressões automáticas pela pose e close de rosto na galeria.
+
+## Entrega intermediária 40 — Roupas pela cronologia
+
+Cadetes até Trost, Tropa com capa, Polícia Militar para Annie, uniforme escuro de 854, Eren de cabelo comprido, cicatrizes e tapa-olho no tempo certo; seletor de época na galeria.
+
+## Entrega intermediária 41 — Titãs
+
+Rostos de titã com órbitas fundas, narinas, lábios, fibras da bochecha no Titã de Ataque, cavidade nasal do Colossal e músculos da Fêmea; close de titã na galeria.
+
+## Fidelidade e jogabilidade (entregas 36–43)
+
+Pedido após a campanha completa: equipamento com a sensação do anime, personagens e titãs mais parecidos, cenários mais fiéis, celular melhor e uma página inicial que apresente o jogo. Tudo continua gerado em código, sem modelos, imagens ou músicas oficiais.
+
+1. **36 — Página inicial:** três quadros de Eren e Mikasa (sob a árvore, o cachecol, prontos para a batalha), sumário das 47 fases por ato e como jogar no teclado, controle e toque.
+2. **37 — Gancho no titã:** o corpo do titã aceita o gancho e o cabo acompanha o movimento; preso, o jogador controla o giro em volta dele; atrás da nuca, perto e com velocidade, aparece o botão de finalização. Arena e Modo História.
+3. **38 — Chefes:** Fêmea, Blindado, Bestial, Colossal e Martelo de Guerra com etapas (tornozelo, braço, nuca) e desafios próprios, mais difíceis que os titãs comuns.
+4. **39 — Rostos:** olhos, íris, cílios, sobrancelhas e franja próprios de cada personagem, cicatrizes da linha do tempo e expressões em cena (raiva, choro, grito).
+5. **40 — Roupas pela cronologia:** civil em 845, cadete, Tropa com capa, uniforme preto de 854 e visuais que mudam com o tempo (Eren de cabelo comprido, Levi com cicatrizes).
+6. **41 — Titãs:** proporções, rostos e silhuetas dos titãs puros e dos nove titãs mais próximos do anime.
+7. **42 — Celular:** controles de toque redesenhados para o gancho no titã, o giro e a finalização, com mira assistida.
+8. **43 — Cenários:** Shiganshina, Trost, a floresta de árvores gigantes e Liberio com mais detalhe e marcos reconhecíveis.
+
 ## Marco 4 — demonstração de produção
 
 Uma operação de 15–20 minutos com arte e animação próprias de produção, referências verificadas, missão legível, resgate, abastecimento, destruição controlada e conclusão narrativa. Não será construída a campanha completa antes da aprovação desse marco.

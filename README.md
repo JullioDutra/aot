@@ -252,7 +252,7 @@ Limites: o modelo do titã da arena ainda é o anterior às fases 19–20; os ra
 
 Controles do Modo História: WASD e mouse; Espaço avança e dá gás; G/R age; Shift corre; Q/E seguram os cabos; clique corta ou dispara o sinalizador. No controle: A avança/gás, X lâmina/sinalizador, Y age, B corre, gatilhos para os cabos. No toque: CONTINUAR, AGIR, CORRER e, nas fases de combate, ◀ CABO, CABO ▶, GÁS e LÂMINA.
 
-Limites: as fases 1–9 e 32 são jogáveis; as demais seguem planejadas no hub. Falas são paráfrases originais, sem dublagem. Os mapas são aproximações e não plantas conferidas episódio a episódio. Não há cinemáticas animadas à mão nem captura de movimento. A violência é estilizada (partículas, cortes de câmera). Testes de navegador usam ganchos de depuração para pular deslocamentos longos; o equilíbrio da carga e do duelo precisa de teste humano.
+Limites: as 47 fases são jogáveis; as demais seguem planejadas no hub. Falas são paráfrases originais, sem dublagem. Os mapas são aproximações e não plantas conferidas episódio a episódio. Não há cinemáticas animadas à mão nem captura de movimento. A violência é estilizada (partículas, cortes de câmera). Testes de navegador usam ganchos de depuração para pular deslocamentos longos; o equilíbrio da carga e do duelo precisa de teste humano.
 
 ## Ato I completo — fase 25 (fases 3, 4 e 5 da história)
 
@@ -279,6 +279,150 @@ Trost é uma cidade inteira (`src/story/trost-world.js`): muralha externa com o 
 **Fase 9 — Sem combustível:** visão tática sobre a cidade com três rotas até o quartel (telhados perto do titã desconhecido, avenida, canal), cada uma com titãs, cobertura e risco. A rota escolhida decide quais titãs ficam no caminho, e os titãs da rota dos telhados vão atrás do desconhecido. Jean lidera com 42% de gás; três cadetes comuns voam atrás dele e podem ser agarrados se você não limpar o caminho. No meio, um cadete fica preso: voltar salva ele e custa outro; seguir deixa ele para trás. Desafio: chegar sem perder nenhum cadete além do da escolha.
 
 Limites: os prédios de Trost são blocos com telhado de quatro águas; a câmera do ODM ainda atravessa telhados vizinhos em ângulos fechados. Os titãs andam através das casas.
+
+## Batalha de Trost, parte 2 — fase 27 (fases 10 a 12 da história)
+
+**Fase 10 — O titã desconhecido:** como Armin, acompanhe de longe um titã que anda até o titã puro mais próximo e o derruba a socos. A observação só conta entre 15 e 70 m, e chegar a menos de 16 m de um titã puro estando baixo conta como ser visto (o desafio é não ser visto). Depois a câmera entra no titã: como Eren, ande e soque (cada soco esmaga a cabeça de um titã puro), enquanto mordidas de titãs que cercam você gastam o corpo. O titã desaba em vapor e Eren sai da nuca, com braço e perna de volta.
+
+**Fase 11 — Recuperar o quartel:** depósito com galeria, vigas e o elevador. Armin gira a manivela e o elevador desce com oito atiradores enquanto sete titãs pequenos se juntam embaixo. A rajada os cega e, como Jean na viga, você ataca quando o sinal acende: cedo demais o titã vê você, tarde demais ele recupera a visão, e as duas coisas fazem a sub-fase recomeçar. Sasha e Connie erram (como no anime) e Mikasa e Annie terminam os titãs delas. No fim, Jean encontra o corpo de Marco num beco. Desafios: corte perfeito (até 0,25 s do sinal) e acertar na primeira tentativa.
+
+**Fase 12 — A pedra de Trost:** o discurso de Pyxis no alto da muralha, o desertor e a ordem a Ian. Eren se transforma com o raio ao lado da pedra e perde o controle: como Mikasa, aguente 15 s de socos telegrafados sem ficar onde ele mira. O sinal vermelho sobe, Armin crava a lâmina na nuca e fala do mar até Eren voltar. Como o titã de Eren, carregue a pedra (o peso e o cansaço reduzem a velocidade) enquanto a guarda de elite segura os titãs. A escolha de Ian (ficar ou recuar) termina igual: Ian e Mitabi são agarrados e devorados. Como Mikasa, mate os titãs que vão para cima de Eren até a pedra tapar o portão; o sinal amarelo sobe, Levi chega cortando dois titãs e a fase termina no tribunal: Zackly, Nile, Erwin e Levi chutando Eren. Desafio: nenhum titã encostar em Eren.
+
+Limites: o titã de Eren usa o modelo da galeria; carregar a pedra não tem colisão com prédios; o tribunal é um cenário simples.
+
+## A Titã Fêmea, parte 1 — fase 28 (fases 13 a 15 da história)
+
+Fora das muralhas há um mundo próprio (`src/story/field-world.js`): a planície com árvores isoladas e uma aldeia abandonada (poucas ancoragens), a floresta de árvores gigantes com uma trilha no meio e uma clareira, e o castelo do esquadrão de Levi. As fases de campo compartilham `src/story/field-chapter.js`, que acrescenta cavalgar (controle `ride`: WASD vira e esporeia, Shift galopa; troncos e paredes param o cavalo), soldados montados, sinalizadores de fumaça e a Titã Fêmea (`src/story/female-titan.js`). As regras novas ficam em `src/story/act3-rules.js` com testes.
+
+**Fase 13 — Além das muralhas:** o castelo com Levi, Petra, Oluo e Hange; os titãs capturados mortos de madrugada; a pergunta de Erwin. Na formação de longo alcance, como Armin a cavalo, fique no seu posto (sair por 8 s falha) e repita cada sinal do posto vizinho com a mesma cor (clique vermelho, G verde) em até 6 s; cor errada conta como erro. Depois da fumaça negra, repita o sinal com Espaço e cavalgue até o mensageiro do flanco direito. Desafio: dez sinais sem erro.
+
+**Fase 14 — A perseguidora:** a Fêmea atravessa a ala direita. A cavalo, acompanhe-a entre 15 e 70 m e observe três padrões nos soldados que a enfrentam: ela olha o rosto de quem pega, cobre a nuca com a mão endurecida e varre quem chega pela frente. Chegar ao alcance dela ou perdê-la de vista falha. Ela derruba Armin, levanta o capuz e vai embora. Na aldeia abandonada, como Jean, fique perto da cabeça dela por 20 s: na frente das mãos ela varre, embaixo ela chuta. Reiner é agarrado e sai cortando; Armin a provoca com o apelido de Marco.
+
+**Fase 15 — A floresta das árvores gigantes:** como Eren a cavalo, mantenha-se a até 18 m de Levi entre os troncos enquanto a retaguarda morre tentando parar a Fêmea; se ela chegar a 14 m, alcança o cavalo. A escolha de confiar ou morder a mão termina com Eren cavalgando; a armadilha de Erwin dispara os arpões quando ela entra na clareira. Desafio: atravessar sem sair da formação.
+
+Limites: o mundo de campo é procedural e sem relevo; a Fêmea usa o modelo da galeria com cristal simplificado; os soldados que a enfrentam são encenados, não simulados.
+
+## A Titã Fêmea, parte 2 — fase 29 (fases 16 a 18 da história)
+
+**Fase 16 — A captura fracassa:** a Fêmea presa por arpões na clareira. Como Mikasa, corte 5 titãs da floresta que vão atrás das equipes dos canhões (três canhões perdidos falham). Levi encontra a nuca endurecida em cristal. Ela grita e os titãs da floresta inteira correm para ela: corte 6 nucas enquanto eles começam a devorá-la. Coberta pelos titãs, ela some em vapor. Desafio: nenhum canhão destruído.
+
+**Fase 17 — A decisão de Eren:** como Eren, voe entre as árvores atrás do esquadrão. Gunther é cortado em pleno voo, Eld, Petra e Oluo cegam a Fêmea e caem um a um (mordido, esmagado contra o tronco, golpeado depois da nuca endurecida). Como o titã de Eren, o duelo segue regras puras: ela alterna guarda, preparação, chute e recuo; soco na guarda bate em antebraço endurecido e custa corpo, soco no recuo acerta, segurar Shift durante o chute desvia. Depois de 3 socos ela vence, como no anime, e leva Eren na boca. Como Levi (gás rende mais), corte olhos, ombros e boca nessa ordem; a lâmina acerta o ponto mais próximo e resvala fora de ordem; sem os olhos ela desacelera. Desafio: resgatar antes de Mikasa se expor (45 s).
+
+**Fase 18 — Stohess:** como Armin, vá até a escada da passagem subterrânea; Annie recusa e se transforma. Como o titã de Eren, acerte 4 socos com as mesmas regras de duelo; cada prédio que os titãs atravessam conta como destruído. Annie corre para a muralha e escala com os dedos endurecidos: como Mikasa, corte as duas mãos — uma mão cortada sozinha volta a crescer em 3 s. Ela cai, se encerra em cristal e a muralha mostra um rosto de titã. Desafios: menos de dez prédios destruídos e cortar os dedos.
+
+Limites: Stohess reaproveita a cidade de Trost com o portão inteiro; os prédios contam como destruídos mas não desabam; o cristal e o rosto na muralha são formas simples.
+
+## Choque de Titãs — fase 30 (fases 19 a 24 da história)
+
+O mundo de campo ganhou a muralha Rose atrás da planície e a torre em ruínas de Utgard; capítulos noturnos e ao entardecer ajustam céu e luz. Regras puras novas em `src/story/act4-rules.js` (arco, cerco à torre, duelo contra o Blindado, chave de braço) com testes.
+
+**Fase 19 — As aldeias silenciosas:** como Mike, corte 4 titãs na aldeia enquanto os recrutas fogem; o Bestial fala, o cavalo foge e Mike é devorado. Como Sasha, leve a menina até o cavalo: o clique atira uma flecha no olho do titã à frente (cone estreito), que fica cego alguns segundos. Como Connie, ande até sua casa em Ragako e encontre o titã deitado sobre ela. Desafio: no máximo três flechas.
+
+**Fase 20 — Utgard:** no topo da torre, sem gás, ande de beirada em beirada e corte as mãos que sobem dos quatro lados por 40 s (o status diz o lado mais alto). Nanaba é arrastada; Reiner segura um titã com o braço. Como Ymir (titã de mandíbula), morda 5 nucas ao pé da torre enquanto agarrões gastam o corpo. O dia nasce e a Tropa chega. Desafio: nenhum titã passar de 85% da subida.
+
+**Fase 21 — Sobre a muralha:** a confissão de Reiner no alto da muralha; a escolha de rir ou pedir que repita converge; Mikasa ataca, os dois se transformam. Eren morde a mão e o soco de frente só bate na armadura.
+
+**Fase 22 — Contra o Blindado:** o duelo segue regras puras: socos na armadura só fazem barulho; segurar Shift na investida o desequilibra e G o derruba (2 derrubadas). Como Mikasa, corte atrás dos dois joelhos (pela frente a lâmina resvala). Na chave de braço, aperte o ataque sem parar antes do grito (12 s). O Colossal cai do céu sobre eles. Desafio: vencer sem socar a armadura.
+
+**Fase 23 — A perseguição ao entardecer:** a cavalo, siga Erwin com os titãs atrás até o Blindado, que carrega Eren e Bertholdt nas costas; um titã leva o braço de Erwin. Como Mikasa, alcance as costas do Blindado e solte Eren. Desafio: extração em menos de 40 s.
+
+**Fase 24 — O grito:** Eren, amarrado, não consegue se transformar; Hannes enfrenta o titã sorridente e é devorado. Soque a mão do titã e grite: os titãs atacam o sorridente e o Blindado; Ymir parte com Reiner. Volte a cavalo até a muralha.
+
+Limites: a torre e a muralha são formas simples; o titã de Ymir usa o modelo da Mandíbula; a escalada dos titãs na torre é encenada pela regra de cerco, sem física.
+
+## A revolta — fase 31 (fases 25 a 28 da história)
+
+Inimigos humanos: o esquadrão antipessoal (`src/story/gunmen.js`) mira com uma linha vermelha, atira e recarrega; um prédio ou pilar no meio bloqueia o tiro (regra de linha de visada em `src/story/act5-rules.js`, com o endurecimento e o ciclo da boca de Rod, todos testados).
+
+**Fase 25 — Caçados na cidade:** no bar, Kenny entra; como Levi, saia pela porta dos fundos antes do tiro. Depois fuja pelos telhados até a carroça com nove atiradores nos telhados: cada tiro tira 34% do corpo se a linha de visada estiver livre. Desafio: não ser atingido.
+
+**Fase 26 — A conspiração:** como Armin disfarçado de Historia, ande até a carroça dos sequestradores (correr falha). A emboscada termina com o primeiro tiro de Armin, qualquer que seja a escolha. Como Hange, reúna três provas; o golpe acontece no cadafalso de Erwin sem nenhum disparo. Desafio: não alertar os sequestradores.
+
+**Fase 27 — A capela subterrânea:** caverna de pilares de cristal (âncoras e cobertura). Como Levi, voe até o altar sob as escopetas; Historia recusa a seringa (as duas escolhas convergem); Rod se transforma; Eren engole o frasco e você aperta o ataque sem parar para o cristal crescer antes que o teto desça. Desafio: ninguém ferido na infiltração.
+
+**Fase 28 — O titã de Rod Reiss:** mire três canhões em Orvud (o calor anula os tiros); empurre os barris quando a boca abrir (boca fechada faz os barris voltarem); como Historia, ache o fragmento que brilha entre os pedaços em brasa; Kenny entrega a caixa a Levi sob a árvore e morre; Historia é coroada. Desafio: barris na primeira tentativa.
+
+Limites: o bar é uma sala simples no meio da avenida; Orvud reaproveita Trost; o rosto de Rod repousa sobre a muralha sem animação de boca além da cabeça.
+
+## Retorno a Shiganshina — fase 32 (fases 29, 30, 31, 33 e 34 da história)
+
+As fases 29 e 34 voltam ao mapa do prólogo (`src/story/shiganshina-return.js`), cinco anos depois; 30, 31 e 33 usam a cidade grande como Shiganshina para o ODM. Regras puras em `src/story/act6-rules.js` (barulho da marcha, pedras sobre os rebanhos, janela das lanças do trovão, a pegada de Armin) com testes.
+
+**Fase 29 — De volta para casa:** à noite, puxe o cavalo pela cidade vazia até o portão externo sem correr: correr enche a barra de barulho e acorda os titãs que dormem nas ruas. Eren endurece o portão (aperte sem parar). Depois reencontre o sino, a ponte e o barco do prólogo.
+
+**Fase 30 — A armadilha:** como Armin, golpeie a parede trincada da muralha e Reiner sai de dentro. Depois as pedras do Bestial: cada pedra é anunciada pela sombra; leve os rebanhos para trás das casas (G) antes do impacto e saia da sombra. Desafio: salvar mais da metade dos cavalos.
+
+**Fase 31 — Lanças do trovão:** como Hange, corte os olhos do Blindado, crave sua lança na nuca enquanto o esquadrão crava as deles e puxe a corda (G): lanças não puxadas explodem sozinhas no pavio, e o desafio é todas na mesma janela de 1,5 s. O barril de Bertholdt cruza a muralha; Moblit empurra Hange para o poço antes da onda.
+
+**Fase 33 — O plano de Armin:** observe o Colossal emagrecer queimando vapor (30 a 70 m); como Armin, segure nos dentes dele por 18 s apertando sem parar; como Eren, saia da carcaça endurecida e corte a nuca para arrancar Bertholdt.
+
+**Fase 34 — O porão e o mar:** a dose de soro entre Erwin e Armin (as duas escolhas terminam com Erwin descansando); Armin herda o Colossal; nas ruínas da casa, a chave abre a gaveta e os livros de Grisha; um ano depois, a caminhada até o mar.
+
+Com isso, as fases 1–34 (Atos I a VI) estão jogáveis. O kit passou a deitar de costas qualquer personagem na pose `lie`, o que corrige corpos que ficavam em pé nas fases 16–31.
+
+## O outro lado do mar — fase 33 (fases 35 a 38 da história)
+
+Regras puras em `src/story/act7-rules.js` (ninhos de metralhadora, espinhos do Martelo de Guerra e o cabo de carne) com testes; elenco de Marley (Porco, Magath, Colt, Willy, Lara e outros) em `src/story/extras.js`.
+
+**Fase 35 — Fort Slava:** à noite, nas trincheiras, como Gabi, avance de saco de areia em saco de areia sob as metralhadoras (linha vermelha) e prenda as granadas nos trilhos do trem blindado. Como Porco (Mandíbula), morda 4 ninhos enquanto o fogo deles gasta o corpo (andando, recebe metade). O couraçado derruba o Mandíbula e o Bestial cai do dirigível sobre o navio. Desafio: Gabi sem ser atingida.
+
+**Fase 36 — Liberio:** como Falco, atravesse a feira da zona de internamento com Gabi e ouça as conversas; leve as cartas para "Kruger" no banco do hospital; a lembrança de Reiner dos candidatos a guerreiro, em sépia. Desafio: ouvir todas as conversas.
+
+**Fase 37 — A declaração:** no porão sob o palco, Eren conversa com Reiner enquanto Willy declara guerra (as duas respostas convergem). Eren atravessa o palco e agarra Willy. O Martelo de Guerra ergue espinhos do chão (o círculo vermelho avisa); a usuária não está na nuca: pise no cabo de carne para revelá-lo, siga até o cristal e quebre-o com 3 socos. Desafio: achar o cabo em menos de 60 s.
+
+**Fase 38 — A extração:** como Mikasa, derrube as 6 equipes de lanças antititã nos telhados antes que acertem Eren; como Armin, voe até o porto e vire o Colossal sobre a frota; proteja as cordas do dirigível dos atiradores; Gabi entra no dirigível e Sasha morre. Desafio: nenhuma lança acertar Eren.
+
+Limites: Liberio reaproveita a cidade murada; Fort Slava é um campo plano com sacos de areia; os navios são blocos.
+
+## Guerra por Paradis, parte 1 — fase 34 (fases 39 a 42 da história)
+
+Regras puras em `src/story/act8-rules.js` (artilharia de Pieck, desarmar Yeageristas, calor dos Colossais, ancoragem em osso, voo de Falco) com testes. Capítulos noturnos na cidade agora aceitam céu e luz próprios.
+
+**Fase 39 — A floresta de Levi:** o grito de Zeke transforma os soldados que beberam o vinho; como Levi, corte 10 deles (o desafio é não tocar o chão) e desmonte o Bestial cortando braços, olhos e nuca em qualquer ordem. Levi amarra Zeke à lança do trovão e Zeke puxa o pino.
+
+**Fase 40 — Shiganshina em guerra:** à noite, corte os 5 soldados de Marley nos canhões da muralha; como Eren, agarre o Mandíbula no ar (soque no pulo, senão a mordida tira corpo); avance até Zeke enquanto a artilharia de Pieck cai onde você estava quando ela mirou (círculo laranja). Colt tenta afastar Falco. Desafio: nenhum tiro de Pieck.
+
+**Fase 41 — O grito e os Caminhos:** o grito transforma Colt, Pyxis e os soldados; Porco se entrega a Falco. Nos Caminhos (areia, céu noturno e a árvore de luz), ande pelas lembranças de Grisha com Zeke (pedir que pare ou continue converge) até Ymir; o Estrondo começa.
+
+**Fase 42 — A aliança:** a fogueira com ex-inimigos; Jean e Reiner (o soco vem nas duas escolhas); depois leve o equipamento da carroça até os cavalos.
+
+## Desfecho — fase 35 (fases 43 a 47 da história)
+
+**Fase 43 — O porto:** os Yeageristas atiram na aliança no cais de Odiha; por trás a lâmina só desarma, pela frente mata. Depois, detenha os 4 que correm com facas para o casco do hidroavião; Mikasa atira em Floch. Desafio: ninguém morto pela sua lâmina.
+
+**Fase 44 — O estrondo:** os Colossais chegam pelo continente; Magath e Shadis explodem o navio. Como Hange, corte os dois tornozelos para derrubar um Colossal e fique longe do corpo (o vapor queima mais perto e mais alto) por 35 s, até o avião decolar. Desafio: derrubar três.
+
+**Fase 45 — Sobre o Fundador:** a coluna esquelética do Fundador (`src/story/founder.js`) anda a 70 m do chão. Só osso segura o cabo: um gancho em carne rasga em 0,6 s. Pouse na coluna e corte 8 titãs dos Caminhos que andam pelas vértebras até o avião. Desafio: nunca usar a carne.
+
+**Fase 46 — A última travessia:** como Falco alado, voe com Mikasa até a cabeça do Titã de Ataque (W sobe e perde velocidade, S mergulha e ganha) sem bater na coluna. Levi corta a cabeça de Zeke; Mikasa entra na boca do titã e alcança Eren.
+
+**Fase 47 — Depois da batalha:** Mikasa sobe a colina da fase 1 até a árvore; os embaixadores partem; os anos passam e a árvore cresce.
+
+Com isso, as 47 fases estão jogáveis no Modo História.
+
+## Página inicial — fase 36
+
+A página inicial (`index.html`) agora rola sobre a cena viva de Trost. Na abertura aparecem três quadros de Eren e Mikasa renderizados com o elenco do jogo: **sob a árvore** (845), **o cachecol** (844) e **prontos para a batalha** (850). Eles são desenhados uma única vez num contexto WebGL temporário (`src/home-scenes.js`), que é liberado em seguida. Em telas baixas, como celular deitado, os quadros se alternam ao lado do título. Abaixo da abertura ficam o sumário das 47 fases por ato, com link direto para cada fase do Modo História, e o como jogar no teclado, no controle e no toque, com o perfil de entrada atual em destaque. O conteúdo fica em `src/home-content.js`, um módulo puro com testes.
+
+## Gancho no titã — fase 37
+
+O corpo dos titãs aceita o gancho em Trost, na arena do Modo História e no co-op: o cabo fica preso ao ponto atingido e acompanha o titã enquanto ele anda, e se solta quando ele morre. Preso a um cabo no ar, **A/D** (ou o analógico para os lados) giram em volta da ancoragem e **W/S** recolhem ou soltam o cabo, para dar a volta até as costas. Atrás da nuca, a até 9 m, dentro de 5 m de altura e a pelo menos 6 m/s (ou pendurado no próprio titã), aparece o botão **FINALIZAR** sobre a nuca; o ataque nesse instante mata o titã em câmera lenta. As regras ficam em `src/titan-hook.js` (`orbitControl`, `finisherWindow`), com testes.
+
+## Chefes mais difíceis — fase 38
+
+A Titã Fêmea (fase 17), o Blindado (fase 31) e o Bestial (fase 39) agora atacam, com aviso antes de cada golpe (`src/story/boss-threat.js`, regras em `src/story/boss-rules.js` com testes). **Golpe do braço:** um arco vermelho no chão marca o lado que vai ser varrido; escape pelo outro lado, por trás ou por cima da cabeça. **Pisão** (Fêmea e Blindado): um anel nos pés pune quem fica no chão perto deles. **Pedra arremessada** (Bestial): uma sombra marca onde ela cai, calculada pela sua direção. **Nuca endurecida** (Fêmea): quem chega por trás faz surgir um cristal por alguns segundos. Cada acerto tira de 34 a 50 de vida, solta os cabos e empurra o piloto; com a vida zerada, a sub-fase recomeça. A ordem dos cortes é o desafio: cego, o chefe para de atacar; sem os dois braços, não golpeia nem arremessa. No Bestial, a nuca só abre depois dos braços e dos olhos e mostra o botão de finalização.
+
+## Rostos e expressões — fase 39
+
+Os rostos são desenhados em 512 px com proporções de anime: olhos maiores, com linha superior de cílios afinando para fora, dobra da pálpebra, íris com borda escura, dois brilhos e a sombra da pálpebra no branco do olho. Cílios longos e blush nas personagens femininas e nas crianças. Cada personagem mantém o próprio olho (Eren afiado e verde-azulado, Levi estreito com olheiras, Armin redondo e azul). A cabeça ficou mais estreita, com queixo afinado, e a base do cabelo recuou para a franja emoldurar a testa; a franja repartida do Levi cai até as sobrancelhas. **Expressões** (`src/face-expressions.js`, com testes): neutra, raiva, grito, choro (com lágrimas), tristeza, sorriso, olhos fechados, determinação e susto. Nas cenas, a pose escolhe a expressão automaticamente (luto chora, golpe grita, deitado fecha os olhos) e o piloto do equipamento fica determinado no ar e grita ao cortar. As marcas da linha do tempo (cicatriz da Mikasa, cortes do Levi, marcas de titã) já existem e passam a ser usadas com as roupas por época na fase 40. A galeria ganhou **expressão** e **rosto** (close) para revisão.
+
+## Roupas pela cronologia — fase 40
+
+O elenco do Modo História se veste de acordo com a fase (`src/campaign/wardrobe.js`, com testes). **845:** crianças e roupas civis. **Fases 4–12:** o 104º veste o uniforme de cadete (espadas cruzadas, sem capa) até Trost. **Fases 13–34:** Tropa de Exploração com a capa verde; Annie usa o uniforme da Polícia Militar (emblema do unicórnio) até Stohess, e Historia veste roupa de rainha a partir da coroação. **Fases 35–47 (854):** o novo uniforme escuro de Paradis, com casaco longo, para a Tropa; Eren com cabelo comprido, barba por fazer, olheiras e casaco civil; Mikasa com a cicatriz embaixo do olho; Reiner com o uniforme de Marley e a braçadeira. **Marcas no tempo:** Hange com tapa-olho a partir da fase 32; Levi com os cortes no rosto depois da explosão da lança (fase 40 em diante). O shell do Modo História informa a fase ao kit (`setChapterEra`), então todas as fases aplicam isso sozinhas. A galeria ganhou o seletor **época**, e o quadro "prontos para a batalha" da página inicial mostra os dois ainda cadetes.
+
+## Rostos dos titãs — fase 41
+
+Os rostos dos titãs (`src/titan-forms.js`) ganharam sombreamento: órbitas fundas, maçãs do rosto e linha da mandíbula, narinas, e lábios em volta do sorriso dos titãs puros. As bocas fechadas ficaram largas, com a sombra do lábio inferior. **Titã de Ataque:** sombra pesada da testa sobre olhos verdes fundos e as fibras do músculo da bochecha dos cantos da boca até a orelha. **Colossal:** só a cavidade do nariz, sem cartilagem. **Fêmea:** faixas de músculo exposto em volta dos olhos. A galeria mostra o rosto de cada titã de perto (caixa "rosto" no modo titãs).
 
 ## Co-op local — fase 24
 

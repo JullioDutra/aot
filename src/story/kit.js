@@ -1,13 +1,21 @@
 import * as THREE from 'three';
 import { CHARACTER_SPECS } from '../character-specs.js';
-import { createCharacter } from '../character-model.js';
+import { createCharacter, setExpression } from '../character-model.js';
+import { poseExpression } from '../face-expressions.js';
+import { dressFor } from '../campaign/wardrobe.js';
+
+// Chapter number used to dress the cast; set by the story shell before a chapter builds.
+let chapterEra = 0;
+export function setChapterEra(number) { chapterEra = number; }
 import { characterPose, applyPose } from '../character-animation.js';
 import { TITAN_FORMS, createTitanForm } from '../titan-forms.js';
 import { canStrikeNape } from '../mechanics.js';
-import { createParticles } from './props.js';
+import { finisherWindow } from '../titan-hook.js';
+import { createParticles, createHorse } from './props.js';
 import { createOdm } from './odm-controller.js';
 import { moveWithCollisions } from './shiganshina-world.js';
 import { titanIntent, titanSpeed, grabReach } from './story-rules.js';
+import { rideSpeed, HORSE } from './act3-rules.js';
 
 // Building blocks shared by the story chapters from 3 on: lights and camera
 // shots, actors that walk scripted paths, a walking player, an ODM pilot with
@@ -33,8 +41,10 @@ export function createStage({ scene, camera, ui, audio, sky = '#c9d6d2', fog = [
     // Moves the sun's shadow box with the action.
     focusLight(x, z) { sunLight.target.position.set(x, 0, z); sunLight.position.set(x + sun[0], sun[1], z + sun[2]); },
     actor(id, spec, x, z, yaw = 0, options = {}) {
-      const base = typeof spec === 'string' ? CHARACTER_SPECS[spec] : spec;
-      const rig = createCharacter({ ...base, ...(options.override ?? {}) }, options);
+      // Clothes and scars follow the chapter's point in the timeline.
+      const base = dressFor(typeof spec === 'string' ? CHARACTER_SPECS[spec] : spec, chapterEra);
+      const o = options.override ?? {};
+      const rig = createCharacter({ ...base, ...o, hair: { ...base.hair, ...o.hair }, face: { ...base.face, ...o.face } }, options);
       rig.root.position.set(x, options.y ?? stage.ground(x, z), z); rig.root.rotation.y = yaw; scene.add(rig.root);
       const a = { id, rig, pose: options.pose ?? 'idle', speed: 1, path: null, t: Math.random() * 3, progress: 0, onArrive: null, follow: null };
       actors.set(id, a); return a;
@@ -74,7 +84,16 @@ export function createStage({ scene, camera, ui, audio, sky = '#c9d6d2', fog = [
       if (d < .3) { a.path.shift(); if (!a.path.length) { a.path = null; if (a.pose === 'walk' || a.pose === 'run') a.pose = 'idle'; a.onArrive?.(a); } }
       else { const step = Math.min(d, a.speed * dt); p.x += dx / d * step; p.z += dz / d * step; a.rig.root.rotation.y = Math.atan2(dx, dz); p.y = stage.ground(p.x, p.z); }
     }
+    // 'lie' lays the body on its back once; any other pose stands it up again.
+    const lying = a.pose === 'lie', root = a.rig.root;
+    if (lying !== !!a.lying) {
+      a.lying = lying;
+      if (lying && Math.abs(root.rotation.x + Math.PI / 2) > .1) { root.rotation.x = -Math.PI / 2; root.position.y += .25; a.laid = true; }
+      else if (!lying && a.laid) { root.rotation.x = 0; root.position.y -= .25; a.laid = false; }
+    }
     if (a.pose !== 'manual') applyPose(a.rig, characterPose(a.pose, a.t, { speed: a.pose === 'run' || a.pose === 'walk' ? a.speed / 3 : 1, progress: a.progress }));
+    // Chapters may set a.expression; otherwise the pose picks one.
+    setExpression(a.rig, a.expression ?? poseExpression(a.pose));
   }
   return stage;
 }
@@ -107,6 +126,40 @@ export function createWalker(stage, a, { colliders = [], bounds = { minX: -1e4, 
   return w;
 }
 
+// A rig on horseback steered by the player: {move} turns and spurs, sprint on
+// run, mouse or stick turns too. Trunks and walls stop the horse.
+export function createRider(stage, actor, { colliders = [], bounds = { minX: -1e4, maxX: 1e4, minZ: -1e4, maxZ: 1e4 }, color = '#5a3f2c' } = {}) {
+  const horse = createHorse(color); stage.scene.add(horse.root);
+  horse.saddle.add(actor.rig.root); actor.rig.root.position.set(0, -.95, 0); actor.rig.root.rotation.set(0, 0, 0); actor.pose = 'ride';
+  const r = {
+    horse, actor, yaw: 0, pitch: .18, speed: 0, bumped: 0, colliders, bounds, auto: null,
+    get position() { return horse.root.position; },
+    place(x, z, yaw = r.yaw) { horse.root.position.set(x, 0, z); r.yaw = yaw; r.speed = 0; horse.root.rotation.y = Math.atan2(Math.sin(yaw), -Math.cos(yaw)); },
+    step(dt, input, enabled = true) {
+      // Test autopilot: `auto()` returns [x, z] to ride toward for real.
+      if (r.auto && enabled) {
+        const [tx, tz] = r.auto(), p = horse.root.position, want = Math.atan2(tx - p.x, -(tz - p.z)), diff = Math.atan2(Math.sin(want - r.yaw), Math.cos(want - r.yaw));
+        input = { ...input, move: [Math.max(-1, Math.min(1, diff * 3)), Math.hypot(tx - p.x, tz - p.z) > 3 ? -1 : 0], run: Math.hypot(tx - p.x, tz - p.z) > 8 };
+      }
+      r.yaw += input.look[0] * .8 + (enabled ? input.move[0] * 1.5 * dt : 0); r.pitch = Math.max(0, Math.min(.7, r.pitch + input.look[1] * .5));
+      r.speed = rideSpeed(r.speed, enabled ? -input.move[1] : -1, dt, enabled && input.run);
+      const f = forwardOf(r.yaw), p = horse.root.position, want = r.speed * dt;
+      const [x, z] = moveWithCollisions([p.x, p.z], [f.x * want, f.z * want], 1.3, r.colliders, r.bounds);
+      const moved = Math.hypot(x - p.x, z - p.z);
+      r.bumped = Math.max(0, r.bumped - dt);
+      if (want > .05 && moved < want * .5) { r.speed *= .3; r.bumped = .6; }
+      p.set(x, 0, z); horse.root.rotation.y = Math.atan2(f.x, f.z);
+      horse.animate(stage.time, Math.min(1.2, r.speed / HORSE.gallop));
+      return { speed: r.speed, position: p };
+    },
+    view() {
+      const p = horse.root.position, f = forwardOf(r.yaw), d = 7.5;
+      return { position: new THREE.Vector3(p.x - f.x * d, 3.6 + r.pitch * 6, p.z - f.z * d), target: new THREE.Vector3(p.x + f.x * 12, 2, p.z + f.z * 12) };
+    },
+  };
+  return r;
+}
+
 // ODM flight with blades for a rig. Mirrors chapter 32: cables on Q/E or the
 // triggers, gas on Space, cut on click; the camera trails the flight.
 export function createOdmPilot(stage, rig, { colliders = [], anchorRoots = [], bounds = 320, gas = 100 } = {}) {
@@ -129,13 +182,20 @@ export function createOdmPilot(stage, rig, { colliders = [], anchorRoots = [], b
       pilot.cooldown -= dt;
       const striking = pilot.cooldown > .25;
       applyPose(rig, characterPose(striking ? 'strike' : odm.player.grounded ? (speed > 1 ? 'run' : 'idle') : 'odm', stage.time, { progress: 1 - (pilot.cooldown - .25) / .35, speed: 1.5 }));
+      setExpression(rig, striking ? 'shout' : odm.player.grounded ? 'neutral' : 'determined');
       const strike = (input.pressed.attack || pilot.pending) && pilot.cooldown <= 0 && odm.player.blades > 0; pilot.pending = false;
       if (strike) { pilot.cooldown = .6; pilot.lastStrike = stage.time; stage.audio.play('dodge', 1, 0, .6); }
-      return { strike, reach: speed > 24 ? 9 : 6.5, speed, position: P };
+      // Behind a nape, close and fast: the finisher prompt appears and the
+      // next cut kills through the horde's own update.
+      const finisher = finisherTarget(stage, odm); pilot.finisher = finisher;
+      stage.ui.finisher?.(finisher?.nape ?? null);
+      if (strike && finisher) { finisher.t.finish = true; stage.ui.slowmo?.(.45); stage.ui.flash?.('#fff1d6', .3); }
+      return { strike, reach: speed > 24 ? 9 : 6.5, speed, position: P, finisher };
     },
     view() {
       const P = odm.player.position, d = 6.5, f = forwardOf(pilot.yaw);
-      const position = new THREE.Vector3(P.x - f.x * Math.cos(pilot.pitch) * d, Math.max(.6, P.y + 2.4 - Math.sin(pilot.pitch) * d), P.z - f.z * Math.cos(pilot.pitch) * d);
+      const floor = odm.player.grounded && P.y > 2 ? P.y + 3.4 : .6;
+      const position = new THREE.Vector3(P.x - f.x * Math.cos(pilot.pitch) * d, Math.max(floor, P.y + 2.4 - Math.sin(pilot.pitch) * d), P.z - f.z * Math.cos(pilot.pitch) * d);
       const target = new THREE.Vector3(P.x, P.y + 1.4, P.z).addScaledVector(f, 20).add(new THREE.Vector3(0, Math.sin(pilot.pitch) * 10, 0));
       return { position, target };
     },
@@ -161,6 +221,7 @@ export function strideTitan(t, target, speed, dt, phase) {
 export function createHorde(stage, { anchorRoots = [] } = {}) {
   const list = [], tmp = new THREE.Vector3();
   const horde = {
+    stage,
     list,
     spawn(formId, x, z, { height, kind = 'hunt', yaw = 0, speed, sight = 70, id } = {}) {
       const spec = { ...titanForm(formId) }; if (height) spec.height = height; spec.id = id ?? `${spec.id}-${list.length}`;
@@ -186,6 +247,7 @@ export function createHorde(stage, { anchorRoots = [] } = {}) {
           if (t.death > 5) T.root.visible = false; continue;
         }
         if (!T.root.visible) continue;
+        if (t.finish) { t.finish = false; horde.kill(t); killed.push(t); continue; }
         T.animate(stage.time + t.phase);
         if (cut) {
           T.nape.getWorldPosition(tmp); const yaw = T.root.rotation.y, fwd = [Math.sin(yaw), 0, Math.cos(yaw)];
@@ -208,7 +270,22 @@ export function createHorde(stage, { anchorRoots = [] } = {}) {
     },
     reachOf: t => grabReach(t.titan.spec.height),
   };
+  (stage.hordes ??= []).push(horde);
   return horde;
+}
+
+// Nearest living horde titan whose finisher window is open for the pilot.
+function finisherTarget(stage, odm) {
+  const P = odm.player.position, from = [P.x, P.y + 1, P.z], velocity = odm.player.velocity.toArray(), nape = new THREE.Vector3();
+  let best = null;
+  for (const horde of stage.hordes ?? []) for (const t of horde.list) {
+    const T = t.titan;
+    if (!t.alive || !T.root.visible) continue;
+    T.nape.getWorldPosition(nape); const yaw = T.root.rotation.y;
+    const w = finisherWindow(from, velocity, nape.toArray(), [Math.sin(yaw), 0, Math.cos(yaw)], { blades: odm.player.blades, onTitan: odm.hookedTo(T.root) });
+    if (w.ready && (!best || w.distance < best.distance)) best = { t, horde, distance: w.distance, nape: nape.clone() };
+  }
+  return best;
 }
 
 // A titan steered by the player (Eren): heavy steps, punches that crush pure

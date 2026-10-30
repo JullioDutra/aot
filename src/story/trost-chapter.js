@@ -8,11 +8,14 @@ import { createStage, createWalker, createOdmPilot, createHorde, createTitanPilo
 // player's titan; each chapter plugs a plan with its events and rules:
 //   plan(ctx) → { script, par, start(), handlers, update(dt, input, mode, view) → fail?,
 //                 status(), challenges(), checkpoint(), restore(snapshot), debug, snapshot() }
-export function createTrostChapter({ scene, camera, ui, audio, data, number }, plan) {
+// Stohess (chapter 18) reuses the city with its gate intact: options.breach.
+export function createTrostChapter({ scene, camera, ui, audio, data, number }, plan, { breach = number > 6, sky = '#c8d3d4', fog = [180, 640], light, hemi } = {}) {
   document.body.classList.add('combat-chapter');
-  const stage = createStage({ scene, camera, ui, audio, sky: '#c8d3d4', fog: [180, 640], sun: [-120, 170, 90], shadow: 170 });
+  const stage = createStage({ scene, camera, ui, audio, sky, fog, sun: [-120, 170, 90], shadow: 170, ...(light ? { light } : {}), ...(hemi ? { hemi } : {}) });
   const world = createTrost(scene);
   stage.ground = (x, z) => 0;
+  // The Colossal kicked the gate in chapter 6; later chapters start with the breach.
+  if (breach) world.breakGate();
   const horde = createHorde(stage, { anchorRoots: world.anchorRoots });
   const actors = {};
   const ctx = {
@@ -72,10 +75,17 @@ export function createTrostChapter({ scene, camera, ui, audio, data, number }, p
         else if ((control === 'titan' || control === 'carry') && ctx.titan) ctx.titan.place(x, z);
         else if (ctx.player) ctx.onRoof(ctx.player, x, z);
       },
+      // Test hook: put the pilot just behind a living titan's nape, flying at it.
+      finisher() {
+        const t = horde.alive().find(x => x.titan.root.visible); if (!t || !ctx.pilot) return false;
+        const n = horde.nape(t), yaw = t.titan.root.rotation.y, fx = Math.sin(yaw), fz = Math.cos(yaw);
+        t.kind = 'idle'; ctx.pilot.place(n.x - fx * 4, n.y - 1.5, n.z - fz * 4); ctx.pilot.odm.player.velocity.set(fx * 9, 2, fz * 9); ctx.pilot.odm.player.grounded = false;
+        return true;
+      },
       goal(id) { ctx.goals.add(id); hooks.onGoal?.(id); },
       ...(hooks.debug ?? {}),
     },
-    snapshot: () => ({ control, mission: ctx.mission, goals: [...ctx.goals], kills: horde.list.filter(t => !t.alive).length, titans: horde.alive().length, gas: ctx.pilot ? Math.round(ctx.pilot.odm.player.gas) : null, ...(hooks.snapshot?.() ?? {}) }),
+    snapshot: () => ({ control, mission: ctx.mission, goals: [...ctx.goals], kills: horde.list.filter(t => !t.alive).length, titans: horde.alive().length, gas: ctx.pilot ? Math.round(ctx.pilot.odm.player.gas) : null, finisher: !!ctx.pilot?.finisher, ...(hooks.snapshot?.() ?? {}) }),
   };
 }
 
