@@ -27,6 +27,7 @@ const ADAPTERS = {
   29: () => import('./story/act6-ch29.js'), 30: () => import('./story/act6-ch30.js'), 31: () => import('./story/act6-ch31.js'),
   32: () => import('./story/last-charge-chapter.js'), 33: () => import('./story/act6-ch33.js'), 34: () => import('./story/act6-ch34.js'),
   35: () => import('./story/act7-ch35.js'), 36: () => import('./story/act7-ch36.js'), 37: () => import('./story/act7-ch37.js'), 38: () => import('./story/act7-ch38.js'),
+  39: () => import('./story/act8-ch39.js'), 40: () => import('./story/act8-ch40.js'), 41: () => import('./story/act8-ch41.js'), 42: () => import('./story/act8-ch42.js'),
 };
 
 const $ = id => document.getElementById(id);

@@ -9,9 +9,9 @@ import { createStage, createWalker, createOdmPilot, createHorde, createTitanPilo
 //   plan(ctx) → { script, par, start(), handlers, update(dt, input, mode, view) → fail?,
 //                 status(), challenges(), checkpoint(), restore(snapshot), debug, snapshot() }
 // Stohess (chapter 18) reuses the city with its gate intact: options.breach.
-export function createTrostChapter({ scene, camera, ui, audio, data, number }, plan, { breach = number > 6 } = {}) {
+export function createTrostChapter({ scene, camera, ui, audio, data, number }, plan, { breach = number > 6, sky = '#c8d3d4', fog = [180, 640], light, hemi } = {}) {
   document.body.classList.add('combat-chapter');
-  const stage = createStage({ scene, camera, ui, audio, sky: '#c8d3d4', fog: [180, 640], sun: [-120, 170, 90], shadow: 170 });
+  const stage = createStage({ scene, camera, ui, audio, sky, fog, sun: [-120, 170, 90], shadow: 170, ...(light ? { light } : {}), ...(hemi ? { hemi } : {}) });
   const world = createTrost(scene);
   stage.ground = (x, z) => 0;
   // The Colossal kicked the gate in chapter 6; later chapters start with the breach.
