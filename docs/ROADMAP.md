@@ -166,6 +166,10 @@ Atiradores humanos com linha de visada; fases 25 (o bar e os telhados), 26 (a tr
 
 Fases 29 (a marcha noturna e o portão), 30 (Reiner na muralha e as pedras sobre os cavalos), 31 (lanças do trovão e a explosão), 33 (o plano de Armin) e 34 (o soro, o porão e o mar). Com a fase 32 já existente, o Ato VI está jogável por inteiro (fases 1–34).
 
+## Entrega intermediária 33 — O outro lado do mar
+
+Fases 35 (Fort Slava), 36 (Liberio), 37 (a declaração e o Martelo de Guerra) e 38 (a extração e Sasha). O Ato VII está jogável por inteiro (fases 1–38).
+
 ## Marco 4 — demonstração de produção
 
 Uma operação de 15–20 minutos com arte e animação próprias de produção, referências verificadas, missão legível, resgate, abastecimento, destruição controlada e conclusão narrativa. Não será construída a campanha completa antes da aprovação desse marco.
