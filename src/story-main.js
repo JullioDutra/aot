@@ -7,6 +7,7 @@ import { loadProgress, saveProgress, completeChapter, rateRun, chapterAvailabili
 import { createGamepadInput } from './gamepad-input.js';
 import { createTouchControls } from './touch-controls.js';
 import { bindHudToggle } from './hud-mode.js';
+import { mountTouchSettings } from './touch-settings.js';
 import { initialProfile, nextProfile, mergeFrames, toggleFullscreen, fullscreenState, prompt } from './platform.js';
 import { ArenaAudio } from './arena-audio.js';
 import { clamp } from './mechanics.js';
@@ -62,8 +63,9 @@ const gamepad = createGamepadInput({ advance: 0, jump: 0, run: 1, attack: 2, int
 let padFrame = gamepad.sample();
 const touch = createTouchControls({ root: document.body, buttons: [
   { action: 'advance', label: 'CONTINUAR', className: 'primary' }, { action: 'interact', label: 'AGIR' }, { action: 'run', label: 'CORRER' },
-  { action: 'attack', label: 'LÂMINA', className: 'primary story-combat' }, { action: 'left', label: '◀ CABO', className: 'cable-left story-combat', latch: true }, { action: 'right', label: 'CABO ▶', className: 'cable-right story-combat', latch: true, drag: true },
+  { action: 'attack', label: 'LÂMINA', className: 'primary story-combat' }, { action: 'left', label: '◀ CABO', className: 'cable-left story-combat', latch: true, drag: true }, { action: 'right', label: 'CABO ▶', className: 'cable-right story-combat', latch: true, drag: true },
   { action: 'jump', label: 'GÁS', className: 'story-combat', drag: true, slideTo: ['attack'] }, { action: 'release', label: 'SOLTAR', className: 'story-combat', clears: ['left', 'right'] }, { action: 'menu', label: 'Ⅱ', className: 'menu' }], layout: 'odm' });
+$('story-resume').before(mountTouchSettings(document.createElement('div'), touch, storage));
 const key = action => prompt(inputProfile, action);
 // On touch the finisher prompt is itself the button.
 document.getElementById('story-finisher').addEventListener('pointerdown', event => { event.preventDefault(); touch.press('attack'); });

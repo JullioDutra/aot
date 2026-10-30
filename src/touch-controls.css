@@ -28,25 +28,25 @@ body[data-input=touch] .story-finisher{z-index:22}
 body[data-input=touch][data-playing=true] #hud{z-index:21}
 /* Latched cable: hooked without the finger until the next tap. */
 .touch-button.latched{background:#d9b46ccc;color:#152025;border:2px solid #fff0c8;box-shadow:0 0 0 4px #d9b46c55,0 4px 18px #0007}
-.touch-button.latched::after{content:'PRESO';display:block;font-size:7px;letter-spacing:1px;margin-top:2px}
+.touch-button.latched>span::after{content:'PRESO';display:block;font-size:7px;letter-spacing:1px;margin-top:2px}
 /* Two-thumb layout for the ODM pages (Trost and story). Left thumb: stick and
    ◀ CABO. Right thumb: LÂMINA in the corner with GÁS and CABO ▶ around it;
    context buttons on the outer ring. --gap keeps at least 16 px between
    buttons; each button's touch area reaches 6 px past its edge. */
 .touch-controls .touch-button.off{display:none!important}
-.touch-odm{--a:88px;--g:76px;--c:72px;--x:56px;--gap:18px;--r:max(16px,env(safe-area-inset-right));--b:max(16px,env(safe-area-inset-bottom));--l:max(16px,env(safe-area-inset-left))}
-@media (max-height:420px){.touch-odm{--a:76px;--g:68px;--c:64px;--x:52px;--gap:16px}}
-.touch-odm .touch-buttons{position:absolute;inset:0;display:block;right:0;bottom:0;pointer-events:none}
+.touch-odm{--u:88px;--v:76px;--w:72px;--y:56px;--a:calc(var(--u) * var(--k,1));--g:calc(var(--v) * var(--k,1));--c:calc(var(--w) * var(--k,1));--x:calc(var(--y) * var(--k,1));--gap:18px;--r:max(16px,env(safe-area-inset-right),env(safe-area-inset-left));--b:max(16px,env(safe-area-inset-bottom));--l:max(16px,env(safe-area-inset-left))}
+@media (max-height:420px){.touch-odm{--u:76px;--v:68px;--w:64px;--y:52px;--gap:16px}}
+.touch-odm .touch-buttons{position:absolute;inset:0;display:block;pointer-events:none}
 .touch-odm .touch-button{position:absolute;width:var(--x);height:var(--x);font-size:9px}
 .touch-odm .touch-button::before{content:'';position:absolute;inset:-6px;border-radius:inherit}
-.touch-odm .touch-button[data-action=attack],.touch-odm .touch-button[data-action=advance]{width:var(--a);height:var(--a);right:var(--r);bottom:var(--b);font-size:12px}
+.touch-odm .touch-button[data-action=attack],.touch-odm .touch-button[data-action=advance]{width:var(--a);height:var(--a);inset-inline-end:var(--r);bottom:var(--b);font-size:12px}
 .touch-odm .touch-button[data-action=advance]{font-size:10px;letter-spacing:.3px}
-.touch-odm .touch-button[data-action=jump]{width:var(--g);height:var(--g);right:calc(var(--r) + var(--a) + var(--gap));bottom:calc(var(--b) + (var(--a) - var(--g)) / 2);font-size:11px}
-.touch-odm .touch-button[data-action=right]{width:var(--c);height:var(--c);right:calc(var(--r) + (var(--a) - var(--c)) / 2);bottom:calc(var(--b) + var(--a) + var(--gap))}
-.touch-odm .touch-button[data-action=left]{width:var(--c);height:var(--c);left:var(--l);bottom:calc(var(--b) + var(--a) + var(--gap))}
-.touch-odm .touch-button[data-action=interact]{right:calc(var(--r) + var(--a) + var(--gap) + (var(--g) - var(--x)) / 2);bottom:calc(var(--b) + (var(--a) - var(--g)) / 2 + var(--g) + var(--gap))}
-.touch-odm .touch-button[data-action=supply],.touch-odm .touch-button[data-action=run]{right:calc(var(--r) + var(--a) + var(--gap) * 2 + var(--g));bottom:calc(var(--b) + (var(--a) - var(--x)) / 2)}
-.touch-odm .touch-button[data-action=release]{right:calc(var(--r) + (var(--a) - var(--x)) / 2);bottom:calc(var(--b) + var(--a) + var(--gap) * 2 + var(--c))}
+.touch-odm .touch-button[data-action=jump]{width:var(--g);height:var(--g);inset-inline-end:calc(var(--r) + var(--a) + var(--gap));bottom:calc(var(--b) + (var(--a) - var(--g)) / 2);font-size:11px}
+.touch-odm .touch-button[data-action=right]{width:var(--c);height:var(--c);inset-inline-end:calc(var(--r) + (var(--a) - var(--c)) / 2);bottom:calc(var(--b) + var(--a) + var(--gap))}
+.touch-odm .touch-button[data-action=left]{width:var(--c);height:var(--c);inset-inline-start:var(--l);bottom:calc(var(--b) + var(--a) + var(--gap))}
+.touch-odm .touch-button[data-action=interact]{inset-inline-end:calc(var(--r) + var(--a) + var(--gap) + (var(--g) - var(--x)) / 2);bottom:calc(var(--b) + (var(--a) - var(--g)) / 2 + var(--g) + var(--gap))}
+.touch-odm .touch-button[data-action=supply],.touch-odm .touch-button[data-action=run]{inset-inline-end:calc(var(--r) + var(--a) + var(--gap) * 2 + var(--g));bottom:calc(var(--b) + (var(--a) - var(--x)) / 2)}
+.touch-odm .touch-button[data-action=release]{inset-inline-end:calc(var(--r) + (var(--a) - var(--x)) / 2);bottom:calc(var(--b) + var(--a) + var(--gap) * 2 + var(--c))}
 .touch-odm .touch-button.cable-left,.touch-odm .touch-button.cable-right{font-size:10px}
 .touch-odm .touch-button.menu{position:fixed;width:44px;height:44px}
 /* Story: CONTINUAR takes the blade's corner only while someone speaks. */
@@ -54,5 +54,21 @@ body:not(.story-talking) .touch-odm .touch-button[data-action=advance],body.stor
 body.story-talking .touch-odm .touch-button:not([data-action=advance]):not(.menu){display:none!important}
 body[data-input=touch].story-talking .story-dialogue,body[data-input=touch].story-talking .story-choice{z-index:22}
 /* Story chapters on foot: AGIR takes the corner and CORRER sits beside it. */
-body:not(.combat-chapter) .touch-odm .touch-button[data-action=interact]{width:var(--g);height:var(--g);right:calc(var(--r) + (var(--a) - var(--g)) / 2);bottom:calc(var(--b) + (var(--a) - var(--g)) / 2);font-size:11px}
-body:not(.combat-chapter) .touch-odm .touch-button[data-action=run]{width:var(--g);height:var(--g);right:calc(var(--r) + var(--a) + var(--gap));bottom:calc(var(--b) + (var(--a) - var(--g)) / 2);font-size:11px}
+body:not(.combat-chapter) .touch-odm .touch-button[data-action=interact]{width:var(--g);height:var(--g);inset-inline-end:calc(var(--r) + (var(--a) - var(--g)) / 2);bottom:calc(var(--b) + (var(--a) - var(--g)) / 2);font-size:11px}
+body:not(.combat-chapter) .touch-odm .touch-button[data-action=run]{width:var(--g);height:var(--g);inset-inline-end:calc(var(--r) + var(--a) + var(--gap));bottom:calc(var(--b) + (var(--a) - var(--g)) / 2);font-size:11px}
+/* Touch settings (touch-settings.js): opacity and the left-handed mirror.
+   Positions above are logical, so rtl on the pad mirrors them; the cables
+   swap places so ◀ CABO stays on the left of the screen. */
+.touch-controls .touch-button{opacity:var(--o,1)}
+.touch-button>span{unicode-bidi:isolate;direction:ltr}
+.touch-left-handed .touch-buttons{direction:rtl}
+.touch-left-handed .touch-stick-zone{left:auto;right:0}
+.touch-left-handed .touch-look-zone{inset:0 40% 0 0}
+.touch-left-handed.touch-odm .touch-button[data-action=left]{inset-inline-start:auto;inset-inline-end:calc(var(--r) + (var(--a) - var(--c)) / 2)}
+.touch-left-handed.touch-odm .touch-button[data-action=right]{inset-inline-end:auto;inset-inline-start:var(--l)}
+.touch-settings{margin-top:8px}
+body:not([data-input=touch]) .touch-settings{display:none}
+.touch-settings .eyebrow{display:block;margin:6px 0 2px;font-size:9px;letter-spacing:2px;color:#d2ac6c}
+.touch-settings .setting{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:10px 0;font-size:12px;color:#dfe5dd}
+.touch-settings select{background:#243840;color:#e3e9df;padding:6px;border:1px solid #59716d}
+.touch-settings input{accent-color:#d5b77f;max-width:140px}

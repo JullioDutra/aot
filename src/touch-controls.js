@@ -1,4 +1,5 @@
 import { emptyFrame } from './platform.js';
+import { SIZE_SCALE } from './touch-settings.js';
 
 // On-screen controls for phones and tablets. The left thumb owns a floating
 // analog stick, the right side of the screen turns the camera by dragging, and
@@ -43,12 +44,12 @@ export function createTouchControls({ root, buttons, layout = '' }) {
   const pad = document.createElement('div'); pad.className = 'touch-buttons';
   element.append(lookZone, stickZone, pad);
   const held = new Set(), down = new Set(), latches = new Map(), context = new Map(), clearers = [], drags = new Map();
-  let stick = null, look = null, move = [0, 0], lookDelta = [0, 0], previous = new Set();
+  let stick = null, look = null, move = [0, 0], lookDelta = [0, 0], previous = new Set(), latchOn = true;
 
   for (const spec of buttons) {
     const button = document.createElement('button');
     button.type = 'button'; button.className = `touch-button ${spec.className ?? ''}`; button.dataset.action = spec.action;
-    button.textContent = spec.label;
+    const label = document.createElement('span'); label.textContent = spec.label; button.append(label);
     const pointers = new Set();
     if (spec.latch) latches.set(spec.action, button);
     // Context buttons show only while the page says they apply.
@@ -60,7 +61,7 @@ export function createTouchControls({ root, buttons, layout = '' }) {
       // Drag buttons (GÁS, CABO ▶) keep their action and turn the camera as the finger slides.
       if (spec.drag) { capture(button, event.pointerId); drags.set(event.pointerId, { last: [event.clientX, event.clientY], over: spec.action }); }
       if (spec.clears) for (const action of spec.clears) { held.delete(action); latches.get(action)?.classList.remove('latched'); }
-      if (spec.latch) {
+      if (spec.latch && latchOn) {
         const tap = latchTap(held.has(spec.action));
         if (tap.press) { held.add(spec.action); down.add(spec.action); } else held.delete(spec.action);
         button.classList.toggle('latched', tap.latched); buzz(tap.press ? 10 : 6);
@@ -78,7 +79,7 @@ export function createTouchControls({ root, buttons, layout = '' }) {
     });
     const up = event => {
       drags.delete(event.pointerId);
-      if (spec.latch) return;
+      if (spec.latch && latchOn) return;
       pointers.delete(event.pointerId);
       if (!pointers.size) { held.delete(spec.action); button.classList.remove('active'); }
     };
@@ -125,11 +126,18 @@ export function createTouchControls({ root, buttons, layout = '' }) {
     press(action) { if (element.hidden) return; down.add(action); buzz(25); },
     // active: { action: cable still hooked } from the page after each step.
     sync(active) {
-      for (const [action, button] of latches) {
+      if (latchOn) for (const [action, button] of latches) {
         if (!held.has(action) || latchSync(true, active?.[action])) continue;
         held.delete(action); button.classList.remove('latched');
       }
       for (const c of clearers) c.button.classList.toggle('off', !c.actions.some(a => held.has(a)));
+    },
+    // settings: touch-settings.js (size, opacity, leftHanded, latch).
+    configure(settings) {
+      element.style.setProperty('--k', SIZE_SCALE[settings.size] ?? 1); element.style.setProperty('--o', settings.opacity);
+      element.classList.toggle('touch-left-handed', !!settings.leftHanded);
+      if (latchOn && !settings.latch) for (const [action, button] of latches) { held.delete(action); button.classList.remove('latched'); }
+      latchOn = !!settings.latch;
     },
     setAvailable(map) { for (const [action, on] of Object.entries(map)) context.get(action)?.classList.toggle('off', !on); },
     suspend() {

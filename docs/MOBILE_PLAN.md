@@ -70,8 +70,8 @@ Nenhuma fonte oficial descreve um esquema de toque de equipamento de manobra 3D;
 - Tamanho dos botões: pequeno, médio, grande.
 - Transparência dos botões.
 - **Canhoto:** espelha o layout (analógico à direita, ações à esquerda).
-- Cabo fixo: em qualquer ancoragem / só no titã / desligado (segurar como hoje).
-- Salvos em `localStorage`, como a qualidade gráfica.
+- Cabo fixo: ligado (qualquer ancoragem) ou desligado (segurar como antes). A opção "só no titã" ficou de fora: o Modo História ainda não sabe quais malhas são titãs.
+- Salvos em `localStorage`, como a qualidade gráfica. Ficam nas configurações (⚙) de Trost e na pausa do Modo História, só no perfil de toque.
 
 ### 5. Arena de titãs no toque
 
@@ -91,7 +91,7 @@ Cada entrega é empilhada sobre a anterior (a primeira sobre a 42) e tem PR pró
 | **C1 — Cabo fixo** ✅ | Seção 1 em Trost e no Modo História | Teste puro do estado preso/solto; navegador com toque: tocar prende, soltar o dedo mantém, tocar de novo solta; preso ao titã + LÂMINA finaliza; titã morto ou gás zerado destrava o botão |
 | **C2 — Distribuição** ✅ | Seção 2 (posições, tamanhos, contexto, CONTINUAR fora do bloco) | Em 844×390, 667×375, 740×360 e 1024×768: nenhum botão sobreposto, folga ≥ 16 px, tamanho ≥ 56 px, nada fora da área segura; capturas de tela anexadas ao PR |
 | **C3 — Arrastar** ✅ | Seção 3 | Navegador: segurar GÁS e deslizar gira a câmera com gás ativo; deslizar do GÁS para a LÂMINA corta |
-| **C4 — Ajustes** | Seção 4 | Teste puro das escolhas salvas; navegador: canhoto espelha, tamanho muda, cabo fixo desligado volta ao segurar |
+| **C4 — Ajustes** ✅ | Seção 4 | Teste puro das escolhas salvas; navegador: canhoto espelha, tamanho muda, cabo fixo desligado volta ao segurar |
 | **C5 — Arena** | Seção 5 | Navegador: DEFESA segurada + SOCO ao mesmo tempo |
 
 Em todas: `npm test`, `npm run test:browser` completo (incluindo `platform`, `mobile`, `gamepad`, `arena-gamepad`, `titan-hook`, `story-finisher`, para provar que teclado e controle não mudaram) e `npm run build`.

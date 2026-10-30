@@ -65,3 +65,4 @@ body.hud-minimal[data-playing=true] .story-objective{padding:6px 10px;font-size:
 .story-top #hud-toggle[aria-pressed=true]{background:#d5b77f;color:#152025}
 /* On touch, the pause button sits left of the clean-screen and fullscreen buttons. */
 body[data-input=touch] .touch-button.menu{right:max(122px,calc(env(safe-area-inset-right) + 122px))}
+body[data-input=touch] .story-panel{max-height:calc(100dvh - 24px);overflow:auto}

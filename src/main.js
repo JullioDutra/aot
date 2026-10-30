@@ -5,6 +5,7 @@ import { createGamepadInput } from './gamepad-input.js';
 import { initialProfile, nextProfile, mergeFrames, defaultQuality, toggleFullscreen, fullscreenState, localizeKeys, prompt as inputPrompt } from './platform.js';
 import { createTouchControls } from './touch-controls.js';
 import { bindHudToggle } from './hud-mode.js';
+import { mountTouchSettings } from './touch-settings.js';
 import './touch-controls.css';
 import { createGraphicsQuality } from './graphics-quality.js';
 import { createBladeStrike, beginBladeStrike, stepBladeStrike, bladeStrikePhase, bladeStrikePose } from './blade-strike.js';
@@ -112,9 +113,10 @@ const gamepadInput = createGamepadInput();
 let padFrame = gamepadInput.sample();
 let inputProfile = initialProfile({ coarsePointer: matchMedia('(pointer: coarse)').matches, hover: matchMedia('(hover: hover)').matches, maxTouchPoints: navigator.maxTouchPoints }), syncedMode = null;
 const touch = createTouchControls({ root: document.body, buttons: [
-  { action: 'left', label: '◀ CABO', className: 'cable-left', latch: true }, { action: 'right', label: 'CABO ▶', className: 'cable-right', latch: true, drag: true },
+  { action: 'left', label: '◀ CABO', className: 'cable-left', latch: true, drag: true }, { action: 'right', label: 'CABO ▶', className: 'cable-right', latch: true, drag: true },
   { action: 'jump', label: 'GÁS', className: 'primary', drag: true, slideTo: ['attack'] }, { action: 'attack', label: 'LÂMINA', className: 'primary' },
   { action: 'interact', label: 'AGIR', context: true }, { action: 'supply', label: 'ABASTECER', context: true }, { action: 'release', label: 'SOLTAR', clears: ['left', 'right'] }, { action: 'menu', label: 'Ⅱ', className: 'menu' }], layout: 'odm' });
+$('controller-status').before(mountTouchSettings(document.createElement('div'), touch, checkpointStorage));
 const landingInput = { keyboard: 'TECLADO + MOUSE', gamepad: 'CONTROLE PADRÃO', touch: 'TOQUE · TELA CHEIA' };
 function syncInputProfile() {
   document.body.dataset.input = inputProfile; document.body.dataset.playing = mode === 'playing'; syncedMode = mode;

@@ -150,6 +150,41 @@ test('on touch, a finger on GÁS turns the camera as it slides and cuts when it 
   expect(errors).toEqual([]);
 });
 
+test('touch settings mirror the layout, enlarge the buttons and can switch the cable back to holding', async ({ page }) => {
+  test.setTimeout(240000);
+  const errors = []; page.on('pageerror', e => errors.push(e.message));
+  await page.setViewportSize({ width: 844, height: 390 });
+  await page.goto('/');
+  await page.click('#settings-button'); await page.selectOption('#quality', 'low'); await page.click('#close-settings');
+  await page.locator('#start-button').dispatchEvent('pointerdown', { pointerType: 'touch', pointerId: 1, isPrimary: true });
+  await page.locator('#start-button').dispatchEvent('click');
+  await expect.poll(async () => (await snap(page)).touchVisible).toBe(true);
+  const box = action => page.locator(`.touch-button[data-action="${action}"]`).boundingBox();
+  const before = await box('attack');
+  // The panel only shows on touch; change it the way its inputs report changes.
+  await expect(page.locator('.touch-settings')).toBeAttached();
+  await page.evaluate(() => {
+    const panel = document.querySelector('.touch-settings'), field = k => panel.querySelector(`[data-key="${k}"]`);
+    field('size').value = 'l'; field('leftHanded').checked = true; field('latch').checked = false;
+    panel.dispatchEvent(new Event('input', { bubbles: true }));
+  });
+  const blade = await box('attack'), left = await box('left'), right = await box('right');
+  expect(blade.width).toBeGreaterThan(before.width);
+  expect(blade.x).toBeLessThan(200);
+  expect(left.x).toBeLessThan(right.x);
+  expect(right.x + right.width).toBeGreaterThan(844 - 120);
+  expect(await page.evaluate(() => JSON.parse(localStorage.getItem('touch.settings.v1')))).toEqual({ size: 'l', opacity: 1, leftHanded: true, latch: false });
+  // Holding mode: the cable button no longer latches after the finger lifts.
+  const cable = page.locator('.touch-button[data-action="left"]');
+  await cable.dispatchEvent('pointerdown', { pointerType: 'touch', pointerId: 41 });
+  await cable.dispatchEvent('pointerup', { pointerType: 'touch', pointerId: 41 });
+  await expect(cable).not.toHaveClass(/latched/);
+  // The choice survives a reload.
+  await page.reload(); await page.waitForFunction(() => window.__TROST__?.snapshot().drawCalls > 0);
+  await expect(page.locator('.touch-settings [data-key="leftHanded"]')).toBeChecked();
+  expect(errors).toEqual([]);
+});
+
 // Visible on-screen buttons: no overlap, at least 16 px apart, thumb sized and on screen.
 const layout = page => page.evaluate(() => {
   const boxes = [...document.querySelectorAll('.touch-button')].filter(b => b.offsetParent && getComputedStyle(b).display !== 'none' && !b.classList.contains('menu')).map(b => ({ action: b.dataset.action, rect: b.getBoundingClientRect() }));
