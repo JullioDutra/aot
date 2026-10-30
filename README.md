@@ -252,7 +252,7 @@ Limites: o modelo do titã da arena ainda é o anterior às fases 19–20; os ra
 
 Controles do Modo História: WASD e mouse; Espaço avança e dá gás; G/R age; Shift corre; Q/E seguram os cabos; clique corta ou dispara o sinalizador. No controle: A avança/gás, X lâmina/sinalizador, Y age, B corre, gatilhos para os cabos. No toque: CONTINUAR, AGIR, CORRER e, nas fases de combate, ◀ CABO, CABO ▶, GÁS e LÂMINA.
 
-Limites: as fases 1–15 e 32 são jogáveis; as demais seguem planejadas no hub. Falas são paráfrases originais, sem dublagem. Os mapas são aproximações e não plantas conferidas episódio a episódio. Não há cinemáticas animadas à mão nem captura de movimento. A violência é estilizada (partículas, cortes de câmera). Testes de navegador usam ganchos de depuração para pular deslocamentos longos; o equilíbrio da carga e do duelo precisa de teste humano.
+Limites: as fases 1–18 e 32 são jogáveis; as demais seguem planejadas no hub. Falas são paráfrases originais, sem dublagem. Os mapas são aproximações e não plantas conferidas episódio a episódio. Não há cinemáticas animadas à mão nem captura de movimento. A violência é estilizada (partículas, cortes de câmera). Testes de navegador usam ganchos de depuração para pular deslocamentos longos; o equilíbrio da carga e do duelo precisa de teste humano.
 
 ## Ato I completo — fase 25 (fases 3, 4 e 5 da história)
 
@@ -301,6 +301,16 @@ Fora das muralhas há um mundo próprio (`src/story/field-world.js`): a planíci
 **Fase 15 — A floresta das árvores gigantes:** como Eren a cavalo, mantenha-se a até 18 m de Levi entre os troncos enquanto a retaguarda morre tentando parar a Fêmea; se ela chegar a 14 m, alcança o cavalo. A escolha de confiar ou morder a mão termina com Eren cavalgando; a armadilha de Erwin dispara os arpões quando ela entra na clareira. Desafio: atravessar sem sair da formação.
 
 Limites: o mundo de campo é procedural e sem relevo; a Fêmea usa o modelo da galeria com cristal simplificado; os soldados que a enfrentam são encenados, não simulados.
+
+## A Titã Fêmea, parte 2 — fase 29 (fases 16 a 18 da história)
+
+**Fase 16 — A captura fracassa:** a Fêmea presa por arpões na clareira. Como Mikasa, corte 5 titãs da floresta que vão atrás das equipes dos canhões (três canhões perdidos falham). Levi encontra a nuca endurecida em cristal. Ela grita e os titãs da floresta inteira correm para ela: corte 6 nucas enquanto eles começam a devorá-la. Coberta pelos titãs, ela some em vapor. Desafio: nenhum canhão destruído.
+
+**Fase 17 — A decisão de Eren:** como Eren, voe entre as árvores atrás do esquadrão. Gunther é cortado em pleno voo, Eld, Petra e Oluo cegam a Fêmea e caem um a um (mordido, esmagado contra o tronco, golpeado depois da nuca endurecida). Como o titã de Eren, o duelo segue regras puras: ela alterna guarda, preparação, chute e recuo; soco na guarda bate em antebraço endurecido e custa corpo, soco no recuo acerta, segurar Shift durante o chute desvia. Depois de 3 socos ela vence, como no anime, e leva Eren na boca. Como Levi (gás rende mais), corte olhos, ombros e boca nessa ordem; a lâmina acerta o ponto mais próximo e resvala fora de ordem; sem os olhos ela desacelera. Desafio: resgatar antes de Mikasa se expor (45 s).
+
+**Fase 18 — Stohess:** como Armin, vá até a escada da passagem subterrânea; Annie recusa e se transforma. Como o titã de Eren, acerte 4 socos com as mesmas regras de duelo; cada prédio que os titãs atravessam conta como destruído. Annie corre para a muralha e escala com os dedos endurecidos: como Mikasa, corte as duas mãos — uma mão cortada sozinha volta a crescer em 3 s. Ela cai, se encerra em cristal e a muralha mostra um rosto de titã. Desafios: menos de dez prédios destruídos e cortar os dedos.
+
+Limites: Stohess reaproveita a cidade de Trost com o portão inteiro; os prédios contam como destruídos mas não desabam; o cristal e o rosto na muralha são formas simples.
 
 ## Co-op local — fase 24
 
