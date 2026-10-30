@@ -252,7 +252,7 @@ Limites: o modelo do titã da arena ainda é o anterior às fases 19–20; os ra
 
 Controles do Modo História: WASD e mouse; Espaço avança e dá gás; G/R age; Shift corre; Q/E seguram os cabos; clique corta ou dispara o sinalizador. No controle: A avança/gás, X lâmina/sinalizador, Y age, B corre, gatilhos para os cabos. No toque: CONTINUAR, AGIR, CORRER e, nas fases de combate, ◀ CABO, CABO ▶, GÁS e LÂMINA.
 
-Limites: as fases 1–9 e 32 são jogáveis; as demais seguem planejadas no hub. Falas são paráfrases originais, sem dublagem. Os mapas são aproximações e não plantas conferidas episódio a episódio. Não há cinemáticas animadas à mão nem captura de movimento. A violência é estilizada (partículas, cortes de câmera). Testes de navegador usam ganchos de depuração para pular deslocamentos longos; o equilíbrio da carga e do duelo precisa de teste humano.
+Limites: as fases 1–12 e 32 são jogáveis; as demais seguem planejadas no hub. Falas são paráfrases originais, sem dublagem. Os mapas são aproximações e não plantas conferidas episódio a episódio. Não há cinemáticas animadas à mão nem captura de movimento. A violência é estilizada (partículas, cortes de câmera). Testes de navegador usam ganchos de depuração para pular deslocamentos longos; o equilíbrio da carga e do duelo precisa de teste humano.
 
 ## Ato I completo — fase 25 (fases 3, 4 e 5 da história)
 
@@ -279,6 +279,16 @@ Trost é uma cidade inteira (`src/story/trost-world.js`): muralha externa com o 
 **Fase 9 — Sem combustível:** visão tática sobre a cidade com três rotas até o quartel (telhados perto do titã desconhecido, avenida, canal), cada uma com titãs, cobertura e risco. A rota escolhida decide quais titãs ficam no caminho, e os titãs da rota dos telhados vão atrás do desconhecido. Jean lidera com 42% de gás; três cadetes comuns voam atrás dele e podem ser agarrados se você não limpar o caminho. No meio, um cadete fica preso: voltar salva ele e custa outro; seguir deixa ele para trás. Desafio: chegar sem perder nenhum cadete além do da escolha.
 
 Limites: os prédios de Trost são blocos com telhado de quatro águas; a câmera do ODM ainda atravessa telhados vizinhos em ângulos fechados. Os titãs andam através das casas.
+
+## Batalha de Trost, parte 2 — fase 27 (fases 10 a 12 da história)
+
+**Fase 10 — O titã desconhecido:** como Armin, acompanhe de longe um titã que anda até o titã puro mais próximo e o derruba a socos. A observação só conta entre 15 e 70 m, e chegar a menos de 16 m de um titã puro estando baixo conta como ser visto (o desafio é não ser visto). Depois a câmera entra no titã: como Eren, ande e soque (cada soco esmaga a cabeça de um titã puro), enquanto mordidas de titãs que cercam você gastam o corpo. O titã desaba em vapor e Eren sai da nuca, com braço e perna de volta.
+
+**Fase 11 — Recuperar o quartel:** depósito com galeria, vigas e o elevador. Armin gira a manivela e o elevador desce com oito atiradores enquanto sete titãs pequenos se juntam embaixo. A rajada os cega e, como Jean na viga, você ataca quando o sinal acende: cedo demais o titã vê você, tarde demais ele recupera a visão, e as duas coisas fazem a sub-fase recomeçar. Sasha e Connie erram (como no anime) e Mikasa e Annie terminam os titãs delas. No fim, Jean encontra o corpo de Marco num beco. Desafios: corte perfeito (até 0,25 s do sinal) e acertar na primeira tentativa.
+
+**Fase 12 — A pedra de Trost:** o discurso de Pyxis no alto da muralha, o desertor e a ordem a Ian. Eren se transforma com o raio ao lado da pedra e perde o controle: como Mikasa, aguente 15 s de socos telegrafados sem ficar onde ele mira. O sinal vermelho sobe, Armin crava a lâmina na nuca e fala do mar até Eren voltar. Como o titã de Eren, carregue a pedra (o peso e o cansaço reduzem a velocidade) enquanto a guarda de elite segura os titãs. A escolha de Ian (ficar ou recuar) termina igual: Ian e Mitabi são agarrados e devorados. Como Mikasa, mate os titãs que vão para cima de Eren até a pedra tapar o portão; o sinal amarelo sobe, Levi chega cortando dois titãs e a fase termina no tribunal: Zackly, Nile, Erwin e Levi chutando Eren. Desafio: nenhum titã encostar em Eren.
+
+Limites: o titã de Eren usa o modelo da galeria; carregar a pedra não tem colisão com prédios; o tribunal é um cenário simples.
 
 ## Co-op local — fase 24
 

@@ -142,6 +142,10 @@ Fases 3 (a retirada e o Blindado), 4 (cerimônia, equilíbrio com o cinto quebra
 
 Cidade de Trost compartilhada (muralhas, portões, quartel, praça da pedra, quarteirões mesclados por material) e as fases 6 (Colossal na muralha), 7 (esquadrão 34), 8 (Mikasa, cabana e o anormal no portão) e 9 (rotas táticas e o comando de Jean). Os pontos de retorno passam a guardar a sub-fase que começa.
 
+## Entrega intermediária 27 — Trost, parte 2
+
+Fases 10 (o titã desconhecido visto de fora e de dentro), 11 (o elevador e os sete cortes sincronizados; Marco) e 12 (Pyxis, a perda de controle, Armin na nuca, a pedra carregada, a guarda de elite, o portão selado, Levi e o tribunal). Os Atos I e II estão jogáveis por inteiro (fases 1–12).
+
 ## Marco 4 — demonstração de produção
 
 Uma operação de 15–20 minutos com arte e animação próprias de produção, referências verificadas, missão legível, resgate, abastecimento, destruição controlada e conclusão narrativa. Não será construída a campanha completa antes da aprovação desse marco.

@@ -13,6 +13,8 @@ export function createTrostChapter({ scene, camera, ui, audio, data, number }, p
   const stage = createStage({ scene, camera, ui, audio, sky: '#c8d3d4', fog: [180, 640], sun: [-120, 170, 90], shadow: 170 });
   const world = createTrost(scene);
   stage.ground = (x, z) => 0;
+  // The Colossal kicked the gate in chapter 6; later chapters start with the breach.
+  if (number > 6) world.breakGate();
   const horde = createHorde(stage, { anchorRoots: world.anchorRoots });
   const actors = {};
   const ctx = {
