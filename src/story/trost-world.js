@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 import { toon, outlineMaterial, emblemTexture } from '../character-model.js';
+import { gableCollider, surfaceHeight } from '../collision.js';
 
 // Trost district, 850. The outer wall (toward Maria) runs along z = -200 with
 // the gate the Colossal kicks; the inner gate to Wall Rose sits at z = +200.
@@ -55,11 +56,13 @@ export function createTrost(scene, { outline = true, liberio = false } = {}) {
     for (const sx of [-1, 1]) for (const sz of [-1, 1]) boxAt(mat.timber, x + sx * (w / 2 - .2), h / 2, z + sz * (d / 2 - .2), .45, h, .45);
     for (let y = 3.4; y < h; y += 3.4) { boxAt(mat.timber, x, y, z + d / 2 + .03, w, .3, .12); boxAt(mat.timber, x, y, z - d / 2 - .03, w, .3, .12); }
     for (let y = 4.6; y < h - 1; y += 3.4) for (let i = 0; i < Math.floor(w / 3.2); i++) { const wx = x - w / 2 + 1.7 + i * 3.2; boxAt(mat.window, wx, y, z + d / 2 + .08, 1, 1.4, .06); boxAt(mat.window, wx, y, z - d / 2 - .08, 1, 1.4, .06); }
-    const r = new THREE.CylinderGeometry(.01, 1, 1, 4, 1); r.rotateY(Math.PI / 4); r.scale(w * .74, Math.min(w, d) * .38, d * .74); r.translate(x, h + Math.min(w, d) * .19, z); push(roof, r);
+    // Gabled roof (a triangular prism, ridge along z); the collider follows
+    // both slopes so actors stand on the tiles instead of sinking into them.
+    const rise = Math.min(w, d) * .38, eave = .5;
+    const r = new THREE.CylinderGeometry(1, 1, d + eave * 2, 3, 1); r.rotateX(-Math.PI / 2); r.scale((w / 2 + eave) / Math.sin(Math.PI / 3), rise / 1.5, 1); r.translate(x, h + rise / 3, z); push(roof, r);
     if (rand() > .55) boxAt(mat.timber, x + w * .25, h + 2.6, z, 1, 3.4, 1);
-    const top = h + Math.min(w, d) * .2;
-    solid(x - w / 2, x + w / 2, z - d / 2, z + d / 2, top, 'building');
-    buildings.push({ x, z, w, d, h: top });
+    Object.assign(solid(x - w / 2, x + w / 2, z - d / 2, z + d / 2, 0, 'building'), gableCollider(h, w / 2, rise, eave));
+    buildings.push({ x, z, w, d, h: h + rise });
   }
   for (let z = -170; z < 172; z += 19) for (let x = -226; x < 228; x += 17) {
     const w = 11 + rand() * 4, d = 12 + rand() * 4, h = 9 + Math.floor(rand() * 4) * 2.5;
@@ -133,6 +136,6 @@ export function createTrost(scene, { outline = true, liberio = false } = {}) {
   function sealGate() { boulder.position.set(0, 9, TROST.wallZ + 6); boulder.rotation.set(.3, .4, 0); colliders.push(gateBlock); }
   function liftBoulder() { const i = colliders.indexOf(boulderBlock); if (i >= 0) colliders.splice(i, 1); }
   // Nearest rooftop under a point, for placing actors on roofs.
-  function roofAt(x, z) { let top = 0; for (const c of colliders) if (x >= c.minX && x <= c.maxX && z >= c.minZ && z <= c.maxZ && c.tag !== 'lintel') top = Math.max(top, c.top ?? 0); return top; }
+  function roofAt(x, z) { let top = 0; for (const c of colliders) if (x >= c.minX && x <= c.maxX && z >= c.minZ && z <= c.maxZ && c.tag !== 'lintel') top = Math.max(top, surfaceHeight(c, x)); return top; }
   return { group, colliders, anchorRoots, buildings, cannons, boulder, gate, door, breach, breakGate, sealGate, liftBoulder, roofAt };
 }

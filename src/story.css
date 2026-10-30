@@ -59,3 +59,10 @@ body[data-input=touch] .story-choice{width:min(680px,calc(100vw - 40px))}
 .story-finisher span{font-size:9px;letter-spacing:3px;color:#ffe0aa;text-shadow:0 2px 4px #000}
 @keyframes finisher-pulse{from{transform:scale(.92)}to{transform:scale(1.08);box-shadow:0 0 34px #ffcf8acc}}
 @media(prefers-reduced-motion:reduce){.story-finisher b{animation:none}}
+/* Tela limpa: in play, only the objective text, the distance and the buttons stay. */
+body.hud-minimal[data-playing=true] :is(.story-top>a,#story-mission,#story-objective-status,#story-banner-sub){display:none!important}
+body.hud-minimal[data-playing=true] .story-objective{padding:6px 10px;font-size:11px;background:#0e1a1f88}
+.story-top #hud-toggle[aria-pressed=true]{background:#d5b77f;color:#152025}
+/* On touch, the pause button sits left of the clean-screen and fullscreen buttons. */
+body[data-input=touch] .touch-button.menu{right:max(122px,calc(env(safe-area-inset-right) + 122px))}
+body[data-input=touch] .story-panel{max-height:calc(100dvh - 24px);overflow:auto}

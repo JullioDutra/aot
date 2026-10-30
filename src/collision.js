@@ -7,6 +7,14 @@ export function surfaceHeight(collider, x) {
   return collider.top + collider.roofRise * Math.max(0, 1 - Math.abs(x - center) / halfWidth);
 }
 
+// Collider numbers for a gabled roof (ridge along z) drawn from the wall top h
+// to h + rise, with eaves overhanging the walls by overhang on each side: the
+// surface over the walls follows the drawn slope, so actors stand on it.
+export function gableCollider(h, halfWidth, rise, overhang = 0) {
+  const edge = rise * overhang / (halfWidth + overhang);
+  return { top: h + edge, roofRise: rise - edge };
+}
+
 const within = (c, x, z) => x >= c.minX && x <= c.maxX && z >= c.minZ && z <= c.maxZ;
 
 // Called at <= 1/120 s with a maximum speed of 55 m/s. The player is a

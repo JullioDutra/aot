@@ -7,10 +7,11 @@ const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
 
 // ── Cover ───────────────────────────────────────────────────────────────────
 // Does the segment a→b ([x, y, z]) pass through an axis-aligned box
-// { minX, maxX, minZ, maxZ, top, bottom? }? Slab test.
+// { minX, maxX, minZ, maxZ, top, bottom?, roofRise? }? Slab test; a gabled
+// roof counts up to half its rise.
 export function segmentHitsBox(a, b, box) {
   let t0 = 0, t1 = 1;
-  const axes = [[0, box.minX, box.maxX], [1, box.bottom ?? 0, box.top ?? Infinity], [2, box.minZ, box.maxZ]];
+  const axes = [[0, box.minX, box.maxX], [1, box.bottom ?? 0, (box.top ?? Infinity) + (box.roofRise ?? 0) / 2], [2, box.minZ, box.maxZ]];
   for (const [i, lo, hi] of axes) {
     const d = b[i] - a[i];
     if (Math.abs(d) < 1e-9) { if (a[i] < lo || a[i] > hi) return false; continue; }

@@ -56,6 +56,8 @@ Nenhuma fonte oficial descreve um esquema de toque de equipamento de manobra 3D;
 - **Folga mínima de 16 px entre botões** e área de toque 8 px maior que o desenho do botão; distâncias medidas nos testes.
 - Margens seguras (`env(safe-area-inset-*)`) mantidas para entalhes e cantos arredondados.
 - Telas baixas (até 420 px de altura): mesmos lugares, tamanhos 64/68/76 px.
+- **Como ficou (C2):** em Trost, AGIR e ABASTECER só aparecem perto dos civis/da retirada e da caixa azul; SOLTAR só com cabo preso. No Modo História, AGIR e CORRER ficam sempre na tela (muitas fases usam AGIR para sinais e CORRER para esquivar no duelo de titãs; escondê-los poderia travar uma fase) e, nas fases a pé, AGIR ocupa o canto. Os botões de contexto têm 52 px em telas baixas.
+- **Diálogo e escolhas no toque (defeito corrigido):** a caixa de fala e as opções ficavam por baixo da camada de controles, então tocar nelas não funcionava; agora sobem por cima enquanto esperam o jogador, e só o CONTINUAR fica visível. Falas automáticas (rádio no voo) não escondem os controles.
 
 ### 3. Arrastar a partir dos botões
 
@@ -68,12 +70,12 @@ Nenhuma fonte oficial descreve um esquema de toque de equipamento de manobra 3D;
 - Tamanho dos botões: pequeno, médio, grande.
 - Transparência dos botões.
 - **Canhoto:** espelha o layout (analógico à direita, ações à esquerda).
-- Cabo fixo: em qualquer ancoragem / só no titã / desligado (segurar como hoje).
-- Salvos em `localStorage`, como a qualidade gráfica.
+- Cabo fixo: ligado (qualquer ancoragem) ou desligado (segurar como antes). A opção "só no titã" ficou de fora: o Modo História ainda não sabe quais malhas são titãs.
+- Salvos em `localStorage`, como a qualidade gráfica. Ficam nas configurações (⚙) de Trost e na pausa do Modo História, só no perfil de toque.
 
 ### 5. Arena de titãs no toque
 
-Mesma lógica de dois polegares: **SOCO** grande no canto, FORTE e ESQUIVA em arco, **DEFESA** (que é segurar) do lado esquerdo acima do analógico, para defender e socar ao mesmo tempo; TITÃ, AGARRAR, REGENERAR, SAIR e ALVO como botões de contexto.
+Mesma lógica de dois polegares: **SOCO** grande no canto (TITÃ ocupa o canto antes da transformação, sozinho), FORTE e ESQUIVA em arco, **DEFESA** (que é segurar) do lado esquerdo acima do analógico, com ALVO acima dela; AGARRAR só com o rival em recuperação a até 8,5 m; REGENERAR e SAIR em volta. As regras da arena não deixam atacar enquanto defende, então o ganho é soltar a defesa com um polegar e socar com o outro na hora. No toque, as barras da arena vão para o centro do topo e a descrição some, para não ficarem sob DEFESA e ALVO. Os ajustes de toque (C4) ainda não aparecem na arena.
 
 ### Depois, se valer a pena
 
@@ -87,10 +89,10 @@ Cada entrega é empilhada sobre a anterior (a primeira sobre a 42) e tem PR pró
 | Entrega | Conteúdo | Validação específica |
 |---|---|---|
 | **C1 — Cabo fixo** ✅ | Seção 1 em Trost e no Modo História | Teste puro do estado preso/solto; navegador com toque: tocar prende, soltar o dedo mantém, tocar de novo solta; preso ao titã + LÂMINA finaliza; titã morto ou gás zerado destrava o botão |
-| **C2 — Distribuição** | Seção 2 (posições, tamanhos, contexto, CONTINUAR fora do bloco) | Em 844×390, 667×375, 740×360 e 1024×768: nenhum botão sobreposto, folga ≥ 16 px, tamanho ≥ 56 px, nada fora da área segura; capturas de tela anexadas ao PR |
-| **C3 — Arrastar** | Seção 3 | Navegador: segurar GÁS e deslizar gira a câmera com gás ativo; deslizar do GÁS para a LÂMINA corta |
-| **C4 — Ajustes** | Seção 4 | Teste puro das escolhas salvas; navegador: canhoto espelha, tamanho muda, cabo fixo desligado volta ao segurar |
-| **C5 — Arena** | Seção 5 | Navegador: DEFESA segurada + SOCO ao mesmo tempo |
+| **C2 — Distribuição** ✅ | Seção 2 (posições, tamanhos, contexto, CONTINUAR fora do bloco) | Em 844×390, 667×375, 740×360 e 1024×768: nenhum botão sobreposto, folga ≥ 16 px, tamanho ≥ 56 px, nada fora da área segura; capturas de tela anexadas ao PR |
+| **C3 — Arrastar** ✅ | Seção 3 | Navegador: segurar GÁS e deslizar gira a câmera com gás ativo; deslizar do GÁS para a LÂMINA corta |
+| **C4 — Ajustes** ✅ | Seção 4 | Teste puro das escolhas salvas; navegador: canhoto espelha, tamanho muda, cabo fixo desligado volta ao segurar |
+| **C5 — Arena** ✅ | Seção 5 | Navegador: só TITÃ antes da transformação; depois os botões de luta sem sobreposição; DEFESA à esquerda defende enquanto segurada |
 
 Em todas: `npm test`, `npm run test:browser` completo (incluindo `platform`, `mobile`, `gamepad`, `arena-gamepad`, `titan-hook`, `story-finisher`, para provar que teclado e controle não mudaram) e `npm run build`.
 

@@ -6,6 +6,7 @@ import { TITAN_FORMS, createTitanForm } from '../titan-forms.js';
 import { canStrikeNape } from '../mechanics.js';
 import { createParticles, createHorse } from './props.js';
 import { createOdm } from './odm-controller.js';
+import { flightPace } from './movement.js';
 import { LAST_CHARGE } from './last-charge-script.js';
 import { beastZones, barrageTargets, BEAST_ORDER } from './last-charge-rules.js';
 
@@ -65,7 +66,7 @@ export function createChapter({ scene, camera, ui, audio, data }) {
   }
 
   // ── State ───────────────────────────────────────────────────────────────
-  const odm = createOdm({ scene, camera, colliders, anchorRoots, bounds: 320 });
+  const odm = createOdm({ scene, camera, colliders, anchorRoots, bounds: 320, pace: flightPace('levi') });
   let control = 'none', time = 0, yaw = Math.PI, pitch = .1, shake = 0, shot = null, goals = new Set();
   let charge = null, beastState = null, flaresTimed = 0, kills = 0, bossTime = 0, gasAtBeast = 0, strikeCooldown = 0, mission = null, zekePulled = false, cartRun = 0, pendingStrike = false;
   const rocks = [], flares = [], timeline = [];

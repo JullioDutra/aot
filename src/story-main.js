@@ -6,6 +6,8 @@ import { createStoryState, stepStory } from './story/engine.js';
 import { loadProgress, saveProgress, completeChapter, rateRun, chapterAvailability } from './campaign/progress.js';
 import { createGamepadInput } from './gamepad-input.js';
 import { createTouchControls } from './touch-controls.js';
+import { bindHudToggle } from './hud-mode.js';
+import { mountTouchSettings } from './touch-settings.js';
 import { initialProfile, nextProfile, mergeFrames, toggleFullscreen, fullscreenState, prompt } from './platform.js';
 import { ArenaAudio } from './arena-audio.js';
 import { clamp } from './mechanics.js';
@@ -52,6 +54,7 @@ const camera = new THREE.PerspectiveCamera(55, innerWidth / innerHeight, .1, 200
 const audio = new ArenaAudio();
 
 let storage = null; try { storage = localStorage; } catch { /* Progress stays in memory. */ }
+bindHudToggle($('hud-toggle'), document.body, storage);
 let progress = loadProgress(storage);
 let mode = 'intro', inputProfile = touchFirst ? 'touch' : 'keyboard', syncedMode = null;
 let story, adapter, elapsed = 0, damage = 0, highlighted = 0, fadeTarget = 0, fade = 0, failTimer = 0, checkpoint = null;
@@ -60,8 +63,9 @@ const gamepad = createGamepadInput({ advance: 0, jump: 0, run: 1, attack: 2, int
 let padFrame = gamepad.sample();
 const touch = createTouchControls({ root: document.body, buttons: [
   { action: 'advance', label: 'CONTINUAR', className: 'primary' }, { action: 'interact', label: 'AGIR' }, { action: 'run', label: 'CORRER' },
-  { action: 'attack', label: 'LÂMINA', className: 'primary story-combat' }, { action: 'left', label: '◀ CABO', className: 'cable-left story-combat', latch: true }, { action: 'right', label: 'CABO ▶', className: 'cable-right story-combat', latch: true },
-  { action: 'jump', label: 'GÁS', className: 'story-combat' }, { action: 'menu', label: 'Ⅱ', className: 'menu' }] });
+  { action: 'attack', label: 'LÂMINA', className: 'primary story-combat' }, { action: 'left', label: '◀ CABO', className: 'cable-left story-combat', latch: true, drag: true }, { action: 'right', label: 'CABO ▶', className: 'cable-right story-combat', latch: true, drag: true },
+  { action: 'jump', label: 'GÁS', className: 'story-combat', drag: true, slideTo: ['attack'] }, { action: 'release', label: 'SOLTAR', className: 'story-combat', clears: ['left', 'right'] }, { action: 'menu', label: 'Ⅱ', className: 'menu' }], layout: 'odm' });
+$('story-resume').before(mountTouchSettings(document.createElement('div'), touch, storage));
 const key = action => prompt(inputProfile, action);
 // On touch the finisher prompt is itself the button.
 document.getElementById('story-finisher').addEventListener('pointerdown', event => { event.preventDefault(); touch.press('attack'); });
@@ -83,6 +87,9 @@ const ui = { banner, toast, finisher: point => { finisherSeen = true; finisherPo
 function renderUI(view) {
   const line = view.kind === 'line', choice = view.kind === 'choice';
   $('story-dialogue').hidden = !line;
+  // Waiting for the player (a line to advance or a choice): on touch the box
+  // rises over the controls and only CONTINUAR stays. Auto lines play on.
+  document.body.classList.toggle('story-talking', (line && !view.auto) || choice); document.body.classList.toggle('story-choosing', choice);
   if (line) { $('story-speaker').textContent = view.speaker; $('story-text').textContent = view.text; $('story-advance-hint').hidden = view.auto; $('story-dialogue').dataset.speaker = view.speaker; }
   $('story-choice').hidden = !choice;
   if (choice && $('story-choice').dataset.id !== view.id) {
