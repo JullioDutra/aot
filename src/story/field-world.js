@@ -63,7 +63,12 @@ export function createField(scene, { outline = true, forest = true, castle = tru
       shape(mat.leaves[Math.floor(rand() * 3)], g, x + (rand() - .5) * size, y, z + (rand() - .5) * size);
       if (giant) { const b = new THREE.BoxGeometry(size * 1.2, .8, .8); shape(bark, b, x + Math.cos(i * 1.7) * size * .6, y - 3, z + Math.sin(i * 1.7) * size * .6, -i * 1.7); }
     }
-    solid(x - radius, x + radius, z - radius, z + radius, height, giant ? 'trunk' : 'tree');
+    // The trunk flares to 1.25 r at the ground (giants spread roots further)
+    // and narrows to 0.7 r on top: a wide box covers the base and a fitted one
+    // the rest, so nobody walks, rides or flies through the bark.
+    const base = radius * (giant ? 1.6 : 1.25), foot = height * (giant ? .2 : .25), tag = giant ? 'trunk' : 'tree';
+    solid(x - base, x + base, z - base, z + base, foot, tag);
+    solid(x - radius * .95, x + radius * .95, z - radius * .95, z + radius * .95, height, tag).bottom = foot;
     trunks.push({ x, z, radius, height });
   }
   const { minX, maxX, minZ, maxZ } = FIELD.forest;

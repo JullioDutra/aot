@@ -66,3 +66,14 @@ body.hud-minimal[data-playing=true] .story-objective{padding:6px 10px;font-size:
 /* On touch, the pause button sits left of the clean-screen and fullscreen buttons. */
 body[data-input=touch] .touch-button.menu{right:max(122px,calc(env(safe-area-inset-right) + 122px))}
 body[data-input=touch] .story-panel{max-height:calc(100dvh - 24px);overflow:auto}
+/* Cable aim (as in Trost): reticle and a marker per cable with its distance. */
+.story-reticle{position:fixed;left:50%;top:50%;width:22px;height:22px;transform:translate(-50%,-50%);opacity:.9;z-index:8;pointer-events:none}
+.story-reticle i{position:absolute;width:6px;height:6px;border:solid #eef6e2;border-width:1px 0 0 1px}
+.story-reticle i:nth-child(2){right:0;transform:rotate(90deg)}
+.story-reticle i:nth-child(3){bottom:0;right:0;transform:rotate(180deg)}
+.story-reticle i:nth-child(4){bottom:0;transform:rotate(270deg)}
+.story-reticle.valid i{border-color:#e7c575}
+.story-anchor{position:fixed;transform:translate(-50%,-50%);z-index:8;pointer-events:none;font-size:9px;letter-spacing:1px;padding:6px 9px;color:#e3d4ad;border:1px solid #cbb78399;background:#13262daa;white-space:nowrap;text-shadow:0 1px 4px #000}
+.story-anchor.left{transform:translate(-100%,-50%);border-radius:8px 0 0 8px}
+.story-anchor.right{transform:translate(0,-50%);border-radius:0 8px 8px 0}
+.story-anchor.attached{background:#d5b77fcc;color:#152025;border-color:#f1dca8}

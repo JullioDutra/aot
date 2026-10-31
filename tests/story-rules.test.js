@@ -91,3 +91,10 @@ test('the sparring cue shows when to counter and the partner slows after two mis
   const late = duelStep({ ...createDuel(), phase: 'tell', t: DUEL.tell - .1, misses: 2 }, .01, true);
   assert.equal(late.last, 'disarm'); assert.equal(late.misses, 0); assert.equal(duelPace(late), 1);
 });
+
+test('Jean scores about five clean cuts over the 80 s race', () => {
+  assert.equal(rivalScore(80), 75);
+  assert.equal(rivalScore(13), 0);
+  // Five cuts at a modest 15 m/s already beat him.
+  assert.ok(5 * cutScore(15) > rivalScore(80));
+});

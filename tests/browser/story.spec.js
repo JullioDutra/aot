@@ -156,6 +156,21 @@ test('chapter 4: the sparring reads its tell, Reiner falls to three real counter
   expect(errors).toEqual([]);
 });
 
+test('the story cable aim shows a reticle and where each cable would hook, as in Trost', async ({ page }) => {
+  test.setTimeout(300000);
+  const errors = []; page.on('pageerror', e => errors.push(e.message));
+  await begin(page, 7, 4);
+  await playThrough(page, { goals: false, until: s => s.adapter?.control === 'odm' });
+  await page.evaluate(() => { window.__STORY__.timeScale = 1; });
+  await expect(page.locator('#story-reticle')).toBeVisible();
+  // Look down at the nearby rooftops: both markers show a distance.
+  await page.mouse.move(640, 400); await page.mouse.down(); await page.mouse.move(520, 510, { steps: 8 }); await page.mouse.up();
+  await expect(page.locator('#story-anchor-left')).toHaveText(/^Q · \d+ m$/, { timeout: 30000 });
+  await expect(page.locator('#story-anchor-right')).toHaveText(/^E · \d+ m$/);
+  await expect(page.locator('#story-reticle')).toHaveClass(/valid/);
+  expect(errors).toEqual([]);
+});
+
 test('chapter 4: practice tanks refill on the ground and a hoop counts near its rim', async ({ page }) => {
   test.setTimeout(300000);
   const errors = []; page.on('pageerror', e => errors.push(e.message));

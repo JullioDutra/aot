@@ -42,7 +42,7 @@ export function createChapter({ scene, camera, number, ui, audio, data }) {
   let duel = null, opponent = null, duelHits = 0, annieClock = 0, takedown = 0, cue = 'wait', stagger = 0, hurt = 0, swing = 0;
   // Each fighter stands this far from the ring centre: an arm's length apart.
   const GAP = .6;
-  let hoop = 0, score = 0, cuts = 0, hiddenCut = 0, rivalClock = 0, rotaClock = 0, jeanPath = 0;
+  let hoop = 0, score = 0, cuts = 0, hiddenCut = 0, rivalClock = 0, rotaClock = 0, jeanPath = 0, rivalBase = 0;
 
   function lineUp() {
     const rows = [eren, ...Object.values(cast), thomas, ...extras];
@@ -197,8 +197,9 @@ export function createChapter({ scene, camera, number, ui, audio, data }) {
     if (mission === 'rival') {
       rivalClock += dt;
       if (rivalClock >= RIVAL_TIME) {
-        if (score > rivalScore(rotaClock)) goals.add('rival');
-        else return `O sino tocou e Jean terminou na frente (${rivalScore(rotaClock)} contra ${score}). Cortes rápidos por trás valem mais.`;
+        // Only the race counts, for both: the route's cuts were practice.
+        if (score - rivalBase > rivalScore(rivalClock)) goals.add('rival');
+        else return `O sino tocou e Jean terminou na frente (${rivalScore(rivalClock)} contra ${score - rivalBase}). Cortes rápidos por trás valem mais.`;
       }
     }
     // Jean flies a loop through the trees ahead of the player.
@@ -237,19 +238,19 @@ export function createChapter({ scene, camera, number, ui, audio, data }) {
       if (control === 'balance') return balance ? `Inclinação ${Math.round(Math.abs(balance.tilt) * 100)}%${faulty ? '' : ` · ${Math.min(6, balanceHold).toFixed(1)} / 6 s`}` : '';
       if (control === 'duel' && duel) return opponent === cast.annie ? 'Annie' : `Desarmes ${duel.wins} / 3 · Golpes recebidos ${duelHits}`;
       if (control === 'odm' && number === 4) return `Gás ${Math.round(pilot.odm.player.gas)}% · Arcos ${hoop} / ${COURSE.length}`;
-      if (control === 'odm') return `Gás ${Math.round(pilot.odm.player.gas)}% · Você ${score} · Jean ${rivalScore(rotaClock)}${mission === 'rival' ? ` · Sino em ${Math.max(0, Math.ceil(RIVAL_TIME - rivalClock))} s` : ''}`;
+      if (control === 'odm') return mission === 'rival' ? `Gás ${Math.round(pilot.odm.player.gas)}% · Você ${score - rivalBase} · Jean ${rivalScore(rivalClock)} · Sino em ${Math.max(0, Math.ceil(RIVAL_TIME - rivalClock))} s` : `Gás ${Math.round(pilot.odm.player.gas)}% · Pontos ${score}`;
       return '';
     },
     onStoryEvent(event) {
       if (event.kind === 'event') handlers[event.id]?.(event);
       if (event.kind === 'choice') { ui.toast(event.reflection, 3.5); const x = HALL[0] + ({ jean: -7, sasha: 0, reiner: 7 }[event.option] ?? 0); stage.setShot([x + 3.2, 2.3, 3.4], [x, 1, -2], 48); }
-      if (event.kind === 'mission' && event.id === 'rival') rivalClock = 0;
+      if (event.kind === 'mission' && event.id === 'rival') { rivalClock = 0; rivalBase = score; }
     },
     update,
     checkpoint: next => ({ mission: next?.id ?? mission, hoop, score, cuts, rotaClock }),
     restore(snapshot) {
       stage.clearShot(); goals = new Set([...goals].filter(g => !g.startsWith(snapshot?.mission ?? '·')));
-      if (control === 'odm' && number === 5) { pilot.place(FOREST_START[0], 0, FOREST_START[1] + 6, 0); pilot.odm.player.gas = 100; score = snapshot?.score ?? 0; cuts = snapshot?.cuts ?? 0; rotaClock = snapshot?.rotaClock ?? 0; rivalClock = 0; }
+      if (control === 'odm' && number === 5) { pilot.place(FOREST_START[0], 0, FOREST_START[1] + 6, 0); pilot.odm.player.gas = 100; score = snapshot?.score ?? 0; cuts = snapshot?.cuts ?? 0; rotaClock = snapshot?.rotaClock ?? 0; rivalClock = 0; rivalBase = score; }
     },
     challengesDone() {
       const done = [];
@@ -267,6 +268,6 @@ export function createChapter({ scene, camera, number, ui, audio, data }) {
       // Puts the cadet behind the next uncut target, for browser tests.
       behindTarget() { const t = world.targets.find(o => !o.cut); if (!t) return false; t.napeMesh.getWorldPosition(nape); const back = new THREE.Vector3(-Math.sin(t.group.rotation.y), 0, -Math.cos(t.group.rotation.y)).multiplyScalar(2.5); pilot.place(nape.x + back.x, nape.y - 1, nape.z + back.z); pilot.strikeNow(); return true; },
     },
-    snapshot: () => ({ control, mission, tilt: balance ? +balance.tilt.toFixed(2) : null, fallen: !!balance?.fallen, wins: duel?.wins ?? 0, duelHits, cue, opponent: opponent?.id ?? null, gap: opponent ? +Math.hypot(opponent.rig.root.position.x - eren.rig.root.position.x, opponent.rig.root.position.z - eren.rig.root.position.z).toFixed(2) : null, hoop, score, cuts, gas: Math.round(pilot.odm.player.gas), jean: rivalScore(rotaClock), player: (control === 'odm' ? pilot.odm.player.position : eren.rig.root.position).toArray().map(v => +v.toFixed(1)) }),
+    snapshot: () => ({ control, mission, tilt: balance ? +balance.tilt.toFixed(2) : null, fallen: !!balance?.fallen, wins: duel?.wins ?? 0, duelHits, cue, opponent: opponent?.id ?? null, gap: opponent ? +Math.hypot(opponent.rig.root.position.x - eren.rig.root.position.x, opponent.rig.root.position.z - eren.rig.root.position.z).toFixed(2) : null, hoop, score, cuts, gas: Math.round(pilot.odm.player.gas), jean: rivalScore(rivalClock), race: score - rivalBase, player: (control === 'odm' ? pilot.odm.player.position : eren.rig.root.position).toArray().map(v => +v.toFixed(1)) }),
   };
 }
