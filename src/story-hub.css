@@ -69,3 +69,7 @@ a.hub-extra:hover{border-color:#d2ac6c88}
 .hub-disclaimer{grid-area:disc;font-size:10px;color:#87999b;max-width:760px;line-height:1.6}
 @media(max-width:1100px){.hub{grid-template-columns:200px minmax(0,1fr);grid-template-areas:'intro intro' 'acts chapters' 'detail detail' 'extras extras' 'disc disc'}.hub-detail{position:static;max-height:none}}
 @media(max-width:700px){.hub{grid-template-columns:1fr;grid-template-areas:'intro' 'acts' 'chapters' 'detail' 'extras' 'disc';padding:0 16px 40px}.hub-top{padding:18px 16px}.hub-links a{display:none}.hub-acts{position:static;flex-direction:row;overflow-x:auto;padding-bottom:4px}.hub-act{min-width:150px}.hub-chapters{grid-template-columns:1fr}}
+.hub-continue{display:inline-flex;align-items:center;gap:14px;margin-top:20px;padding:14px 18px;background:#d5b77f;border:1px solid #eed3a3;color:#152025;text-decoration:none;max-width:100%}
+.hub-continue span{font-size:10px;font-weight:800;letter-spacing:2px}
+.hub-continue b{font-size:14px;font-weight:600}
+.hub-continue i{font-style:normal;font-size:18px}

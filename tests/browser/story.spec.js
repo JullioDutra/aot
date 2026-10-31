@@ -149,6 +149,32 @@ test('chapter 4: practice tanks refill on the ground and a hoop counts near its 
   expect(errors).toEqual([]);
 });
 
+test('a reload continues from the last sub-mission instead of the first line', async ({ page }) => {
+  test.setTimeout(300000);
+  const errors = []; page.on('pageerror', e => errors.push(e.message));
+  await begin(page, 7, 4);
+  // Play into the second sub-mission: its checkpoint is saved in the browser.
+  await playThrough(page, { until: s => s.story.log.filter(e => e.startsWith('mission:')).length >= 2 });
+  const before = await snap(page);
+  const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('aot.story.resume.v1')));
+  expect(saved.number).toBe(7); expect(saved.mission.id).toBe(before.story.mission.id);
+  await page.reload();
+  await expect(page.locator('#story-continue')).toBeVisible({ timeout: 60000 });
+  await expect(page.locator('#story-continue')).toContainText(before.story.mission.title.toUpperCase());
+  await expect(page.locator('#story-start')).toHaveText('COMEÇAR DO INÍCIO');
+  await page.locator('#story-continue').click();
+  await expect.poll(async () => (await snap(page)).mode).toBe('playing');
+  const after = await snap(page);
+  expect(after.resumed).toBe(true);
+  expect(after.story.mission.id).toBe(before.story.mission.id);
+  expect(after.story.index).toBe(saved.index);
+  // The hub's Continuar points at the chapter and sub-mission in progress.
+  await page.goto('/historia.html');
+  await expect(page.locator('#hub-continue')).toHaveAttribute('href', './story.html?fase=7');
+  await expect(page.locator('#hub-continue')).toContainText(before.story.mission.title);
+  expect(errors).toEqual([]);
+});
+
 test('chapter 5: wooden napes score only from behind, then the graduation table choice', async ({ page }) => {
   test.setTimeout(300000);
   const errors = []; page.on('pageerror', e => errors.push(e.message));

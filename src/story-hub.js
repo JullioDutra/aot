@@ -3,6 +3,7 @@ import { ACTS, CHAPTERS, EXTRA_MODES } from './campaign/chapters.js';
 import { CHARACTERS } from './campaign/characters.js';
 import { campaignStats } from './campaign/canon.js';
 import { loadProgress, chapterAvailability } from './campaign/progress.js';
+import { loadResume, continueTarget } from './campaign/resume.js';
 import { toggleFullscreen } from './platform.js';
 
 const $ = id => document.getElementById(id);
@@ -86,7 +87,15 @@ function renderExtras() {
 }
 
 $('hub-fullscreen').addEventListener('click', () => void toggleFullscreen(document, document.documentElement));
-renderStats(); renderActs(); renderChapters(); renderExtras();
+// Continuar: the chapter in progress (with its sub-mission) or the next one to play.
+function renderContinue() {
+  const target = continueTarget(loadResume(storage), progress, CHAPTERS), chapter = CHAPTERS.find(c => c.number === target.number);
+  const link = $('hub-continue'); link.href = `./story.html?fase=${target.number}`;
+  link.replaceChildren(el('span', '', target.mission ? 'CONTINUAR DE ONDE PAROU' : Object.keys(progress.completed).length ? 'PRÓXIMA FASE' : 'COMEÇAR'),
+    el('b', '', `Fase ${target.number} · ${chapter?.title ?? ''}${target.mission ? ` — ${target.mission}` : ''}`), el('i', '', '↗'));
+}
+
+renderContinue(); renderStats(); renderActs(); renderChapters(); renderExtras();
 const focus = Number(params.get('fase'));
 if (focus) { const c = CHAPTERS.find(x => x.number === focus); if (c) { currentAct = c.act; renderActs(); renderChapters(); renderDetail(c); } }
 window.__STORY_HUB__ = Object.freeze({ snapshot: () => ({ act: currentAct, cards: document.querySelectorAll('.hub-card').length, detail: !$('hub-detail').hidden, progress: structuredClone(progress) }) });

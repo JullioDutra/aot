@@ -4,6 +4,7 @@ import './touch-controls.css';
 import { chapter as chapterData, CHAPTERS } from './campaign/chapters.js';
 import { createStoryState, stepStory } from './story/engine.js';
 import { loadProgress, saveProgress, completeChapter, rateRun, chapterAvailability } from './campaign/progress.js';
+import { createResume, loadResume, saveResume, clearResume, replayBeats, controlAt } from './campaign/resume.js';
 import { createGamepadInput } from './gamepad-input.js';
 import { createTouchControls } from './touch-controls.js';
 import { bindHudToggle } from './hud-mode.js';
@@ -57,6 +58,7 @@ let storage = null; try { storage = localStorage; } catch { /* Progress stays in
 bindHudToggle($('hud-toggle'), document.body, storage);
 let progress = loadProgress(storage);
 let mode = 'intro', inputProfile = touchFirst ? 'touch' : 'keyboard', syncedMode = null;
+let resume = null, resumed = false;
 let story, adapter, elapsed = 0, damage = 0, highlighted = 0, fadeTarget = 0, fade = 0, failTimer = 0, checkpoint = null;
 const keys = new Set(), edges = new Set(); let lookDelta = [0, 0], dragging = false, advanceQueued = false, interactQueued = false, chooseQueued = null, previousHeld = {};
 const gamepad = createGamepadInput({ advance: 0, jump: 0, run: 1, attack: 2, interact: 3, left: 6, right: 7, up: 12, down: 13, menu: 9, back: 8 }, ['menu', 'back']);
@@ -131,6 +133,13 @@ async function boot() {
   $('story-intro-meta').textContent = `${data.year} · ${data.setting}`;
   $('story-intro-synopsis').textContent = data.synopsis;
   $('story-start').disabled = false; $('story-start').textContent = 'COMEÇAR';
+  // A checkpoint saved in this chapter offers to pick up from there.
+  const saved = loadResume(storage);
+  if (saved?.number === number && saved.index < adapter.script.length) {
+    resume = saved;
+    $('story-continue').hidden = false; $('story-continue').textContent = `CONTINUAR · ${(saved.mission?.title ?? 'último ponto').toUpperCase()}`;
+    $('story-start').textContent = 'COMEÇAR DO INÍCIO'; $('story-start').classList.replace('story-primary', 'story-secondary');
+  }
   if (data.fixed.some(f => f.kind === 'death')) $('story-intro-warning').hidden = false;
   window.__STORY__.ready = true;
 }
@@ -140,6 +149,20 @@ function start() {
   mode = 'playing'; $('story-intro').hidden = true; $('story-pause').hidden = true; $('story-hud').hidden = false; syncInput();
   void audio.start();
   if (inputProfile === 'touch' && !fullscreenState(document).active) void toggleFullscreen(document, document.documentElement);
+}
+// Picks up at the saved sub-mission: the world beats before it replay out of
+// sight (a broken gate stays broken), a few seconds run so their timers settle,
+// then the saved state is restored.
+function continueSaved() {
+  if (!story || !resume) return;
+  for (const event of replayBeats(adapter.script, resume.index)) adapter.onStoryEvent(event);
+  const control = controlAt(adapter.script, resume.index);
+  const idle = { touch: false, move: [0, 0], look: [0, 0], advance: false, interact: false, choose: null, run: false, held: {}, pressed: {}, previous: {}, keyLabel: key };
+  for (let i = 0; i < 200; i++) { try { adapter.update(.05, idle, control, { kind: 'wait', mission: resume.mission }); } catch { break; } }
+  story = createStoryState(adapter.script); story.index = resume.index; story.mission = resume.mission; story.choices = { ...resume.choices }; story.control = control;
+  checkpoint = { index: resume.index, mission: resume.mission, snapshot: resume.snapshot };
+  elapsed = resume.elapsed; adapter.restore?.(resume.snapshot); resumed = true;
+  start(); toast(`Continuando de: ${resume.mission?.title ?? 'último ponto'}.`, 3);
 }
 function pause() { if (mode !== 'playing') return; mode = 'paused'; audio.pause?.(); clearInput(); $('story-pause').hidden = false; syncInput(); if (document.pointerLockElement) document.exitPointerLock(); }
 function clearInput() { keys.clear(); edges.clear(); previousHeld = {}; gamepad.suspend(); touch.suspend(); lookDelta = [0, 0]; dragging = false; advanceQueued = interactQueued = false; chooseQueued = null; }
@@ -163,6 +186,7 @@ function finish() {
   const rating = rateRun({ time: elapsed, par: adapter.par ?? 420, damage, challenges: adapter.challengesDone?.().length ?? 0 });
   progress = completeChapter(progress, number, { time: Math.round(elapsed), rating, decisions: story.choices, challenges: adapter.challengesDone?.() ?? [] });
   const saved = saveProgress(storage, progress);
+  if (loadResume(storage)?.number === number) clearResume(storage);
   $('story-end-title').textContent = data.title;
   // No score or medals over a fixed death: the card only shows what was lived.
   $('story-end-rating').hidden = deaths; $('story-end-rating').textContent = deaths ? '' : `Avaliação ${rating}`;
@@ -204,6 +228,7 @@ addEventListener('mousemove', event => { if (mode === 'playing' && (dragging || 
 canvas.addEventListener('contextmenu', event => event.preventDefault());
 $('story-dialogue').addEventListener('click', () => { advanceQueued = true; });
 $('story-start').addEventListener('click', start);
+$('story-continue').addEventListener('click', continueSaved);
 $('story-resume').addEventListener('click', start);
 $('story-restart').addEventListener('click', restartChapter);
 $('story-fail-retry').addEventListener('click', resumeCheckpoint);
@@ -271,7 +296,7 @@ renderer.setAnimationLoop(now => {
       if (typeof choose === 'number') choose = choices[choose]?.dataset.option ?? null;
       const result = stepStory(story, dt, { position: adapter.playerPosition(), advance: frame.advance, interact: frame.interact, choose, goals: adapter.goals?.() }, Object.fromEntries(data.decisions.map(d => [d.id, d])));
       for (const event of result.events) {
-        if (event.kind === 'mission') { banner(event.title, `Fase ${number} · ${data.title}`); checkpoint = { index: story.index, mission: story.mission, snapshot: adapter.checkpoint?.(story.mission) }; }
+        if (event.kind === 'mission') { banner(event.title, `Fase ${number} · ${data.title}`); checkpoint = { index: story.index, mission: story.mission, snapshot: adapter.checkpoint?.(story.mission) }; saveResume(storage, createResume(number, checkpoint, story.choices, elapsed)); }
         else if (event.kind === 'end') finish();
         else adapter.onStoryEvent(event);
       }
@@ -310,5 +335,5 @@ function sunkActors(tolerance = .15) {
   }
   return out;
 }
-window.__STORY__ = { ready: false, timeScale: 1, sunkActors, debug: (name, ...args) => adapter?.debug?.[name]?.(...args), snapshot: () => ({ number, mode, ready: !!story, inputProfile, cables: [...cables], elapsed, fade, story: story ? { index: story.index, control: story.control, finished: story.finished, mission: story.mission, choices: { ...story.choices }, log: [...story.log] } : null, adapter: adapter?.snapshot?.() ?? null, progress: structuredClone(progress), drawCalls: renderer.info.render.calls, camera: camera.position.toArray().map(v => +v.toFixed(1)) }) };
+window.__STORY__ = { ready: false, timeScale: 1, sunkActors, debug: (name, ...args) => adapter?.debug?.[name]?.(...args), snapshot: () => ({ number, mode, ready: !!story, resumed, inputProfile, cables: [...cables], elapsed, fade, story: story ? { index: story.index, control: story.control, finished: story.finished, mission: story.mission, choices: { ...story.choices }, log: [...story.log] } : null, adapter: adapter?.snapshot?.() ?? null, progress: structuredClone(progress), drawCalls: renderer.info.render.calls, camera: camera.position.toArray().map(v => +v.toFixed(1)) }) };
 boot().catch(error => { console.error(error); $('story-error').hidden = false; });
