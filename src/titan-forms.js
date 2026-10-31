@@ -141,7 +141,7 @@ export const TITAN_FORMS = Object.freeze([
   { id: 'colossal', name: 'Titã Colossal', height: 60, group: 'colossal', kind: 'colossal', note: 'sem pele, vapor; aparece sobre a muralha de 50 m', skin: '#a8433a', face: { lipless: true, brows: 'angry', eyeSize: .7, irisColor: '#6b5a3a', iris: .5 } },
   { id: 'blindado', name: 'Titã Blindado', height: 15, group: 'nine', kind: 'armored', note: 'placas endurecidas com articulações expostas', skin: '#b4483c', hair: { color: '#d9c47a', length: .25 }, face: { grin: 0, lipless: true, eyeSize: .65, irisColor: '#b7a86e' } },
   { id: 'femea', name: 'Titã Fêmea', height: 14, group: 'nine', kind: 'female', note: 'pele sobre musculatura exposta, endurece pontos', skin: '#e2b8a2', hair: { color: '#e2cf86', length: .75 }, face: { grin: 0, eyeSize: .8, irisColor: '#6fa6cf', iris: .45 } },
-  { id: 'bestial', name: 'Titã Bestial', height: 17, group: 'nine', kind: 'beast', note: 'Zeke · pelagem, braços longos, arremessa pedras', skin: '#c8a487', hair: { color: '#6a4a33', length: 1 }, face: { grin: .25, eyeSize: .75, beard: '#5c3f2b', irisColor: '#cbb470', iris: .35 } },
+  { id: 'bestial', name: 'Titã Bestial', height: 17, group: 'nine', kind: 'beast', note: 'Zeke · pelagem, braços longos, arremessa pedras', skin: '#7a5638', hair: { color: '#5e4029', length: 1 }, face: { grin: .25, eyeSize: .75, beard: '#5c3f2b', irisColor: '#cbb470', iris: .35 } },
   { id: 'carroca', name: 'Titã Carroça', height: 4, group: 'nine', kind: 'cart', note: 'quadrúpede, resistência prolongada', skin: '#cfa78f', hair: { color: '#1d1a1c', length: 1.1 }, face: { grin: 0, eyeSize: .9, irisColor: '#4a4a50', iris: .45 } },
   { id: 'mandibula', name: 'Titã Mandíbula', height: 5, group: 'nine', kind: 'jaw', note: 'Porco · mandíbula endurecida, garras', skin: '#c99c80', hair: { color: '#d9c58a', length: .35 }, face: { grin: 0, lipless: true, eyeSize: .9, irisColor: '#8c8a5a' } },
   { id: 'martelo', name: 'Titã Martelo de Guerra', height: 15, group: 'nine', kind: 'warhammer', note: 'cria armas de endurecimento; usuária ligada por um cordão', skin: '#e8e2d6', hair: { color: '#f2efe6', length: 1.4 }, face: { grin: 0, lipless: true, eyeSize: .75, irisColor: '#c3b68a', iris: .3 } },
@@ -245,7 +245,8 @@ export function createTitanForm(spec, { outline = true } = {}) {
   }
   if (k === 'beast') {
     tufts(chest, hair, { center: new THREE.Vector3(0, torso * .55, 0), radius: w * 1.12, count: 150, length: w * .42, width: w * .14, phiFrom: .15, phiTo: 2.5, fall: .65, seed: 7 });
-    tufts(chest, toon('#7a5a40'), { center: new THREE.Vector3(0, torso * .5, 0), radius: w * 1.08, count: 90, length: w * .32, width: w * .12, phiFrom: .3, phiTo: 2.4, fall: .7, seed: 13 });
+    // Fur over a brown hide: the whole body reads brown, as in the anime.
+    tufts(chest, toon('#6b4a31'), { center: new THREE.Vector3(0, torso * .5, 0), radius: w * 1.08, count: 90, length: w * .32, width: w * .12, phiFrom: .3, phiTo: 2.4, fall: .7, seed: 13 });
     tufts(head, hair, { center: new THREE.Vector3(0, -headR * .2, 0), radius: headR * 1.05, count: 22, length: headR * .6, width: headR * .22, phiFrom: 1.4, phiTo: 2.6, fall: .7, seed: 9 });
     for (const leg of legs) tufts(leg, hair, { center: new THREE.Vector3(0, -legLen * .25, 0), radius: w * .5, count: 14, length: w * .45, width: w * .2, phiFrom: .6, phiTo: 2.4, fall: .5, seed: 11 });
   }

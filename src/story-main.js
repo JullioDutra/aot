@@ -13,7 +13,7 @@ import { initialProfile, nextProfile, mergeFrames, toggleFullscreen, fullscreenS
 import { ArenaAudio } from './arena-audio.js';
 import { clamp } from './mechanics.js';
 import { setChapterEra } from './story/kit.js';
-import { takeFlownHooks } from './story/odm-controller.js';
+import { takeFlownOdm } from './story/odm-controller.js';
 
 // Shell shared by every story chapter: renderer, input for keyboard/mouse,
 // controller and touch, dialogue, choices, objectives, pause, failure with a
@@ -266,6 +266,26 @@ function gatherInput(dt) {
   return frame;
 }
 
+// Cable aim, as in Trost: a reticle and one marker per cable showing where it
+// would hook (or holds) and how far, so a cable is never fired blind.
+const aimHit = new THREE.Vector3();
+function renderAim(odm) {
+  $('story-reticle').hidden = !odm;
+  let valid = false;
+  for (const [i, side] of [[0, -1], [1, 1]]) {
+    const marker = $(i ? 'story-anchor-right' : 'story-anchor-left');
+    const hook = odm?.hooks[i], hit = !odm ? null : hook.active ? { point: hook.point } : odm.aim(side, inputProfile === 'touch' ? 2 : 1);
+    if (!hit) { marker.hidden = true; continue; }
+    valid = true;
+    const screen = aimHit.copy(hit.point).project(camera);
+    marker.hidden = screen.z > 1 || Math.abs(screen.x) > 1 || Math.abs(screen.y) > 1;
+    marker.style.left = `${(screen.x + 1) * 50}%`; marker.style.top = `${(1 - screen.y) * 50}%`;
+    marker.classList.toggle('attached', hook.active);
+    marker.textContent = `${inputProfile === 'keyboard' ? (i ? 'E' : 'Q') : (i ? '▶' : '◀')} · ${Math.round(hit.point.distanceTo(odm.player.position))} m`;
+  }
+  $('story-reticle').classList.toggle('valid', valid);
+}
+
 // Finisher prompt over the nape; hidden on any frame the pilot did not ask for it.
 function renderFinisher() {
   const el = $('story-finisher'), point = finisherSeen && mode === 'playing' ? finisherPoint : null; finisherSeen = false;
@@ -306,7 +326,8 @@ renderer.setAnimationLoop(now => {
     } else if (adapter) adapter.idle?.(dt);
   }
   // Latched touch cables stay lit only while the rig that flew still hooks.
-  if (mode === 'playing') { const hooks = takeFlownHooks(); cables = [!!hooks?.[0].active, !!hooks?.[1].active]; touch.sync({ left: cables[0], right: cables[1] }); }
+  if (mode === 'playing') { const odm = takeFlownOdm(); cables = [!!odm?.hooks[0].active, !!odm?.hooks[1].active]; touch.sync({ left: cables[0], right: cables[1] }); renderAim(odm); }
+  else renderAim(null);
   if (mode === 'failed') { failTimer -= dt; $('story-fail-retry').disabled = failTimer > 1.4; }
   if (bannerTime > 0 && (bannerTime -= dt) <= 0) $('story-banner').classList.remove('visible');
   if (toastTime > 0 && (toastTime -= dt) <= 0) $('story-toast').classList.remove('visible');

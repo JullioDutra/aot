@@ -91,8 +91,9 @@ export function trainingGas(gas, dt, { grounded = false, attached = false } = {}
   return grounded && !attached ? Math.min(100, gas + TRAINING_GAS.refill * dt) : gas;
 }
 export function cutScore(speed, hidden = false) { return (10 + Math.min(15, Math.round(speed * .4))) * (hidden ? 2 : 1); }
-// Jean's score after `seconds` of the timed run: steady and good, not perfect.
-export const rivalScore = seconds => Math.floor(seconds / 9) * 15;
+// Jean's score after `seconds` of the timed race: steady and good, not
+// perfect — 75 points over the 80 s race, about five clean cuts.
+export const rivalScore = seconds => Math.floor(seconds / 14) * 15;
 // Final ranking from a score: the top ten need 160 points.
 export const rankFor = score => (score >= 220 ? 5 : score >= 160 ? 9 : score >= 100 ? 14 : 22);
 

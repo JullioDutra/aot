@@ -9,10 +9,10 @@ import { aimOffsets } from '../aim-assist.js';
 // can hook a moving object, such as a titan, and follows it every frame.
 const raycaster = new THREE.Raycaster();
 // Hidden parents (a titan off stage) hide their meshes from the cables too.
-// Cables of the rig that flew since the last call, so the touch layer knows
-// which latched cable buttons still hold something.
+// The rig that flew since the last call, so the page can show its aim and the
+// touch layer which latched cable buttons still hold something.
 let flown = null;
-export function takeFlownHooks() { const hooks = flown; flown = null; return hooks; }
+export function takeFlownOdm() { const odm = flown; flown = null; return odm; }
 const shown = object => { for (let o = object; o; o = o.parent) if (!o.visible) return false; return true; };
 
 // pace: the pilot's flight agility (movement.js); scales thrust and steering.
@@ -56,7 +56,7 @@ export function createOdm({ scene, camera, colliders = [], anchorRoots = [], gas
 
   // input: { move: [x, y], boost, jump, yaw, pitch }
   function step(dt, input) {
-    const yaw = input.yaw; flown = hooks;
+    const yaw = input.yaw; flown = api;
     for (const hook of hooks) if (hook.active) {
       if (!hook.object?.parent || !hook.object.visible) { hook.active = false; hook.line.visible = false; continue; }
       hook.object.updateWorldMatrix(true, false); hook.point.copy(hook.local).applyMatrix4(hook.object.matrixWorld);
@@ -100,5 +100,6 @@ export function createOdm({ scene, camera, colliders = [], anchorRoots = [], gas
   // True when an active cable is hooked somewhere inside root (a titan).
   function hookedTo(root) { return hooks.some(h => { if (!h.active) return false; for (let o = h.object; o; o = o.parent) if (o === root) return true; return false; }); }
 
-  return { player, hooks, aim, attach, release, releaseAll, step, hookWorld, hookedTo };
+  const api = { player, hooks, aim, attach, release, releaseAll, step, hookWorld, hookedTo };
+  return api;
 }
