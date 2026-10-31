@@ -3,7 +3,7 @@ import { toon } from '../character-model.js';
 import { characterPose, applyPose } from '../character-animation.js';
 import { createTrainingGrounds, RIG, RING, COURSE, HALL, FOREST_START } from './training-world.js';
 import { createStage, createWalker, createOdmPilot } from './kit.js';
-import { createBalance, balanceStep, createDuel, duelStep, cutScore, rivalScore, rankFor, passesHoop, trainingGas, TRAINING_GAS } from './story-rules.js';
+import { createBalance, balanceStep, createDuel, duelStep, duelCue, duelPace, DUEL, cutScore, rivalScore, rankFor, passesHoop, trainingGas, TRAINING_GAS } from './story-rules.js';
 import { ACT1_SCRIPTS } from './act1-scripts.js';
 
 // Chapters 4 and 5: the 104th Training Corps. Chapter 4 teaches the systems
@@ -39,7 +39,9 @@ export function createChapter({ scene, camera, number, ui, audio, data }) {
   pilot.gasRate = TRAINING_GAS.rate;
   let control = 'none', goals = new Set(), mission = null;
   let balance = null, faulty = true, balanceHold = 0, balanceWorst = 0, retryTimer = 0;
-  let duel = null, opponent = null, duelHits = 0, annieClock = 0, takedown = 0;
+  let duel = null, opponent = null, duelHits = 0, annieClock = 0, takedown = 0, cue = 'wait', stagger = 0, hurt = 0, swing = 0;
+  // Each fighter stands this far from the ring centre: an arm's length apart.
+  const GAP = .6;
   let hoop = 0, score = 0, cuts = 0, hiddenCut = 0, rivalClock = 0, rotaClock = 0, jeanPath = 0;
 
   function lineUp() {
@@ -53,9 +55,10 @@ export function createChapter({ scene, camera, number, ui, audio, data }) {
     eren.rig.root.position.set(RIG[0] + Math.sin(tilt) * .6, flipped ? 2.9 : 1.1, RIG[1]); eren.rig.root.rotation.set(0, Math.PI, flipped ? Math.PI : tilt * 1.3);
     world.ropes.forEach((r, i) => { r.scale.y = 2.2; r.position.set(RIG[0] + (i ? .5 : -.5) + Math.sin(tilt) * .3, 3.7, RIG[1]); r.rotation.z = -tilt * .3; });
   }
-  function startDuel(who) {
-    opponent = cast[who]; duel = createDuel(); annieClock = 0; takedown = 0;
-    stage.place(eren, RING[0] - 1.4, RING[1], Math.PI / 2); stage.place(opponent, RING[0] + 1.4, RING[1], -Math.PI / 2); eren.pose = opponent.pose = 'guard';
+  function startDuel(who, { walkIn = false } = {}) {
+    opponent = cast[who]; duel = createDuel(); annieClock = 0; takedown = 0; cue = 'wait'; stagger = hurt = swing = 0;
+    eren.rig.root.rotation.set(0, 0, 0); stage.place(eren, RING[0] - GAP, RING[1], Math.PI / 2); eren.pose = 'guard';
+    if (!walkIn) { stage.place(opponent, RING[0] + GAP, RING[1], -Math.PI / 2); opponent.pose = 'guard'; }
     knife.visible = who === 'reiner';
   }
 
@@ -77,7 +80,7 @@ export function createChapter({ scene, camera, number, ui, audio, data }) {
     'second-try': () => { setSky(day); torches.forEach(t => { t.intensity = 0; }); stage.place(thomas, RIG[0] + 3, RIG[1] - 2, 0); faulty = false; hang(0); stage.setShot([RIG[0] + 1, 2.4, RIG[1] - 6.5], [RIG[0], 1.6, RIG[1]], 50); },
     'course-brief': () => { eren.rig.root.rotation.set(0, 0, 0); eren.pose = 'manual'; pilot.place(48, 0, -6, Math.PI / 2); stage.place(shadis, 46, -10, Math.PI / 2); stage.setShot([44, 4, -2], [70, 9, -10], 55); },
     sparring: () => { stage.clearShot(); startDuel('reiner'); },
-    'annie-turn': () => { knife.visible = false; stage.place(cast.reiner, RING[0] + 3, RING[1] + 2.5); stage.place(cast.annie, RING[0] + 6, RING[1] - 3); stage.walkTo(cast.annie, [[RING[0] + 1.4, RING[1]]], 2, 'walk'); cast.reiner.pose = 'idle'; stage.setShot([RING[0], 2.4, RING[1] - 6], [RING[0] + 2, 1.2, RING[1]], 50); },
+    'annie-turn': () => { stage.place(cast.reiner, RING[0] + 3, RING[1] + 2.5); stage.place(cast.annie, RING[0] + 6, RING[1] - 3); startDuel('annie', { walkIn: true }); stage.walkTo(cast.annie, [[RING[0] + GAP, RING[1]]], 2, 'walk', () => { cast.annie.rig.root.rotation.y = -Math.PI / 2; cast.annie.pose = 'guard'; }); cast.reiner.pose = 'idle'; stage.setShot([RING[0], 2.4, RING[1] - 6], [RING[0] + 2, 1.2, RING[1]], 50); },
     'annie-flip': () => {
       // Annie throws Reiner over her hip just as she did with Eren.
       stage.place(cast.reiner, RING[0] + 2.4, RING[1] - 1.2); cast.reiner.pose = 'manual'; cast.reiner.rig.root.rotation.set(-Math.PI / 2, 0, 0); cast.reiner.rig.root.position.y = .3;
@@ -140,15 +143,25 @@ export function createChapter({ scene, camera, number, ui, audio, data }) {
       // Annie reads the counter and sweeps Eren's legs: the drill is lost by design.
       takedown = .001; opponent.pose = 'punch'; opponent.progress = .5; audio.play('punch', 1, 0, 1); stage.shake(.6); ui.flash('#ffffff', .3); return;
     }
-    duel = duelStep(duel, dt * (annie ? 1.4 : 1), counter);
-    opponent.pose = duel.phase === 'tell' ? 'guard' : duel.phase === 'strike' ? 'punch' : 'guard';
-    opponent.progress = duel.phase === 'strike' ? duel.t / .3 : 0;
-    if (duel.phase === 'tell') opponent.rig.root.position.x = RING[0] + 1.4 + Math.sin(stage.time * 14) * .03;
-    eren.pose = counter ? 'punch' : 'guard'; eren.progress = .5;
-    if (duel.last === 'disarm') { ui.toast(`Desarmado! (${duel.wins} / 3)`, 1.1); audio.play('block', 1, 0, .8); knife.position.set(RING[0] + .5, 2, RING[1] + .6); }
-    if (duel.last === 'hit') { duelHits++; ui.flash('#7a1010', .35); audio.play('punch', 1, 0, .7); ui.toast('Golpe recebido. Espere ele se comprometer.', 1.2); }
+    if (opponent.path) return; // still walking into the ring
+    duel = duelStep(duel, dt * (annie ? 1.4 : 1) * duelPace(duel), counter);
+    // The wind-up reads at a glance: the knife hand draws back during the
+    // tell, the partner lunges on the strike; a sound marks the tell and
+    // AGORA! the counter window.
+    const next = duelCue(duel);
+    if (next !== cue) { if (next === 'tell') audio.play('dodge', 1, 0, .5); if (next === 'now') ui.toast('AGORA!', .35); cue = next; }
+    stagger = Math.max(0, stagger - dt); hurt = Math.max(0, hurt - dt); swing = Math.max(0, swing - dt);
+    const base = RING[0] + GAP;
+    if (stagger > 0) { opponent.pose = 'fall'; opponent.rig.root.position.x = base + .5; }
+    else if (duel.phase === 'tell') { opponent.pose = 'strike'; opponent.progress = duel.t / DUEL.tell * .3; opponent.rig.root.position.x = base; }
+    else if (duel.phase === 'strike') { opponent.pose = 'strike'; opponent.progress = .3 + duel.t / DUEL.strike * .4; opponent.rig.root.position.x = base - .35 * Math.min(1, duel.t / .15); }
+    else { opponent.pose = 'guard'; opponent.progress = 0; opponent.rig.root.position.x = base; }
+    if (counter) swing = .3;
+    eren.pose = hurt > 0 ? 'fall' : swing > 0 ? 'punch' : 'guard'; eren.progress = swing > 0 ? 1 - swing / .3 : .5;
+    if (duel.last === 'disarm') { stagger = DUEL.recover; ui.toast(`Desarmado! (${duel.wins} / 3)`, 1.1); audio.play('block', 1, 0, .8); stage.shake(.25); knife.position.set(RING[0] + 1.6, .05, RING[1] + .8); }
+    if (duel.last === 'hit') { duelHits++; hurt = .5; ui.flash('#7a1010', .35); audio.play('punch', 1, 0, .7); ui.toast(duelPace(duel) < 1 ? 'Golpe recebido. Espere o braço recuar e ele avançar.' : 'Golpe recebido. Espere ele se comprometer.', 1.4); }
     if (duel.last === 'whiff') ui.toast('Cedo demais: ele viu você vindo.', 1);
-    if (knife.visible && duel.last !== 'disarm') opponent.rig.hands[1].getWorldPosition(knife.position);
+    if (knife.visible && stagger <= 0 && duel.last !== 'disarm') opponent.rig.hands[1].getWorldPosition(knife.position);
     if (duel.wins >= 3) goals.add('reiner');
   }
   function updateOdm(dt, input) {
@@ -203,7 +216,7 @@ export function createChapter({ scene, camera, number, ui, audio, data }) {
     let fail = null, desired = null, fov = 55;
     if (control === 'walk' || control === 'none') { walker.step(dt, input, control, talking); desired = walker.view(); }
     else if (control === 'balance') updateBalance(dt, input);
-    else if (control === 'duel') { updateDuel(dt, input); stage.setShot([RING[0], 2.1, RING[1] - 5.2], [RING[0], 1.2, RING[1]], 50); }
+    else if (control === 'duel') { updateDuel(dt, input); stage.setShot([RING[0], 1.75, RING[1] - 3.6], [RING[0], 1.15, RING[1]], 46); }
     else if (control === 'odm') { fail = updateOdm(dt, input); desired = pilot.view(); fov = pilot.fov(); const P = pilot.odm.player.position; stage.focusLight(P.x, P.z); }
     world.flag.rotation.y = Math.sin(stage.time * 2) * .2;
     stage.frame(dt, desired, fov);
@@ -254,6 +267,6 @@ export function createChapter({ scene, camera, number, ui, audio, data }) {
       // Puts the cadet behind the next uncut target, for browser tests.
       behindTarget() { const t = world.targets.find(o => !o.cut); if (!t) return false; t.napeMesh.getWorldPosition(nape); const back = new THREE.Vector3(-Math.sin(t.group.rotation.y), 0, -Math.cos(t.group.rotation.y)).multiplyScalar(2.5); pilot.place(nape.x + back.x, nape.y - 1, nape.z + back.z); pilot.strikeNow(); return true; },
     },
-    snapshot: () => ({ control, mission, tilt: balance ? +balance.tilt.toFixed(2) : null, fallen: !!balance?.fallen, wins: duel?.wins ?? 0, duelHits, hoop, score, cuts, gas: Math.round(pilot.odm.player.gas), jean: rivalScore(rotaClock), player: (control === 'odm' ? pilot.odm.player.position : eren.rig.root.position).toArray().map(v => +v.toFixed(1)) }),
+    snapshot: () => ({ control, mission, tilt: balance ? +balance.tilt.toFixed(2) : null, fallen: !!balance?.fallen, wins: duel?.wins ?? 0, duelHits, cue, opponent: opponent?.id ?? null, gap: opponent ? +Math.hypot(opponent.rig.root.position.x - eren.rig.root.position.x, opponent.rig.root.position.z - eren.rig.root.position.z).toFixed(2) : null, hoop, score, cuts, gas: Math.round(pilot.odm.player.gas), jean: rivalScore(rotaClock), player: (control === 'odm' ? pilot.odm.player.position : eren.rig.root.position).toArray().map(v => +v.toFixed(1)) }),
   };
 }

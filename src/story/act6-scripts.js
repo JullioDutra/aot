@@ -26,7 +26,7 @@ export const CHAPTER_29 = [
   { type: 'mission', id: 'casa', title: 'A rua de casa' },
   line('Eren', 'O mercado… a ponte… é tudo menor do que eu lembrava.'),
   { type: 'control', mode: 'walk' },
-  { type: 'objective', id: 'sino', text: 'Encontre o sino da praça', target: [-14, 58], radius: 6 },
+  { type: 'objective', id: 'sino', text: 'Encontre o sino da praça', target: [-14, 53], radius: 6 },
   { type: 'objective', id: 'ponte', text: 'Atravesse a ponte do canal', target: [0, -22], radius: 6 },
   { type: 'objective', id: 'barco', text: 'Encontre o barco de pesca', target: [-58, -27], radius: 6 },
   { type: 'control', mode: 'none' },

@@ -56,19 +56,28 @@ export function balanceStep(state, steer, dt, { faulty = false } = {}) {
 // of the tell or the strike disarms; countering early leaves an opening; a
 // strike that lands counts as a hit taken.
 export const DUEL = Object.freeze({ idle: 1.1, tell: .7, strike: .3, recover: .8, window: .45 });
-export function createDuel() { return { phase: 'idle', t: 0, wins: 0, hits: 0, whiffs: 0, last: null }; }
+export function createDuel() { return { phase: 'idle', t: 0, wins: 0, hits: 0, whiffs: 0, misses: 0, last: null }; }
 export function duelStep(state, dt, counter = false) {
   const s = { ...state, t: state.t + dt, last: null };
   const late = (s.phase === 'tell' && s.t >= DUEL.tell - DUEL.window) || s.phase === 'strike';
   if (counter) {
-    if (late) return { ...s, phase: 'recover', t: 0, wins: s.wins + 1, last: 'disarm' };
-    if (s.phase === 'idle' || s.phase === 'tell') return { ...s, phase: 'strike', t: 0, whiffs: s.whiffs + 1, last: 'whiff' };
+    if (late) return { ...s, phase: 'recover', t: 0, wins: s.wins + 1, misses: 0, last: 'disarm' };
+    if (s.phase === 'idle' || s.phase === 'tell') return { ...s, phase: 'strike', t: 0, whiffs: s.whiffs + 1, misses: (s.misses ?? 0) + 1, last: 'whiff' };
   }
   if (s.t < DUEL[s.phase]) return s;
-  if (s.phase === 'strike') return { ...s, phase: 'recover', t: 0, hits: s.hits + 1, last: 'hit' };
+  if (s.phase === 'strike') return { ...s, phase: 'recover', t: 0, hits: s.hits + 1, misses: (s.misses ?? 0) + 1, last: 'hit' };
   const order = { idle: 'tell', tell: 'strike', recover: 'idle' };
   return { ...s, phase: order[s.phase], t: 0 };
 }
+
+// What the player should read: 'now' inside the counter window, 'tell' while
+// the partner winds up before it, 'wait' otherwise.
+export function duelCue(s) {
+  if (s.phase === 'strike' || (s.phase === 'tell' && s.t >= DUEL.tell - DUEL.window)) return 'now';
+  return s.phase === 'tell' ? 'tell' : 'wait';
+}
+// After two misses in a row the partner slows down until the next disarm.
+export const duelPace = s => ((s.misses ?? 0) >= 2 ? .6 : 1);
 
 // ── Chapter 5: forest exercise ──────────────────────────────────────────────
 // A clean, fast nape cut scores more; a hidden target is worth double.

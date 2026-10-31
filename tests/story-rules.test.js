@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { titanIntent, grabReach, titanSpeed, createBalance, balanceStep, createDuel, duelStep, DUEL, cutScore, rivalScore, rankFor, syncGrade, carrySpeed, ROUTES, routeRisk, passesHoop, trainingGas, TRAINING_GAS } from '../src/story/story-rules.js';
+import { titanIntent, grabReach, titanSpeed, createBalance, balanceStep, createDuel, duelStep, DUEL, duelCue, duelPace, cutScore, rivalScore, rankFor, syncGrade, carrySpeed, ROUTES, routeRisk, passesHoop, trainingGas, TRAINING_GAS } from '../src/story/story-rules.js';
 
 test('pure titans chase the nearest prey and grab only what is in reach', () => {
   const titan = { position: [0, 0, 0], height: 10, kind: 'pure' };
@@ -75,4 +75,19 @@ test('the training course counts a hoop a little past its rim and refills practi
   assert.equal(trainingGas(90, 1, { grounded: true }), 100);
   assert.equal(trainingGas(10, 1, { grounded: false }), 10);
   assert.equal(trainingGas(10, 1, { grounded: true, attached: true }), 10);
+});
+
+test('the sparring cue shows when to counter and the partner slows after two misses', () => {
+  let d = createDuel();
+  assert.equal(duelCue(d), 'wait');
+  d = duelStep(d, DUEL.idle + .01); assert.equal(d.phase, 'tell'); assert.equal(duelCue(d), 'tell');
+  d = duelStep(d, DUEL.tell - DUEL.window + .01); assert.equal(duelCue(d), 'now');
+  // An early counter is one miss; the strike it opens lands, a second miss.
+  let m = duelStep(createDuel(), .1, true);
+  assert.equal(m.misses, 1); assert.equal(duelPace(m), 1);
+  m = duelStep(m, DUEL.strike + .01); assert.equal(m.last, 'hit');
+  assert.equal(m.misses, 2); assert.equal(duelPace(m), .6);
+  // A disarm resets the streak.
+  const late = duelStep({ ...createDuel(), phase: 'tell', t: DUEL.tell - .1, misses: 2 }, .01, true);
+  assert.equal(late.last, 'disarm'); assert.equal(late.misses, 0); assert.equal(duelPace(late), 1);
 });

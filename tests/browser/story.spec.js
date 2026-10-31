@@ -134,6 +134,28 @@ test('chapter 4: the broken belt flips Eren on its own and the drills run in ord
   expect(errors).toEqual([]);
 });
 
+test('chapter 4: the sparring reads its tell, Reiner falls to three real counters and Annie ends the drill', async ({ page }) => {
+  test.setTimeout(900000);
+  const errors = []; page.on('pageerror', e => errors.push(e.message));
+  await begin(page, 4, 4);
+  await playThrough(page, { until: s => s.adapter?.control === 'duel' && s.adapter.opponent === 'reiner' && s.story.mission?.id === 'mao' && !s.story.log.includes('goal:reiner') });
+  expect((await snap(page)).adapter.gap).toBeLessThan(1.5);
+  await page.evaluate(() => { window.__STORY__.timeScale = 1; });
+  // Counter only on AGORA!: three disarms, no test hooks.
+  for (const end = Date.now() + 480000; Date.now() < end && (await snap(page)).adapter.wins < 3;) {
+    if ((await snap(page)).adapter.cue === 'now') await page.keyboard.press('KeyG');
+    await page.waitForTimeout(40);
+  }
+  expect((await snap(page)).adapter.wins).toBe(3);
+  await expect.poll(async () => (await snap(page)).story.log, { timeout: 60000 }).toContain('goal:reiner');
+  // Annie takes over the ring and the drill moves on after her throw.
+  await page.evaluate(() => { window.__STORY__.timeScale = 4; });
+  await playThrough(page, { goals: false, until: s => s.adapter?.opponent === 'annie' && s.adapter?.control === 'duel' && !s.story.log.includes('goal:annie') });
+  await page.keyboard.press('KeyG');
+  await expect.poll(async () => (await snap(page)).story.log, { timeout: 60000 }).toContain('goal:annie');
+  expect(errors).toEqual([]);
+});
+
 test('chapter 4: practice tanks refill on the ground and a hoop counts near its rim', async ({ page }) => {
   test.setTimeout(300000);
   const errors = []; page.on('pageerror', e => errors.push(e.message));
@@ -146,6 +168,32 @@ test('chapter 4: practice tanks refill on the ground and a hoop counts near its 
   const hoop = (await snap(page)).adapter.hoop;
   await page.evaluate(() => window.__STORY__.debug('fly', [70, 13, -10]));
   await expect.poll(async () => (await snap(page)).adapter.hoop, { timeout: 30000 }).toBe(hoop + 1);
+  expect(errors).toEqual([]);
+});
+
+test('a reload continues from the last sub-mission instead of the first line', async ({ page }) => {
+  test.setTimeout(300000);
+  const errors = []; page.on('pageerror', e => errors.push(e.message));
+  await begin(page, 7, 4);
+  // Play into the second sub-mission: its checkpoint is saved in the browser.
+  await playThrough(page, { until: s => s.story.log.filter(e => e.startsWith('mission:')).length >= 2 });
+  const before = await snap(page);
+  const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('aot.story.resume.v1')));
+  expect(saved.number).toBe(7); expect(saved.mission.id).toBe(before.story.mission.id);
+  await page.reload();
+  await expect(page.locator('#story-continue')).toBeVisible({ timeout: 60000 });
+  await expect(page.locator('#story-continue')).toContainText(before.story.mission.title.toUpperCase());
+  await expect(page.locator('#story-start')).toHaveText('COMEÇAR DO INÍCIO');
+  await page.locator('#story-continue').click();
+  await expect.poll(async () => (await snap(page)).mode).toBe('playing');
+  const after = await snap(page);
+  expect(after.resumed).toBe(true);
+  expect(after.story.mission.id).toBe(before.story.mission.id);
+  expect(after.story.index).toBe(saved.index);
+  // The hub's Continuar points at the chapter and sub-mission in progress.
+  await page.goto('/historia.html');
+  await expect(page.locator('#hub-continue')).toHaveAttribute('href', './story.html?fase=7');
+  await expect(page.locator('#hub-continue')).toContainText(before.story.mission.title);
   expect(errors).toEqual([]);
 });
 

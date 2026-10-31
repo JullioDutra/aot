@@ -11,7 +11,7 @@ export function createFounder(scene, world) {
   const group = new THREE.Group(); scene.add(group); world.anchorRoots.push(group);
   const bone = toon('#e8e0cc'), flesh = toon('#9a4a48');
   const tagged = (mesh, tag) => { mesh.userData.tag = tag; mesh.castShadow = true; group.add(mesh); return mesh; };
-  const vertebrae = [];
+  const vertebrae = [], bones = [];
   for (let z = FOUNDER.from, i = 0; z > FOUNDER.to; z -= 9, i++) {
     const v = tagged(new THREE.Mesh(new THREE.CylinderGeometry(FOUNDER.radius, FOUNDER.radius, 7, 10), bone), 'bone');
     v.rotation.x = Math.PI / 2; v.position.set(Math.sin(i * .3) * 2, FOUNDER.y, z); vertebrae.push(v);
@@ -19,7 +19,8 @@ export function createFounder(scene, world) {
     // spacing, so whoever stands on the spine stands on bone, not inside it.
     const plate = tagged(new THREE.Mesh(new THREE.BoxGeometry(8, .8, 9), bone), 'bone'); plate.position.set(v.position.x, FOUNDER.y + FOUNDER.radius - .4, z);
     const spike = tagged(new THREE.Mesh(new THREE.ConeGeometry(1.6, 7, 6), bone), 'bone'); spike.position.set(v.position.x, FOUNDER.y + 7, z);
-    world.colliders.push({ minX: v.position.x - FOUNDER.radius, maxX: v.position.x + FOUNDER.radius, minZ: z - 4.5, maxZ: z + 4.5, top: FOUNDER.y + FOUNDER.radius, bottom: FOUNDER.y - FOUNDER.radius, tag: 'bone' });
+    const collider = { minX: v.position.x - FOUNDER.radius, maxX: v.position.x + FOUNDER.radius, minZ: z - 4.5, maxZ: z + 4.5, top: FOUNDER.y + FOUNDER.radius, bottom: FOUNDER.y - FOUNDER.radius, tag: 'bone' };
+    world.colliders.push(collider); bones.push(collider);
     if (i % 2 === 0) for (const s of [-1, 1]) {
       const rib = tagged(new THREE.Mesh(new THREE.TorusGeometry(18, 1.1, 6, 16, Math.PI * .7), bone), 'bone');
       rib.position.set(v.position.x, FOUNDER.y - 2, z); rib.rotation.set(0, Math.PI / 2, s > 0 ? -Math.PI * .85 : Math.PI * .15);
@@ -28,6 +29,14 @@ export function createFounder(scene, world) {
   }
   // Legs of bone reaching down to the ground.
   for (const [x, z] of [[-14, 30], [14, 30], [-14, -150], [14, -150]]) { const leg = tagged(new THREE.Mesh(new THREE.CylinderGeometry(3, 4, FOUNDER.y, 8), bone), 'bone'); leg.position.set(x, FOUNDER.y / 2, z); world.colliders.push({ minX: x - 3.5, maxX: x + 3.5, minZ: z - 3.5, maxZ: z + 3.5, top: FOUNDER.y - 6, tag: 'bone' }); }
-  const top = z => { const v = vertebrae.reduce((b, v) => (Math.abs(v.position.z - z) < Math.abs(b.position.z - z) ? v : b)); return { x: v.position.x, y: FOUNDER.y + FOUNDER.radius, z: v.position.z }; };
-  return { group, vertebrae, top };
+  // The spine bobs as it walks: its colliders and whoever it carries move with it.
+  let lift = 0; const riders = new Set();
+  function bob(y) {
+    const d = y - lift; lift = y; group.position.y = y;
+    for (const c of bones) { c.top += d; c.bottom += d; }
+    for (const r of riders) r.position.y += d;
+  }
+  const carry = (...objects) => objects.forEach(o => riders.add(o));
+  const top = z => { const v = vertebrae.reduce((b, v) => (Math.abs(v.position.z - z) < Math.abs(b.position.z - z) ? v : b)); return { x: v.position.x, y: FOUNDER.y + FOUNDER.radius + lift, z: v.position.z }; };
+  return { group, vertebrae, top, bob, carry };
 }
